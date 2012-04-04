@@ -1,0 +1,27 @@
+<!ENTITY notloaded.label        "Not loaded">
+<!ENTITY notloaded.tooltip      "Glome component couldn't be loaded, maybe it didn't install properly.">
+<!ENTITY status.tooltip         "Status:">
+<!ENTITY blocked.tooltip        "Blocked items on this page:">
+<!ENTITY filters.tooltip        "Most active filters:">
+
+<!ENTITY menuitem.label         "Glome Preferences">
+<!ENTITY menuitem.accesskey     "G">
+<!ENTITY toolbarbutton.label    "Glome">
+
+<!ENTITY context.image.label    "Adblock Image">
+<!ENTITY context.object.label   "Adblock Object">
+<!ENTITY context.frame.label    "Adblock Frame">
+
+<!ENTITY settings.label         "Preferences">
+<!ENTITY settings.accesskey     "F">
+<!ENTITY opensidebar.label      "Open blockable items">
+<!ENTITY opensidebar.accesskey  "B">
+<!ENTITY closesidebar.label     "Close blockable items">
+<!ENTITY closesidebar.accesskey "B">
+<!ENTITY whitelist.site.label   "Disable on --">
+<!ENTITY whitelist.page.label   "Disable on this page only">
+
+<!ENTITY objecttab.title        "Block">
+<!ENTITY objecttab.tooltip      "Click here to block this object with Adblock Plus">
+
+<!ENTITY view.blockableItems.label  "Adblock Plus: Blockable Items">

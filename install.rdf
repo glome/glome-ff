@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>glome@glome.me</em:id>
+    <em:type>2</em:type>
+    <em:name>Glome.me</em:name>
+    <em:version>0.1</em:version>
+    <em:creator>Jerry Jalava</em:creator>
+    <em:contributor></em:contributor>
+    <em:homepageURL>http://glome.me</em:homepageURL>
+    <em:aboutURL>chrome://glome/content/about.xul</em:aboutURL>
+    <em:optionsURL>chrome://glome/content/settings.xul</em:optionsURL>
+<!--    <em:updateURL>https://ext.glome.me/xpi_update/?id=%ITEM_ID%&amp;v=%ITEM_VERSION%&amp;mav=%ITEM_MAXAPPVERSION%&amp;os=%APP_OS%&amp;abi=%APP_ABI%&amp;l=%APP_LOCALE%</em:updateURL>
+-->
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- Firefox -->
+        <em:minVersion>5.0</em:minVersion>
+        <em:maxVersion>11.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    <em:targetApplication>
+      <Description>
+        <em:id>{a23983c0-fd0e-11dc-95ff-0800200c9a66}</em:id> <!-- Mobile -->
+        <em:minVersion>5.0</em:minVersion>
+        <em:maxVersion>6.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>

@@ -1,0 +1,7 @@
+#category-glome > .category-icon {
+  list-style-image: url("chrome://glome/skin/icon-32x32.png");
+}
+
+#glome-dashboard-container .dashboard-header-spacer {
+  height: 10px;
+}

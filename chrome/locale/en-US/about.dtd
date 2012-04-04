@@ -1,0 +1,11 @@
+<!ENTITY dialog.title       "About Glome">
+
+<!ENTITY caption.title      "Glome">
+<!ENTITY version.title      "Version">
+<!ENTITY description        "
+  Glome firefox extension
+">
+
+<!ENTITY homepage.label     "Glome homepage:">
+<!ENTITY homepage.url       "http://glome.me/">
+<!ENTITY author.label       "Author:">

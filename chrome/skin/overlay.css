@@ -1,0 +1,60 @@
+#glome-icon
+{
+  list-style-image: url("chrome://glome/skin/icon-17x17.png");
+  -moz-image-region: rect(0px 24px 24px 0px);
+}
+/*#glome-icon:hover
+{
+  -moz-image-region: rect(24px 24px 48px  0px);
+}
+[iconsize="small"] #glome-icon
+{
+  -moz-image-region: rect( 0px 40px 16px 24px);
+}
+[iconsize="small"] #glome-icon:hover
+{
+  -moz-image-region: rect(24px 40px 40px 24px);
+}
+*/
+
+#glome-status:not([disabled="true"]) *
+{
+  cursor: pointer;
+}
+#glome-status:not([disabled="true"]):hover
+{
+  text-decoration: underline;
+}
+#glome-status[deactivated]
+{
+  color: #999999;
+}
+#glome-status[whitelisted]
+{
+  color: #008000;
+}
+#glome-status label {
+  display: none;
+}
+
+toolbar[iconsize="small"] #glome-toolbarbutton,
+#PersonalToolbar #glome-toolbarbutton,
+#glome-status image {
+  list-style-image: url("chrome://glome/skin/icon-17x17.png");
+  /*-moz-image-region: rect(0px, 16px, 16px, 0px);*/
+}
+/*toolbar[iconsize="small"] #glome-toolbarbutton[deactivated],
+#PersonalToolbar #glome-toolbarbutton[deactivated],
+#glome-status[deactivated] image {
+  -moz-image-region: rect(16px, 16px, 32px, 0px);
+}
+toolbar[iconsize="small"] #glome-toolbarbutton[whitelisted],
+#PersonalToolbar #glome-toolbarbutton[whitelisted],
+#glome-status[whitelisted] image {
+  -moz-image-region: rect(32px, 16px, 48px, 0px);
+}
+toolbar[iconsize="small"] #glome-toolbarbutton[disabled="true"],
+#PersonalToolbar #glome-toolbarbutton[disabled="true"],
+#glome-status[disabled="true"] image {
+  -moz-image-region: rect(48px, 16px, 64px, 0px);
+}*/
