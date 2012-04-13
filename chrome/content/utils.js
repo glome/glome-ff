@@ -7,8 +7,19 @@
 var stringService = Components.classes["@mozilla.org/intl/stringbundle;1"]
                               .getService(Components.interfaces.nsIStringBundleService);
 var strings = stringService.createBundle("chrome://glome/locale/global.properties");
+var abp_strings = stringService.createBundle("chrome://glome/locale/abp-global.properties");
+
 glome.getString = function(name) {
-  return strings.GetStringFromName(name);
+  var res = '';
+  try {
+    res = strings.GetStringFromName(name);
+  } catch (e) {}
+  
+  try {
+    res = anp_strings.GetStringFromName(name);
+  } catch (e) {}
+  
+  return res;
 };
 
 // Retrieves the window object for a node or returns null if it isn't possible
