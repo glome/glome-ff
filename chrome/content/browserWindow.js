@@ -61,6 +61,40 @@ function glomeInit() {
         element.addEventListener(event, handler, false);
     }
   
+    try
+    {
+      // Load jQuery core
+      glome.LOG('load jQuery');
+      var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+      loader.loadSubScript("chrome://glome/content/jQuery/jquery-1.7.2.min.js", window);
+      
+      glome.jQuery = window.jQuery.noConflict(true);
+      glome.window = window;
+      
+      // Load jQuery timers
+      loader.loadSubScript("chrome://glome/content/jQuery/jquery.timers.src.js", glome);
+      
+      document.getElementById('glome-tooltip').noautohide = true;
+      glome.jQuery('#glome-status-sum').everyTime(1000, function()
+      {
+        date = new Date();
+        var sec = date.getSeconds();
+        glome.jQuery(this).attr('value', sec);
+        
+        switch (sec % 5)
+        {
+          case 1:
+            // Create a popup
+            var panel = glome.jQuery('<panel id="glome-panel-test" noautohide="true" titlebar="normal"><label value="Name" /><textbox id="name" /></panel>')
+              .prependTo(window);
+        }
+      });
+    }
+    catch(e)
+    {
+      glome.LOG('Exception caught when loading jQuery: ' + e.message);
+    }
+    
     // Make sure whitelisting gets displayed after at most 2 seconds
     prefReloadTimer = glome.createTimer(glomeReloadPrefs, 2000);
     prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
