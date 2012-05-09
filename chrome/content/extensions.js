@@ -278,10 +278,12 @@ window.addEventListener("load", function (event) { GlomeDashboard.onLoad(event);
 
 function LOG(text)
 {    
-  if (typeof console != undefined) {
-    console.log(text);
-  } else {
-    Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService)
-    .logStringMessage(text);
+  if (typeof console != undefined)
+  {
+    console.log(text + ' (' + typeof text + ')');
+  }
+  else
+  {
+    Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService).logStringMessage(text);
   }
 }

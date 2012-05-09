@@ -6,7 +6,20 @@ var Notification = (function() {
     Notification.prototype.DEFAULTS = {
         onYes: null,
         onNo: null,
-        onLater: null
+        onLater: null,
+        
+        // Preferred notification types
+        types: ['remote', 'local'],
+        
+        // Iframe location
+        frameSrc: null,
+        
+        // Locally displayed content
+        content: null,
+        
+        // Media
+        mediaType: null,
+        mediaSrc: null
     };
     
     function Notification(title, cid, opts) {
@@ -15,16 +28,19 @@ var Notification = (function() {
         
         this.title = title;
         this.cid = cid;
-        this.opts = opts; //TODO: merge with defaults
+        this.opts = opts; // @TODO: merge with defaults
         
         mainWindow = windowMediator.getMostRecentWindow("navigator:browser");
         this.gBrowser = mainWindow.gBrowser;
         this.nb = this.gBrowser.getNotificationBox();
+        
+        glome.jQuery('#glome-status').addClass('pending');
     }
     
     Notification.prototype.handleYesClicked = function(e) {
         glome.LOG('Yes clicked');        
         this.n.close();
+        glome.jQuery('#glome-status').removeClass('pending');
         
         if (this.opts.onYes) this.opts.onYes.apply(this);
     }
@@ -33,6 +49,7 @@ var Notification = (function() {
         glome.LOG('No clicked');
         glome.LOG('send cid to profile decline list');
         this.n.close();
+        glome.jQuery('#glome-status').removeClass('pending');
         
         if (this.opts.onNo) this.opts.onNo.apply(this);
     }
@@ -41,6 +58,7 @@ var Notification = (function() {
         glome.LOG('Later clicked');
         glome.LOG('send cid to profile later list');
         this.n.close();
+        glome.jQuery('#glome-status').removeClass('pending');
         
         if (this.opts.onLater) this.opts.onLater.apply(this);
     }

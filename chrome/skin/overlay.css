@@ -1,7 +1,28 @@
+@-moz-keyframes glow
+{
+    0%
+    {
+        opacity: 0.2;
+    }
+    
+    50%
+    {
+        opacity: 1;
+    }
+    
+    100%
+    {
+        opacity: 0.2;
+    }
+}
+
 #glome-icon
 {
   list-style-image: url("chrome://glome/skin/icon-17x17.png");
   -moz-image-region: rect(0px 24px 24px 0px);
+  -moz-animation-name: glow;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-duration: 5000ms;
 }
 /*#glome-icon:hover
 {
@@ -37,12 +58,76 @@
   display: none;
 }
 
+#glome-status.pending
+{
+  -moz-image-region: rect(0px 24px 24px 0px);
+  -moz-animation-name: glow;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-duration: 5000ms;
+}
+
 toolbar[iconsize="small"] #glome-toolbarbutton,
 #PersonalToolbar #glome-toolbarbutton,
 #glome-status image {
   list-style-image: url("chrome://glome/skin/icon-17x17.png");
   /*-moz-image-region: rect(0px, 16px, 16px, 0px);*/
 }
+
+#ad-stack
+{
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+
+#ad-overlay
+{
+  background-color: rgba(0, 0, 0, 0.8);
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+
+#ad-overlay > *
+{
+  background-color: white;
+  width: 640px;
+  height: 420px;
+  border: solid 10px rgb(0, 128, 255);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#ad-close
+{
+  border: none;
+  position: absolute;
+  box-shadow: none;
+  width: 28px;
+  height: 28px;
+  border: solid 1px red;
+}
+
+#ad-content-local
+{
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+
+#ad-content-local image
+{
+    display: block;
+}
+
+label.h1
+{
+  margin-bottom: 1em;
+  font-size: 200%;
+  font-weight: bold;
+}
+
+label.content
+{
+  font-size: 100%;
+}
+
 /*toolbar[iconsize="small"] #glome-toolbarbutton[deactivated],
 #PersonalToolbar #glome-toolbarbutton[deactivated],
 #glome-status[deactivated] image {

@@ -60,7 +60,9 @@ function glomeInit() {
       if (element)
         element.addEventListener(event, handler, false);
     }
-  
+    
+    // Load jQuery. This needs window event so loading jQuery in extensions doesn't work
+    // at least at the moment
     try
     {
       // Load jQuery core
@@ -73,22 +75,6 @@ function glomeInit() {
       
       // Load jQuery timers
       loader.loadSubScript("chrome://glome/content/jQuery/jquery.timers.src.js", glome);
-      
-      document.getElementById('glome-tooltip').noautohide = true;
-      glome.jQuery('#glome-status-sum').everyTime(1000, function()
-      {
-        date = new Date();
-        var sec = date.getSeconds();
-        glome.jQuery(this).attr('value', sec);
-        
-        switch (sec % 5)
-        {
-          case 1:
-            // Create a popup
-            var panel = glome.jQuery('<panel id="glome-panel-test" noautohide="true" titlebar="normal"><label value="Name" /><textbox id="name" /></panel>')
-              .prependTo(window);
-        }
-      });
     }
     catch(e)
     {
@@ -169,15 +155,25 @@ function glomeInit() {
   
   // Dummy notif test
   let opts = {
-      onYes: function() {
+      // Available display types for this particular ad. This will later on reflect on the
+      // user preferences on ad display method. At the moment the first value is used.
+      types: [
+          'remote',
+          'local'
+      ],
+      frameSrc: 'http://www.google.com/',
+      mediaType: 'image',
+      mediaSrc: 'https://www.google.com/logos/2012/Howard_Carter-2012-res.png',
+      onYes: function(opts)
+      {
         glome.LOG('notification - onYes clicked!');
         glome.LOG('OPEN AD MODAL');
-        let modal = glome.adModals.create(1);
+        let modal = glome.adModals.create(1, this.opts);
         modal.show();
       }
   };
-  let nofif = glome.notifications.create('Audi would like to take you on a test drive, interested?', 1, opts);
-  nofif.show();
+  let notif = glome.notifications.create('Audi would like to take you on a test drive, interested?', 1, opts);
+  notif.show();
   
   glome.connection.open();
   glome.connection.sendTest();

@@ -299,7 +299,7 @@ const glome = {
       return window.document.getElementById("frame_main_pane") || window.document.getElementById("browser_content");
   },
   
-  abp: {}
+  abp: {} 
 };
 glome.wrappedJSObject = glome;
 
