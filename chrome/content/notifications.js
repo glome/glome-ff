@@ -9,7 +9,7 @@ var Notification = (function() {
         onLater: null,
         
         // Preferred notification types
-        types: ['remote', 'local'],
+        types: ['local', 'remote'],
         
         // Iframe location
         frameSrc: null,

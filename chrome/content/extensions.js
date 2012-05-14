@@ -53,6 +53,7 @@ var gGlomeDashboardView = {
   },
 
   show: function(aParam, aRequest, aState, aIsRefresh) {
+    glome.LOG('Show dashboard');
     return;
     console.log('gGlomeDashboardView::show',aState);
     gViewController.updateCommands();
@@ -89,6 +90,7 @@ var gGlomeDashboardView = {
   },
   
   canRefresh: function() {
+    glome.log('canRefresh');
     if (this._browser.currentURI &&
         this._browser.currentURI.spec == this._browser.homePage)
       return false;
@@ -144,6 +146,7 @@ var gGlomeDashboardView = {
   },
 
   onSecurityChange: function(aWebProgress, aRequest, aState) {
+    glome.log('onSecurityChange');
     return;
     // Don't care about security if the page is not https
     if (!this.homepageURL.schemeIs("https"))
@@ -159,6 +162,7 @@ var gGlomeDashboardView = {
   },
 
   onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+    glome.log('onStateChange');
     // Only care about the network events
     if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_IS_NETWORK)))
       return;

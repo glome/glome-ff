@@ -155,6 +155,20 @@ const glome = {
     
     dump(message);
   },
+  EXTRACT: function()
+  {
+    var arg = arguments[0];
+    var message = 'GLOME: ' + typeof arg + '\n';
+    
+    for (i in arg)
+    {
+      message += '-- ' + i + ': ' + arg[i] + '\n';
+    }
+    
+    Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService)
+    .logStringMessage(message);
+    dump(message);
+  },
   formatStackTrace: function(exception)
   {
     var trace = '';

@@ -19,7 +19,7 @@
   </menupopup> -->
   
   <!-- Window extensions -->
-  <window id="main-window">
+  <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml">
     <popupset id="glome-popupset">
       <tooltip id="glome-tooltip" orient="vertical">
         <description id="glome-tooltip-action" hidden="true"/>
@@ -72,7 +72,7 @@
           <label value="&notfound.content;" class="content" />
         </vbox>
       </box>
-      <image src="chrome://glome/skin/icon-close.png" id="ad-close" width="28" height="28" hidden="true" />
+      <image src="chrome://glome/skin/icon-close.png" id="ad-close" width="28" height="28" hidden="true" top="10" right="10" />
     </stack>
   </window>
 

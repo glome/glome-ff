@@ -59,22 +59,22 @@ var Glome = {
   },
   
   acceptRequest: function() {
-      //this._sendHBClick('cpc');
-      //this._sendHBClick('cpa');
-      var hbox = document.getElementById('ad-overlay');
-      // var hbox = document.createElement('hbox');
-      //    hbox .setAttribute('style', 'background-color:rgba(6, 59, 127, 0.7);');
-         hbox.setAttribute('width', window.document.width);
-         hbox.setAttribute('height', window.document.height);
-         hbox.setAttribute('hidden', false);
-
-      var panel = document.createElement('panel');
-         panel.setAttribute('style', '-moz-appearance: none !important;background-color:transparent !important;border:none !important;');
-         panel.appendChild(hbox);
-         panel.setAttribute('top', 0);
-         panel.setAttribute('left', 0);
-         document.getElementById('main-window').appendChild(panel);
-         panel.openPopup(document.getElementById('main-window'), 'overlap');
+    //this._sendHBClick('cpc');
+    //this._sendHBClick('cpa');
+    var hbox = document.getElementById('ad-overlay');
+    // var hbox = document.createElement('hbox');
+    //    hbox .setAttribute('style', 'background-color:rgba(6, 59, 127, 0.7);');
+    hbox.setAttribute('width', window.document.width);
+    hbox.setAttribute('height', window.document.height);
+    hbox.setAttribute('hidden', false);
+    
+    var panel = document.createElement('panel');
+    panel.setAttribute('style', '-moz-appearance: none !important;background-color:transparent !important;border:none !important;');
+    panel.appendChild(hbox);
+    panel.setAttribute('top', 0);
+    panel.setAttribute('left', 0);
+    document.getElementById('main-window').appendChild(panel);
+    panel.openPopup(document.getElementById('main-window'), 'overlap');
   },
   declineRequest: function() {
       //this._sendHBClick('cpc');
@@ -110,26 +110,26 @@ var Glome = {
       req.open(method.toUpperCase(), url, true);
       
       req.onreadystatechange = function(aEvt) {  
-          if (req.readyState == 4)
-          {
-              if (req.status == 200) {
-                  if (GLOME_DEVELOPMENT_MODE)
-                  {
-                      GLOME_LOG(req.status+"\n");
-                      GLOME_LOG(req.responseText+"\n");
-                  }
-                  
-                  //listener.finished(req.responseXML, req.status);
-              } else {
-                  if (GLOME_DEVELOPMENT_MODE)
-                  {
-                      GLOME_LOG("Error loading page\n");
-                      GLOME_LOG(req.status+"\n");
-                      GLOME_LOG(req.responseXML+"\n");
-                      GLOME_LOG(req.responseText+"\n");
-                  }
-              }
-          }  
+        if (req.readyState == 4)
+        {
+          if (req.status == 200) {
+            if (GLOME_DEVELOPMENT_MODE)
+            {
+                GLOME_LOG(req.status+"\n");
+                GLOME_LOG(req.responseText+"\n");
+            }
+            
+            //listener.finished(req.responseXML, req.status);
+          } else {
+            if (GLOME_DEVELOPMENT_MODE)
+            {
+                GLOME_LOG("Error loading page\n");
+                GLOME_LOG(req.status+"\n");
+                GLOME_LOG(req.responseXML+"\n");
+                GLOME_LOG(req.responseText+"\n");
+            }
+          }
+        }
       };
       
       //req.setRequestHeader("X-Requested-With", "XMLHttpRequest");

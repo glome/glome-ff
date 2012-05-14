@@ -42,19 +42,19 @@
 {
   cursor: pointer;
 }
-#glome-status:not([disabled="true"]):hover
-{
-  text-decoration: underline;
-}
+
 #glome-status[deactivated]
 {
-  color: #999999;
+  opacity: 0.5;
 }
+
 #glome-status[whitelisted]
 {
   color: #008000;
 }
-#glome-status label {
+
+#glome-status label
+{
   display: none;
 }
 
@@ -64,6 +64,13 @@
   -moz-animation-name: glow;
   -moz-animation-iteration-count: infinite;
   -moz-animation-duration: 5000ms;
+}
+
+#glome-status:not([disabled="true"]):hover
+{
+  text-decoration: underline;
+  opacity: 1 !important;
+  -moz-animation-name: none;
 }
 
 toolbar[iconsize="small"] #glome-toolbarbutton,
@@ -102,7 +109,6 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   box-shadow: none;
   width: 28px;
   height: 28px;
-  border: solid 1px red;
 }
 
 #ad-content-local
@@ -114,6 +120,13 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 #ad-content-local image
 {
     display: block;
+}
+
+#ad-content-local iframe.content-iframe
+{
+    width: 100%;
+    display: block;
+    clear: both;
 }
 
 label.h1

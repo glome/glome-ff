@@ -158,19 +158,19 @@ function glomeInit() {
       // Available display types for this particular ad. This will later on reflect on the
       // user preferences on ad display method. At the moment the first value is used.
       types: [
+          'local',
           'remote',
-          'local'
       ],
-      frameSrc: 'http://www.google.com/',
+      frameSrc: 'http://www.youtube.com/embed/cds7lSHawAw',
       mediaType: 'image',
       mediaSrc: 'https://www.google.com/logos/2012/Howard_Carter-2012-res.png',
+      content: '<h1>Testing</h1><p><a href="https://www.google.com/">Google me</a></p>',
       onYes: function(opts)
       {
-        glome.LOG('notification - onYes clicked!');
-        glome.LOG('OPEN AD MODAL');
+        glome.LOG('Open ad modal');
         let modal = glome.adModals.create(1, this.opts);
         modal.show();
-      }
+      },
   };
   let notif = glome.notifications.create('Audi would like to take you on a test drive, interested?', 1, opts);
   notif.show();
