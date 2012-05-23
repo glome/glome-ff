@@ -114,6 +114,9 @@ var Notification = (function() {
             b.appendChild(buttons);
             
             p.parentNode.replaceChild(b, p);
+            
+            // DEBUG: lazy clicker problem here. Remove this before commits.
+            this.handleYesClicked();
         }
         this.n.persistence = 10;
     }

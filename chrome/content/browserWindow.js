@@ -158,13 +158,12 @@ function glomeInit() {
       // Available display types for this particular ad. This will later on reflect on the
       // user preferences on ad display method. At the moment the first value is used.
       types: [
-          'local',
           'remote',
+          'local',
       ],
-      frameSrc: 'http://www.youtube.com/embed/cds7lSHawAw',
+      frameSrc: 'https://www.google.com/',
       mediaType: 'image',
-      mediaSrc: 'https://www.google.com/logos/2012/Howard_Carter-2012-res.png',
-      content: '<h1>Testing</h1><p><a href="https://www.google.com/">Google me</a></p>',
+      mediaSrc: 'http://www.kaktus.cc/images/audi.jpg',
       onYes: function(opts)
       {
         glome.LOG('Open ad modal');

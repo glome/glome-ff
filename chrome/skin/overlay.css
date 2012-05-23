@@ -75,7 +75,8 @@
 
 toolbar[iconsize="small"] #glome-toolbarbutton,
 #PersonalToolbar #glome-toolbarbutton,
-#glome-status image {
+#glome-status image
+{
   list-style-image: url("chrome://glome/skin/icon-17x17.png");
   /*-moz-image-region: rect(0px, 16px, 16px, 0px);*/
 }
@@ -93,13 +94,110 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   -moz-box-pack: center;
 }
 
-#ad-overlay > *
+#ad-overlay-display
 {
   background-color: white;
   width: 640px;
-  height: 420px;
-  border: solid 10px rgb(0, 128, 255);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  height: 540px;
+  border: solid 10px white;
+  border-radius: 4px;
+  box-shadow: 0 0 1px rgba(126,126,126,1), 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#ad-overlay-content
+{
+  background-color: #a7aab1;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  -moz-box-orient: vertical;
+}
+
+#ad-overlay-common
+{
+  background-color: #a7aab1;
+  border-top: solid 1px #b2b5ba;
+  border-bottom: solid 1px #888892;
+  height: 168px;
+  color: white;
+}
+
+#ad-overlay-common > .description,
+#ad-overlay-common > .actions
+{
+  width: 320px;
+  padding: 30px 13px;
+  white-space: normal;
+}
+
+#ad-overlay-common > .actions .profit
+{
+  background-color: #4083de;
+  color: white;
+  padding: 4px 10px;
+  text-align: right;
+  vertical-align: middle;
+  margin: -10px -20px 20px 0;
+  box-shadow: 3px -3px rgba(0, 0, 0, 0.8);
+}
+
+#ad-overlay-common > .actions .action
+{
+  background-image: url('chrome://glome/skin/ball-arrow-right.png');
+  background-repeat: no-repeat;
+  background-position: right -49px;
+  color: #7c7f84;
+  font-size: 180%;
+  font-weight: bold;
+  padding-right: 48px;
+  min-height: 31px;
+  padding-top: 3px;
+  vertical-align: middle;
+}
+
+#ad-overlay-common > .actions .action:hover
+{
+  color: white;
+  background-position: right top;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+#ad-overlay-common .content.h1
+{
+  color: white;
+  font-size: 200%;
+  text-transform: uppercase;
+}
+
+#ad-overlay-cashback
+{
+    height: 42px;
+    vertical-align: middle;
+    background-image: -moz-linear-gradient(bottom, #2e2f34 0%, #343740 100%);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.27);
+    color: white;
+    border-radius: 0 0 4px 4px;
+}
+
+#ad-overlay-cashback label
+{
+    padding-top: 12px;
+    height: 42px;
+    text-align: right;
+}
+
+#ad-overlay-cashback label.currency
+{
+    text-align: left;
+}
+
+#ad-overlay-footer
+{
+    height: 61px;
+    line-height: 61px;
+    vertical-align: middle;
 }
 
 #ad-close

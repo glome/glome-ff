@@ -55,6 +55,12 @@ var AdModal = (function() {
     
     // Quick switch for the modal target
     var target = this.mw;
+    //var target = this.browser;
+    
+    glome.LOG('target: ' + target.tagName);
+    glome.EXTRACT(target);
+    
+    //glome.jQuery(target).css('border', 'solid 1px red');
     
     if (   typeof this.opts.types == 'undefined'
         || typeof this.opts.types[0] == 'undefined')
@@ -63,11 +69,42 @@ var AdModal = (function() {
     }
     
     var stack = glome.jQuery(this.doc.getElementById('ad-stack'));
+    stack.get(0).hidden = false;
     
     // Bind to the context
     stack.get(0).modal = this.cid;
     
     var box = glome.jQuery(this.doc.getElementById('ad-overlay'));
+    
+    glome.jQuery(target).bind('resize', function()
+    {
+      var overlay = glome.jQuery(this).find('#ad-overlay');
+      
+      overlay
+        .attr
+        (
+          {
+            width: glome.jQuery(this).width(),
+            height: glome.jQuery(this).height() - 20
+          }
+        );
+        
+        var close_icon = glome.jQuery(this).find('#ad-close');
+        
+        var offset_top = Math.round((overlay.height() - overlay.find('#ad-overlay-display').height()) / 2 - 30);
+        var offset_right = Math.round((overlay.width() - overlay.find('#ad-overlay-display').width()) / 2 - 30);
+        
+        glome.LOG('offset_top: ' + offset_top + ', offset_right: ' + offset_right);
+        
+        close_icon
+          .attr
+          (
+            {
+              right: offset_right,
+              top: offset_top
+            }
+          );
+    });
     
     // Get the first available display type
     box.addClass('visible')
@@ -76,6 +113,10 @@ var AdModal = (function() {
         {
           width: target.width,
           height: target.height,
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
           hidden: false
         }
       )
@@ -107,15 +148,11 @@ var AdModal = (function() {
       )
       .appendTo(target);
     
-    // Add key listener
+    stack.appendTo(panel);
+  
+    var close_icon = box.parent().find('#ad-close');
     
-    stack
-      .appendTo(panel);
-    
-    // Hide all ad layers on the display
-    box.find('> *').not('stack').attr('hidden', true);
-    box.parent().find('#ad-close')
-      .attr('hidden', false)
+    close_icon
       .bind('click', function(e)
       {
         var cid = glome.jQuery(this).parent().get(0).modal;
@@ -124,6 +161,7 @@ var AdModal = (function() {
         modal.hide(cid);
       });
     
+    /*
     // @TODO: this should be done according to preferences
     if (typeof this.opts.types[0] != 'undefined')
     {
@@ -134,11 +172,10 @@ var AdModal = (function() {
       var type = 'undefined';
     }
     
-    glome.LOG('Display type: ' + type);
-    
     // Create content
     switch (type)
     {
+      // Display content from remote source
       case 'remote':
         var container = glome.jQuery('<box />')
           .attr('id', 'ad-content-remote')
@@ -156,6 +193,7 @@ var AdModal = (function() {
           .appendTo(container);
         break;
       
+      // Display content from local storage
       case 'local':
         var container = glome.jQuery('<vbox />')
           .attr('id', 'ad-content-local')
@@ -168,17 +206,20 @@ var AdModal = (function() {
       default:
         box.find('#ad-content-notfound').attr('hidden', false);
     }
+    */
     
     // Open panel as an overlapping popup
     panel.get(0).openPopup(target, 'overlap');
+    glome.jQuery(target).trigger('resize');
   }
+  
   
   AdModal.prototype.showLocal = function(opts, container)
   {
     container.attr('hidden', false);
     
     // Clear the container if it was already in use
-    container.find('> *').remove();
+    container.find('#ad-content').remove();
     
     // @TODO: Add media types as needed
     switch (opts.mediaType)
@@ -247,3 +288,8 @@ glome.adModals = {
     return new AdModal(cid, opts);
   }
 };
+
+glome.resizer = function()
+{
+  glome.LOG('test');
+}
