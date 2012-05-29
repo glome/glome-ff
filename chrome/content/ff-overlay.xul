@@ -14,8 +14,7 @@
   <!-- <script type="application/x-javascript;version=1.8" src="ff-overlay.js"/> -->
   
   <!-- <menupopup id="menu_ToolsPopup">
-    <menuitem id="glome-icon" label="Glome"
-              oncommand="Glome.onMenuItemCommand(event);"/>
+    <menuitem id="glome-icon" label="Glome" oncommand="Glome.onMenuItemCommand(event);"/>
   </menupopup> -->
   
   <!-- Window extensions -->
@@ -106,7 +105,7 @@
   <!-- Status bar -->
   <statusbar id="status-bar">
     <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
-      <image tooltip="glome-tooltip"/>
+      <image tooltip="glome-tooltip" id="glome-status-bar-icon" />
       <label value="&notloaded.label;" tooltip="glome-tooltip"/>
     </statusbarpanel>
   </statusbar> 

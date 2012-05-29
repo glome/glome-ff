@@ -57,8 +57,8 @@ var AdModal = (function() {
     var target = this.mw;
     //var target = this.browser;
     
-    glome.LOG('target: ' + target.tagName);
-    glome.EXTRACT(target);
+    //glome.LOG('target: ' + target.tagName);
+    //glome.EXTRACT(target);
     
     //glome.jQuery(target).css('border', 'solid 1px red');
     
@@ -76,35 +76,35 @@ var AdModal = (function() {
     
     var box = glome.jQuery(this.doc.getElementById('ad-overlay'));
     
-    glome.jQuery(target).bind('resize', function()
-    {
-      var overlay = glome.jQuery(this).find('#ad-overlay');
-      
-      overlay
-        .attr
-        (
-          {
-            width: glome.jQuery(this).width(),
-            height: glome.jQuery(this).height() - 20
-          }
-        );
+    glome.jQuery(target)
+      .bind('resize', function()
+      {
+        var overlay = glome.jQuery(this).find('#ad-overlay');
         
-        var close_icon = glome.jQuery(this).find('#ad-close');
-        
-        var offset_top = Math.round((overlay.height() - overlay.find('#ad-overlay-display').height()) / 2 - 30);
-        var offset_right = Math.round((overlay.width() - overlay.find('#ad-overlay-display').width()) / 2 - 30);
-        
-        glome.LOG('offset_top: ' + offset_top + ', offset_right: ' + offset_right);
-        
-        close_icon
+        overlay
           .attr
           (
             {
-              right: offset_right,
-              top: offset_top
+              width: glome.jQuery(this).width(),
+              height: glome.jQuery(this).height() - 20
             }
           );
-    });
+          
+          var close_icon = glome.jQuery(this).find('#ad-close');
+          
+          var offset_top = Math.round((overlay.height() - overlay.find('#ad-overlay-display').height()) / 2 - 30);
+          var offset_right = Math.round((overlay.width() - overlay.find('#ad-overlay-display').width()) / 2 - 30);
+          
+          close_icon
+            .attr
+            (
+              {
+                right: offset_right,
+                top: offset_top
+              }
+            );
+      })
+      .trigger('resize');
     
     // Get the first available display type
     box.addClass('visible')
@@ -126,6 +126,9 @@ var AdModal = (function() {
         
         var modal = new AdModal();
         modal.hide(cid);
+        
+        e.preventDefault();
+        //e.stopPropagation();
       });
     
     // Create a new modal panel
@@ -207,6 +210,24 @@ var AdModal = (function() {
         box.find('#ad-content-notfound').attr('hidden', false);
     }
     */
+    
+    var rand = Math.round(Math.random() * 10) % 4;
+    glome.LOG('random seed: ' + rand);
+    
+    switch (rand)
+    {
+      case 0:
+      case 1:
+        box.find('#ad-overlay-content').find('image').attr('src', 'chrome://glome/skin/temp/audi-image.jpg');
+        box.find('#ad-overlay-common').find('.h1').attr('value', 'Audi 2012 test drive!');
+        break;
+      
+      case 2:
+      case 3:
+        box.find('#ad-overlay-content').find('image').attr('src', 'chrome://glome/skin/temp/bmw-image.jpg');
+        box.find('#ad-overlay-common').find('.h1').attr('value', 'BMW is the mightiest!');
+        break;
+    }
     
     // Open panel as an overlapping popup
     panel.get(0).openPopup(target, 'overlap');

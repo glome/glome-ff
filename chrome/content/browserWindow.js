@@ -153,31 +153,36 @@ function glomeInit() {
   
   // glome.createTimer(glomeInitImageManagerHiding, 0);
   
-  // Dummy notif test
-  let opts = {
-      // Available display types for this particular ad. This will later on reflect on the
-      // user preferences on ad display method. At the moment the first value is used.
-      types: [
-          'remote',
-          'local',
-      ],
-      frameSrc: 'https://www.google.com/',
-      mediaType: 'image',
-      mediaSrc: 'http://www.kaktus.cc/images/audi.jpg',
-      onYes: function(opts)
-      {
-        glome.LOG('Open ad modal');
-        let modal = glome.adModals.create(1, this.opts);
-        modal.show();
-      },
-  };
-  let notif = glome.notifications.create('Audi would like to take you on a test drive, interested?', 1, opts);
-  notif.show();
-  
   glome.connection.open();
   glome.connection.sendTest();
   
   glome.LOG("glomeInit done");
+  
+  // Add trigger to status bar icon
+  glome.jQuery(E('glome-status-bar-icon'))
+      .bind('click', function()
+      {
+          // Dummy notif test
+          let opts = {
+              // Available display types for this particular ad. This will later on reflect on the
+              // user preferences on ad display method. At the moment the first value is used.
+              types: [
+                  'remote',
+                  'local',
+              ],
+              frameSrc: 'https://www.google.com/',
+              mediaType: 'image',
+              mediaSrc: 'http://www.kaktus.cc/images/audi.jpg',
+              onYes: function(opts)
+              {
+                glome.LOG('Open ad modal');
+                let modal = glome.adModals.create(1, this.opts);
+                modal.show();
+              },
+          };
+          let notif = glome.notifications.create('Audi would like to take you on a test drive, interested?', 1, opts);
+          notif.show();
+      });
 };
 
 function glomeUnload() {
