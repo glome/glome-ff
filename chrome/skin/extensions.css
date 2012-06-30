@@ -2,6 +2,110 @@
   list-style-image: url("chrome://glome/skin/icon-32x32.png");
 }
 
-#glome-dashboard-container .dashboard-header-spacer {
-  height: 10px;
+#glome-dashboard-container
+{
 }
+
+#glome-dashboard-container > hbox
+{
+  width: 50%;
+}
+
+#glome-dashboard-container > hbox .selector-title
+{
+  clear: both;
+}
+
+#glome-dashboard-container .box-container
+{
+  -moz-box-pack: start;
+  float: left;
+  padding: 10px;
+}
+
+#glome-dashboard-container .box-container > .item
+{
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 99px;
+  height: 99px;
+  padding: 5px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.42);
+}
+
+#glome-dashboard-container .box-container > .item > *
+{
+  width: 100%;
+}
+
+#glome-dashboard-container .box-container > .item .icons
+{
+  text-align: right;
+  float: right;
+  height: 30px;
+}
+
+#glome-dashboard-container .box-container > .item .label
+{
+  vertical-align: bottom;
+  font-size: 14px;
+  -moz-box-align: end;
+  -moz-box-flex: 10;
+  height: 60px;
+}
+
+#glome-dashboard-container .box-container > .item .label description
+{
+  width: 10px;
+}
+
+#glome-dashboard-container #glome-selector-disabled .box-container > .item
+{
+  background-image: url('chrome://glome/skin/selector-box-inactive-diagonal.gif');
+  -moz-box-pack: end;
+}
+
+#glome-dashboard-container #glome-selector-enabled .box-container > .item,
+#glome-dashboard-container #glome-selector-disabled .box-container > .item:hover
+{
+  background-image: url('chrome://glome/skin/selector-box-active-diagonal.gif');
+}
+
+#glome-dashboard-container .glome-selector
+{
+  background-position: left top;
+  overflow: hidden;
+  -moz-box-flex: 1;
+}
+
+#glome-dashboard-container .glome-selector label.selector-title
+{
+  font-size: 83px;
+  margin-top: -20px;
+  color: rgba(0,0,0,0.2);
+}
+
+#glome-dashboard-container #glome-selector-disabled
+{
+  background-image: url('chrome://glome/skin/configscreen-inactive-background.gif');
+}
+
+#glome-dashboard-container #glome-selector-disabled label.selector-title
+{
+  margin-left: -10px;
+}
+
+#glome-dashboard-container #glome-selector-enabled
+{
+  background-image: url('chrome://glome/skin/configscreen-active-background.gif');
+}
+
+#glome-dashboard-container #glome-selector-enabled label.selector-title
+{
+  margin-right: -10px;
+  text-align: right;
+}
+

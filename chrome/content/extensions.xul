@@ -2,44 +2,78 @@
 <?xml-stylesheet href="chrome://glome/skin/extensions.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://glome/locale/overlay.dtd">
 <overlay id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://glome/content/extensions.js"/>
   
-    <script type="application/javascript"
-            src="chrome://glome/content/extensions.js"/>
-    
-    <!-- category list -->
-    <richlistbox id="categories">
-      <richlistitem id="category-glome" value="addons://glome/dashboard"
-                    class="category"
-                    name="Glome" priority="200000" insertafter="category-plugins"
-                    tooltiptext="Glome"/>
-    </richlistbox>
-    
-    <!-- view port -->
-    <deck id="view-port" flex="1" selectedIndex="0">
-    
-      <!-- glome view -->
-      <deck id="glome-view" flex="1" class="view-pane" selectedIndex="0">
-        <!-- <vbox id="glome-loading" align="center" pack="stretch" flex="1" class="alert-container">
-          <spacer class="alert-spacer-before"/>
-          <hbox class="alert loading" align="center">
-            <image/>
-            <label value="Loading Glome..."/>
-          </hbox>
-          <spacer class="alert-spacer-after"/>
-        </vbox> -->
-        
-        <vbox id="glome-dashboard-container" align="left" flex="1">
-          <image src='chrome://glome/skin/dashboard-header.png' width='703' height='273' />
-          <spacer class="dashboard-header-spacer"/>
-          <image src='chrome://glome/skin/dummy-header-bg.png' width='703' height='46' />
-          <image src='chrome://glome/skin/dummy-settings-bg.png' width='703' height='205' />
-          <!-- <browser id="glome-browser" type="content" flex="1"
-                   disablehistory="true" homepage="about:blank"/> -->
-        </vbox>        
-      </deck>
-    
+  <!-- category list -->
+  <richlistbox id="categories">
+    <richlistitem id="category-glome" value="addons://glome/dashboard" class="category" name="Glome" priority="200000" insertafter="category-plugins" tooltiptext="Glome"/>
+  </richlistbox>
+  
+  <!-- view port -->
+  <deck id="view-port" selectedIndex="0">
+  
+    <!-- glome view -->
+    <deck id="glome-view" class="view-pane" selectedIndex="0">
+      <hbox id="glome-dashboard-container" width="100%">
+        <vbox id="glome-selector-disabled" class="glome-selector" width="50%">
+          <label value="Test" class="selector-title" />
+          <box class="box-container">
+            <box class="item" align="end">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Alcohol &amp; tobacco</description>
+              </box>
+            </box>
+            <box class="item">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Alcohol</description>
+              </box>
+            </box>
+            <box class="item">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Tobacco</description>
+              </box>
+            </box>
+          </box>
+        </vbox>
+        <vbox id="glome-selector-enabled" class="glome-selector" width="50%">
+          <label value="Test" class="selector-title" />
+          <box class="box-container">
+            <box class="item" align="end">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Alcohol &amp; tobacco</description>
+              </box>
+            </box>
+            <box class="item">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Non-profit Organization</description>
+              </box>
+            </box>
+            <box class="item">
+              <box class="icons">
+                <label value="+" />
+              </box>
+              <box class="label">
+                <description>Tobacco</description>
+              </box>
+            </box>
+          </box>
+        </vbox>
+      </hbox>        
     </deck>
-    
-
-
+  </deck>
 </overlay>
