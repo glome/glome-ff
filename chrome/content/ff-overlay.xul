@@ -19,15 +19,66 @@
   
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml">
+    <stack id="glome-controls" height="0" insertbefore="status-bar">
+      <panel id="glome-controls-window" level="top" align="right" hidden="false" position="before_end">
+        <vbox class="active">
+          <hbox>
+            <vbox class="glome-ad-description">
+              <label value="Hi," />
+              <description>
+                Audi wants to take you for a ride...
+              </description>
+            </vbox>
+            <vbox class="glome-ad-summary">
+              <box flex="0" align="right">
+                <image src="chrome://glome/skin/icon-close.png" width="24" height="24" align="right" class="close-panel" />
+              </box>
+              <spacer flex="10" />
+              <label value="+12 €" class="glome-profit" />
+            </vbox>
+          </hbox>
+          <box class="buttons">
+            <button flex="1">See ad</button>
+            <button flex="1">Not now</button>
+            <button flex="1">Never</button>
+          </box>
+          <hbox class="navigation">
+            <label flex="1" value="See all" />
+            <box flex="1">
+              <image src="chrome://glome/skin/ball-arrow-left-18x18.png" alt="‹" />
+              <image src="chrome://glome/skin/ball-arrow-right-18x18.png" alt="›" />
+            </box>
+            <label flex="1" value="1 / 12" class="pager" />
+          </hbox>
+          <vbox class="actions">
+            <box flex="2">
+              <checkbox class="glome-switch small" />
+            </box>
+          </vbox>
+        </vbox>
+      </panel>
+      <stack align="right" bottom="0" right="15" pack="start" id="glome-controls-icon-wrapper" popup="glome-controls-window">
+        <box align="right" id="glome-controls-icon" class="inactive">
+        </box>
+        <box id="glome-controls-icon-counter">
+          <label align="right" value="1" flex="0" />
+        </box>
+      </stack>
+    </stack>
     <popupset id="glome-popupset">
-      <tooltip id="glome-tooltip" orient="vertical">
-        <description id="glome-tooltip-action" hidden="true"/>
-        <label id="glome-tooltip-status-label" value="&status.tooltip;"/>
-        <description id="glome-tooltip-status" value="&notloaded.tooltip;"/>
-        <label id="glome-tooltip-blocked-label" value="&blocked.tooltip;" hidden="true"/>
-        <description id="glome-tooltip-blocked" hidden="true"/>
-        <label id="glome-tooltip-filters-label" value="&filters.tooltip;" hidden="true"/>
-        <vbox id="glome-tooltip-filters" hidden="true"/>
+      <tooltip id="glome-tooltip" noautohide="true">
+        <vbox class="container">
+          <box>
+            <image src="chrome://glome/skin/glome-statusbar-icon-inactive.png" width="19" height="19" align="left" />
+          </box>
+          <label value="You have 548 $" />
+          <button label="Redeem Cash" />
+          <hbox class="footer">
+            <box class="switch">
+              <label value="Off" />
+            </box>
+          </hbox>
+        </vbox>
       </tooltip>
       <popup id="glome-status-popup">
         <menuitem id="glome-status-opensidebar" label="&opensidebar.label;" accesskey="&opensidebar.accesskey;" key="glome-key-sidebar" command="glome-command-sidebar"/>
@@ -74,7 +125,7 @@
             </vbox>
             <vbox flex="1" />
             <vbox class="actions" align="end">
-                <label value="+12 €" class="profit" />
+                <label value="+12 €" class="glome-profit" />
                 <label value="Yes, please" class="action yes" />
                 <label value="No, thanks" class="action no" />
             </vbox>
@@ -103,12 +154,15 @@
   </window>
 
   <!-- Status bar -->
+<!--
   <statusbar id="status-bar">
     <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
-      <image tooltip="glome-tooltip" id="glome-status-bar-icon" />
-      <label value="&notloaded.label;" tooltip="glome-tooltip"/>
+      <stack>
+        <image tooltip="glome-tooltip" src="chrome://glome/skin/glome-statusbar-icon-inactive.png" id="glome-status-bar-icon" />
+      </stack>
     </statusbarpanel>
   </statusbar> 
+-->
 
   <!-- Firefox toolbar -->
   <toolbarpalette id="BrowserToolbarPalette">

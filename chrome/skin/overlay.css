@@ -1,29 +1,180 @@
-@-moz-keyframes glow
+#glome-status-bar-icon
 {
-    0%
-    {
-        opacity: 0.2;
-    }
-    
-    50%
-    {
-        opacity: 1;
-    }
-    
-    100%
-    {
-        opacity: 0.2;
-    }
+  -moz-image-region: rect(0px 24px 24px 0px);
+  padding: 11px 16px;
 }
 
-#glome-icon
+#glome-tooltip,
+#glome-tooltip > *
 {
-  list-style-image: url("chrome://glome/skin/icon-17x17.png");
-  -moz-image-region: rect(0px 24px 24px 0px);
-  -moz-animation-name: glow;
-  -moz-animation-iteration-count: infinite;
-  -moz-animation-duration: 5000ms;
+  -moz-appearance: none;
+  border: none;
+  outline: none;
 }
+
+#glome-status-bar-icon,
+#glome-tooltip .container,
+#glome-controls-window,
+#glome-controls-icon
+{
+  background: -moz-linear-gradient(#fbf8f8, #dedbdb);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.18);
+}
+
+#glome-controls
+{
+  overflow: visible;
+}
+
+#glome-controls-icon
+{
+  background-image: url('chrome://glome/skin/glome-statusbar-icon-inactive.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin-top: -27px;
+  width: 37px;
+  height: 27px;
+}
+
+#glome-controls-icon.active
+{
+  background-image: url('chrome://glome/skin/glome-statusbar-icon-active.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  box-shadow: 0 0 5px rgba(15, 150, 254, 0.8);
+}
+
+#glome-controls-icon-counter
+{
+  display: none;
+}
+
+#glome-controls-icon.active + #glome-controls-icon-counter
+{
+  display: block;
+  bottom: 0;
+  right: -10px;
+  width: 37px;
+  height: 0;
+  padding: 0;
+  margin-top: -40px;
+  overflow: visible;
+  text-align: right;
+}
+
+#glome-controls-icon-counter label
+{
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
+  background-image: -moz-linear-gradient(#0094fe, #007df7);
+  border: solid 2px white;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  height: 16px;
+  font-size: 11px;
+  text-align: right;
+  padding: 0 4px;
+  float: right;
+  margin-left: -5px;
+}
+
+#glome-controls-icon,
+#glome-controls-window
+{
+  padding: 8px 10px;
+}
+
+#glome-controls-window
+{
+  bottom: 0;
+  right: 15px;
+  width: 235px;
+  height: 200px;
+  -moz-appearance: none;
+  outline: none;
+}
+
+#glome-controls-window .glome-profit
+{
+  margin: 0 -10px 0 0;
+}
+
+#glome-controls-window .glome-ad-description
+{
+  max-width: 200px;
+  font-size: 21px;
+  font-weight: bold;
+}
+
+#glome-controls-window .glome-ad-summary
+{
+  width: 50px;
+}
+
+#glome-controls-window .glome-ad-description > *
+{
+  padding: 0;
+  margin: 0;
+  -moz-appearance: none;
+}
+
+#glome-tooltip .container
+{
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+#glome-tooltip .container image
+{
+  float: left;
+  
+}
+
+#glome-controls-window .buttons
+{
+  margin: 10px -5px;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  -moz-box-orient: horizontal;
+}
+
+#glome-controls-window .buttons button
+{
+  background: -moz-linear-gradient(#fbf8f8, #dedbdb);
+  margin: 0 1px;
+  padding: 0;
+  font-size: 10px;
+  height: 26px;
+  line-height: 26px;
+  width: 60px;
+  -moz-appearance: none;
+  text-transform: uppercase;
+  color: #4a4a4a;
+  border-radius: 3px;
+  text-align: center;
+}
+
+#glome-controls-window .buttons button:hover
+{
+  background-image: -moz-linear-gradient(#0094fe, #007df7);
+  box-shadow: 1px 0 1px rgba(0, 0, 0, 0.5);
+  color: #005196;
+  text-shadow: 1px 0 0 #00a6ff;
+}
+
+#glome-controls-window .navigation
+{
+  background-image: url('chrome://glome/skin/diagonal-line-gray.gif');
+  margin: 0 -10px;
+  padding: 14px 9px;
+}
+
+#glome-controls-window .navigation .pager
+{
+  text-align: right;
+}
+
 /*#glome-icon:hover
 {
   -moz-image-region: rect(24px 24px 48px  0px);
@@ -131,7 +282,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   white-space: normal;
 }
 
-#ad-overlay-common > .actions .profit
+.glome-profit
 {
   background-color: #4083de;
   color: white;
@@ -254,3 +405,4 @@ toolbar[iconsize="small"] #glome-toolbarbutton[disabled="true"],
 #glome-status[disabled="true"] image {
   -moz-image-region: rect(48px, 16px, 64px, 0px);
 }*/
+
