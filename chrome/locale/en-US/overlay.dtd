@@ -28,3 +28,7 @@
 
 <!ENTITY view.blockableItems.label  "Adblock Plus: Blockable Items">
 
+<!ENTITY label.see_all          "See all">
+<!ENTITY label.see_ad           "See ad">
+<!ENTITY label.not_now          "Not now">
+<!ENTITY label.never            "Never">

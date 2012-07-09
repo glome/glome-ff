@@ -2,10 +2,10 @@
 <?xml-stylesheet href="chrome://glome/skin/overlay.css" type="text/css"?>
 
 <!DOCTYPE overlay [
-<!ENTITY % overlayDTD SYSTEM "chrome://glome/locale/overlay.dtd">
-%overlayDTD;
-<!ENTITY % settingsDTD SYSTEM "chrome://glome/locale/settings.dtd">
-%settingsDTD;
+  <!ENTITY % overlayDTD SYSTEM "chrome://glome/locale/overlay.dtd">
+  %overlayDTD;
+  <!ENTITY % settingsDTD SYSTEM "chrome://glome/locale/settings.dtd">
+  %settingsDTD;
 ]>
 
 <overlay id="glome-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -38,12 +38,12 @@
             </vbox>
           </hbox>
           <box class="buttons">
-            <button flex="1">See ad</button>
-            <button flex="1">Not now</button>
-            <button flex="1">Never</button>
+            <button flex="1">&label.see_ad;</button>
+            <button flex="1">&label.not_now;</button>
+            <button flex="1">&label.never;</button>
           </box>
           <hbox class="navigation">
-            <label flex="1" value="See all" />
+            <label flex="1" value="&label.see_all;" />
             <box flex="1" class="navigators">
               <separator flex="1" />
               <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" />
