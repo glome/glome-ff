@@ -74,7 +74,7 @@
       <tooltip id="glome-tooltip" noautohide="true">
         <vbox class="container">
           <box>
-            <image src="chrome://glome/skin/navigation/statusbar-icon-inactive.png" width="19" height="19" align="left" />
+            <image src="chrome://glome/skin/icons/statusbar-icon-inactive.png" width="19" height="19" align="left" />
           </box>
           <label value="You have 548 $" />
           <button label="Redeem Cash" />
@@ -163,7 +163,7 @@
   <statusbar id="status-bar">
     <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
       <stack>
-        <image tooltip="glome-tooltip" src="chrome://glome/skin/navigation/statusbar-icon-inactive.png" id="glome-status-bar-icon" />
+        <image tooltip="glome-tooltip" src="chrome://glome/skin/icons/statusbar-icon-inactive.png" id="glome-status-bar-icon" />
       </stack>
     </statusbarpanel>
   </statusbar> 

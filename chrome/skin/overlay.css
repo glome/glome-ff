@@ -28,7 +28,7 @@
 
 #glome-controls-icon
 {
-  background-image: url('chrome://glome/skin/navigation/statusbar-icon-inactive.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  background-image: url('chrome://glome/skin/icons/statusbar-icon-inactive.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
   background-position: center center;
   background-repeat: no-repeat;
   margin-top: -27px;
@@ -38,7 +38,7 @@
 
 #glome-controls-icon.active
 {
-  background-image: url('chrome://glome/skin/navigation/statusbar-icon-active.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  background-image: url('chrome://glome/skin/icons/statusbar-icon-active.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
   box-shadow: 0 0 5px rgba(15, 150, 254, 0.8);
 }
 
@@ -414,7 +414,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton[disabled="true"],
 
 checkbox.glome-switch
 {
-  background-image: url('chrome://glome/skin/navigation/checkbox-switch-small.png'), -moz-linear-gradient(#323232, #3f3f40);
+  background-image: url('chrome://glome/skin/elements/checkbox-switch-small.png'), -moz-linear-gradient(#323232, #3f3f40);
   background-repeat: no-repeat, repeat-y;
   background-position: left top, left top;
   width: 60px;
@@ -447,7 +447,7 @@ checkbox.glome-switch label:before
 
 checkbox.glome-switch[checked]
 {
-  background-image: url('chrome://glome/skin/checkbox-switch-small.png'), -moz-linear-gradient(#016be4, #7ab1f6);
+  background-image: url('chrome://glome/skin/elements/checkbox-switch-small.png'), -moz-linear-gradient(#016be4, #7ab1f6);
   background-position: right top, left top;
 }
 
