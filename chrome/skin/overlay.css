@@ -28,7 +28,7 @@
 
 #glome-controls-icon
 {
-  background-image: url('chrome://glome/skin/glome-statusbar-icon-inactive.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  background-image: url('chrome://glome/skin/navigation/statusbar-icon-inactive.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
   background-position: center center;
   background-repeat: no-repeat;
   margin-top: -27px;
@@ -38,7 +38,7 @@
 
 #glome-controls-icon.active
 {
-  background-image: url('chrome://glome/skin/glome-statusbar-icon-active.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
+  background-image: url('chrome://glome/skin/navigation/statusbar-icon-active.png'), -moz-linear-gradient(#fbf8f8, #dedbdb);
   box-shadow: 0 0 5px rgba(15, 150, 254, 0.8);
 }
 
@@ -175,6 +175,11 @@
   text-align: right;
 }
 
+#glome-controls-window .navigation .navigators image + image
+{
+  margin-left: 5px;
+}
+
 /*#glome-icon:hover
 {
   -moz-image-region: rect(24px 24px 48px  0px);
@@ -228,7 +233,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 #PersonalToolbar #glome-toolbarbutton,
 #glome-status image
 {
-  list-style-image: url("chrome://glome/skin/icon-17x17.png");
+  list-style-image: url("chrome://glome/skin/icons/glome-17x17.png");
   /*-moz-image-region: rect(0px, 16px, 16px, 0px);*/
 }
 
@@ -295,7 +300,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #ad-overlay-common > .actions .action
 {
-  background-image: url('chrome://glome/skin/ball-arrow-right.png');
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right.png');
   background-repeat: no-repeat;
   background-position: right -49px;
   color: #7c7f84;
@@ -405,4 +410,50 @@ toolbar[iconsize="small"] #glome-toolbarbutton[disabled="true"],
 #glome-status[disabled="true"] image {
   -moz-image-region: rect(48px, 16px, 64px, 0px);
 }*/
+
+
+checkbox.glome-switch
+{
+  background-image: url('chrome://glome/skin/navigation/checkbox-switch-small.png'), -moz-linear-gradient(#323232, #3f3f40);
+  background-repeat: no-repeat, repeat-y;
+  background-position: left top, left top;
+  width: 60px;
+  height: 22px;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  -moz-appearance: none;
+  padding: 0;
+}
+
+checkbox.glome-switch label
+{
+  display: block;
+  width: 0;
+  height: 22px;
+}
+
+checkbox.glome-switch label:before
+{
+  display: block;
+  content: 'On';
+  font-size: 11px;
+  color: white;
+  text-align: right;
+  width: 45px;
+  height: 18px;
+  padding: 0 5px 0 2px;
+  line-height: 20px;
+}
+
+checkbox.glome-switch[checked]
+{
+  background-image: url('chrome://glome/skin/checkbox-switch-small.png'), -moz-linear-gradient(#016be4, #7ab1f6);
+  background-position: right top, left top;
+}
+
+checkbox.glome-switch[checked] label:before
+{
+  content: 'Off';
+  text-align: left;
+}
 

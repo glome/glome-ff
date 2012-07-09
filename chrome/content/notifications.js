@@ -84,7 +84,7 @@ var Notification = (function() {
             b.setAttribute('align', 'center');
 
             var img = this.n.ownerDocument.createElement('image');
-            img.setAttribute('src', "chrome://glome/skin/icon-32x32.png");
+            img.setAttribute('src', "chrome://glome/skin/icons/glome-32x32.png");
             img.setAttribute('class', 'messageLogo');
             b.appendChild(img);
 

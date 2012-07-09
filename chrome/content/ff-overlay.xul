@@ -31,7 +31,7 @@
             </vbox>
             <vbox class="glome-ad-summary">
               <box flex="0" align="right">
-                <image src="chrome://glome/skin/icon-close.png" width="24" height="24" align="right" class="close-panel" />
+                <image src="chrome://glome/skin/icons/icon-close.png" width="24" height="24" align="right" class="close-panel" />
               </box>
               <spacer flex="10" />
               <label value="+12 €" class="glome-profit" />
@@ -44,15 +44,20 @@
           </box>
           <hbox class="navigation">
             <label flex="1" value="See all" />
-            <box flex="1">
-              <image src="chrome://glome/skin/ball-arrow-left-18x18.png" alt="‹" />
-              <image src="chrome://glome/skin/ball-arrow-right-18x18.png" alt="›" />
+            <box flex="1" class="navigators">
+              <separator flex="1" />
+              <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" />
+              <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" />
+              <separator flex="1" />
             </box>
             <label flex="1" value="1 / 12" class="pager" />
           </hbox>
           <vbox class="actions">
             <box flex="2">
-              <checkbox class="glome-switch small" />
+              <!-- note to self: attribute "control" is vital for a checkbox to work -->
+              <checkbox class="glome-switch small" id="glome_power_switch">
+                <label control="glome_power_switch"></label>
+              </checkbox>
             </box>
           </vbox>
         </vbox>
@@ -69,7 +74,7 @@
       <tooltip id="glome-tooltip" noautohide="true">
         <vbox class="container">
           <box>
-            <image src="chrome://glome/skin/glome-statusbar-icon-inactive.png" width="19" height="19" align="left" />
+            <image src="chrome://glome/skin/navigation/statusbar-icon-inactive.png" width="19" height="19" align="left" />
           </box>
           <label value="You have 548 $" />
           <button label="Redeem Cash" />
@@ -149,7 +154,7 @@
           </hbox>
         </vbox>
       </box>
-      <image src="chrome://glome/skin/icon-close.png" id="ad-close" width="24" height="24" top="10" right="10" />
+      <image src="chrome://glome/skin/icons/icon-close.png" id="ad-close" width="24" height="24" top="10" right="10" />
     </stack>
   </window>
 
@@ -158,7 +163,7 @@
   <statusbar id="status-bar">
     <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
       <stack>
-        <image tooltip="glome-tooltip" src="chrome://glome/skin/glome-statusbar-icon-inactive.png" id="glome-status-bar-icon" />
+        <image tooltip="glome-tooltip" src="chrome://glome/skin/navigation/statusbar-icon-inactive.png" id="glome-status-bar-icon" />
       </stack>
     </statusbarpanel>
   </statusbar> 
