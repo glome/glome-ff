@@ -20,7 +20,7 @@
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml">
     <stack id="glome-controls" height="0" insertbefore="status-bar">
-      <panel id="glome-controls-window" level="top" align="right" hidden="false" position="before_end">
+      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end">
         <vbox class="active">
           <hbox>
             <vbox class="glome-ad-description">
@@ -31,18 +31,21 @@
             </vbox>
             <vbox class="glome-ad-summary">
               <box flex="0" align="right">
-                <image src="chrome://glome/skin/icons/icon-close.png" width="24" height="24" align="right" class="close-panel" />
+                <image src="chrome://glome/skin/icons/icon-close.png" width="24" height="24" align="right" class="close-panel" onclick="getElementById('glome-controls-window').hidePopup();" />
               </box>
               <spacer flex="10" />
               <label value="+12 €" class="glome-profit" />
             </vbox>
           </hbox>
           <box class="buttons">
-            <button flex="1">&label.see_ad;</button>
+            <!-- @TODO: bind events to these buttons -->
+<!--             <button flex="1" popup="ad-stack-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
+            <button flex="1" onclick="getElementById('ad-stack-panel').openPopup(getElementById('browser'), null, 0, 0); getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button>
             <button flex="1">&label.not_now;</button>
             <button flex="1">&label.never;</button>
           </box>
           <hbox class="navigation">
+            <!-- @TODO: use real data and remove inline code from this element -->
             <label flex="1" value="&label.see_all;" />
             <box flex="1" class="navigators">
               <separator flex="1" />
@@ -52,14 +55,33 @@
             </box>
             <label flex="1" value="1 / 12" class="pager" />
           </hbox>
-          <vbox class="actions">
-            <box flex="2">
+          <hbox class="actions">
+            <box flex="1">
               <!-- note to self: attribute "control" is vital for a checkbox to work -->
               <checkbox class="glome-switch small" id="glome_power_switch">
                 <label control="glome_power_switch"></label>
               </checkbox>
+              <spacer flex="1" />
             </box>
-          </vbox>
+            <box pack="end" flex="0">
+              <popupset>
+                <menupopup id="glome-personals" position="before_end">
+                  <description>Lorem ipsum</description>
+                </menupopup>
+              </popupset>
+              <popupset>
+                <menupopup id="glome-config" position="before_end">
+                  <description>Lorem ipsum</description>
+                </menupopup>
+              </popupset>
+              <button popup="glome-personals" class="arrow icon" width="20">
+                <image src="chrome://glome/skin/icons/icon-person.png" width="20" height="20" />
+              </button>
+              <button popup="glome-config" class="arrow icon" width="20">
+                <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+              </button>
+            </box>
+          </hbox>
         </vbox>
       </panel>
       <stack align="right" bottom="0" right="15" pack="start" id="glome-controls-icon-wrapper" popup="glome-controls-window">
@@ -119,43 +141,45 @@
       <command id="glome-command-enable" oncommand="//"/>
     </commandset>
     
-    <stack id="ad-stack" hidden="true">
-      <box id="ad-overlay">
-        <vbox id="ad-overlay-display">
-          <box id="ad-overlay-content"><image src="chrome://glome/skin/temp/audi-image.jpg" /></box>
-          <hbox id="ad-overlay-common" class="inner">
-            <vbox class="description">
-              <label value="Audi 2012 test drive" class="header h1 content" />
-              <description class="content">You are welcome to meet our new fleet of engineering. Click to find the closest dealer and book a time for test drive.</description>
-            </vbox>
-            <vbox flex="1" />
-            <vbox class="actions" align="end">
-                <label value="+12 €" class="glome-profit" />
-                <label value="Yes, please" class="action yes" />
-                <label value="No, thanks" class="action no" />
-            </vbox>
-          </hbox>
-          <hbox align="baseline" id="ad-overlay-cashback">
-              <label value="Total Cashback" flex="1" orient="vertical" />
-              <label value="XXX" class="amount" />
-              <label value="€" class="currency" flex="1" />
-          </hbox>
-          <hbox id="ad-overlay-footer">
-            <description>Glome Inc </description>
-            <label value="Content policy" />
-            <label value="Terms of Service" />
-            <label value="Privacy policy" />
-            <box flex="1">
-              <label value="Share" />
-              <label value="Share" />
-              <label value="Share" />
-              <label value="Share" />
-            </box>
-          </hbox>
-        </vbox>
-      </box>
-      <image src="chrome://glome/skin/icons/icon-close.png" id="ad-close" width="24" height="24" top="10" right="10" />
-    </stack>
+    <panel id="ad-stack-panel" level="parent" noautohide="true">
+      <stack id="ad-stack">
+        <box id="ad-overlay">
+          <vbox id="ad-overlay-display">
+            <box id="ad-overlay-content"><image src="chrome://glome/skin/temp/audi-image.jpg" /></box>
+            <hbox id="ad-overlay-common" class="inner">
+              <vbox class="description">
+                <label value="Audi 2012 test drive" class="header h1 content" />
+                <description class="content">You are welcome to meet our new fleet of engineering. Click to find the closest dealer and book a time for test drive.</description>
+              </vbox>
+              <vbox flex="1" />
+              <vbox class="actions" align="end">
+                  <label value="+12 €" class="glome-profit" />
+                  <label value="Yes, please" class="action yes" />
+                  <label value="No, thanks" class="action no" />
+              </vbox>
+            </hbox>
+            <hbox align="baseline" id="ad-overlay-cashback">
+                <label value="Total Cashback" flex="1" orient="vertical" />
+                <label value="XXX" class="amount" />
+                <label value="€" class="currency" flex="1" />
+            </hbox>
+            <hbox id="ad-overlay-footer">
+              <description>Glome Inc </description>
+              <label value="Content policy" />
+              <label value="Terms of Service" />
+              <label value="Privacy policy" />
+              <box flex="1">
+                <label value="Share" />
+                <label value="Share" />
+                <label value="Share" />
+                <label value="Share" />
+              </box>
+            </hbox>
+          </vbox>
+        </box>
+        <image src="chrome://glome/skin/icons/icon-close.png" id="ad-close" width="24" height="24" top="10" right="10"  onclick="getElementById('ad-stack-panel').hidePopup();" />
+      </stack>
+    </panel>
   </window>
 
   <!-- Status bar -->

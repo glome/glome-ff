@@ -87,7 +87,6 @@
   bottom: 0;
   right: 15px;
   width: 235px;
-  height: 200px;
   -moz-appearance: none;
   outline: none;
 }
@@ -180,6 +179,11 @@
   margin-left: 5px;
 }
 
+#glome-controls-window .actions
+{
+  padding-top: 5px;
+}
+
 /*#glome-icon:hover
 {
   -moz-image-region: rect(24px 24px 48px  0px);
@@ -241,6 +245,17 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 {
   -moz-box-align: center;
   -moz-box-pack: center;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#ad-stack-panel
+{
+  -moz-appearance: none;
 }
 
 #ad-overlay
@@ -457,3 +472,35 @@ checkbox.glome-switch[checked] label:before
   text-align: left;
 }
 
+button.icon
+{
+  width: 20px;
+  padding: 0;
+  margin: 0;
+  float: left;
+  text-align: left;
+  -moz-appearance: none;
+  -moz-box-flex: 0;
+}
+
+button.icon > image
+{
+  float: left;
+  -moz-box-flex: 0;
+}
+
+button.icon + button.icon
+{
+  border-left: solid 1px #cbc9c9;
+  padding-left: 10px;
+  margin-left: 10px;
+}
+
+button.arrow
+{
+  background-image: url('chrome://glome/skin/navigation/tiny-arrow-down.png');
+  background-position: right center;
+  background-repeat: no-repeat;
+  -moz-appearance: none;
+  padding-right: 20px;
+}
