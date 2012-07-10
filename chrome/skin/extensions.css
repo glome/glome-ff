@@ -5,6 +5,7 @@
 
 #glome-dashboard-container
 {
+  overflow-y: auto;
 }
 
 #glome-dashboard-container > hbox
@@ -22,6 +23,8 @@
   -moz-box-pack: start;
   float: left;
   padding: 10px;
+  overflow-y: auto;
+  -moz-box-flex: 100;
 }
 
 #glome-dashboard-container .box-container > .item

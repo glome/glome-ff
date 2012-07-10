@@ -1,3 +1,5 @@
+// This is probably obsolete after changing to floating Glome icon
+/*
 Glome.onFirefoxLoad = function(event) {
   document.getElementById("contentAreaContextMenu")
           .addEventListener("popupshowing", function (e){ Glome.showFirefoxContextMenu(e); }, false);
@@ -9,3 +11,9 @@ Glome.showFirefoxContextMenu = function(event) {
 };
 
 window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
+*/
+
+window.addEventListener('load', function()
+{
+  glome.LOG('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+}, false);

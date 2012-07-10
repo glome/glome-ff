@@ -6,6 +6,9 @@
 <!ENTITY notfound.label         "Page not found">
 <!ENTITY notfound.content       "The requested type could not be handled. We are sorry. We will practice more.">
 
+<!ENTITY title.block            "Block">
+<!ENTITY title.allow            "Allow">
+
 <!ENTITY menuitem.label         "Glome Preferences">
 <!ENTITY menuitem.accesskey     "G">
 <!ENTITY toolbarbutton.label    "Glome">
