@@ -51,7 +51,6 @@
 {
   display: block;
   bottom: 0;
-  right: -10px;
   width: 37px;
   height: 0;
   padding: 0;
@@ -86,7 +85,6 @@
 {
   bottom: 0;
   right: 15px;
-  width: 235px;
   -moz-appearance: none;
   outline: none;
 }
@@ -472,7 +470,12 @@ checkbox.glome-switch[checked] label:before
   text-align: left;
 }
 
-button.icon
+.glome button
+{
+  font-size: 13px;
+}
+
+.glome button.icon
 {
   width: 20px;
   padding: 0;
@@ -483,24 +486,75 @@ button.icon
   -moz-box-flex: 0;
 }
 
-button.icon > image
+.glome button.icon > image
 {
   float: left;
   -moz-box-flex: 0;
 }
 
-button.icon + button.icon
+.glome button.icon + button.icon
 {
   border-left: solid 1px #cbc9c9;
   padding-left: 10px;
   margin-left: 10px;
 }
 
-button.arrow
+.glome button.arrow
 {
   background-image: url('chrome://glome/skin/navigation/tiny-arrow-down.png');
   background-position: right center;
   background-repeat: no-repeat;
   -moz-appearance: none;
   padding-right: 20px;
+}
+
+.glome button.left-arrow
+{
+}
+
+.glome .large
+{
+  font-size: 21px;
+  margin: 10px 0;
+}
+
+.glome .single-line-labels label
+{
+  margin: 0;
+  padding: 0;
+  -moz-appearance: none;
+}
+
+.glome .single-line-labels label + label
+{
+  margin-left: 0.5em;
+}
+
+.glome button.no-frames
+{
+  -moz-appearance: none;
+  margin: 0;
+  padding: 0;
+}
+
+.glome textbox.glome-search
+{
+  background-image: url('chrome://glome/skin/icons/icon-looking-glass-white.png');
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  background-color: #c6c4c4;
+  border-radius: 14px;
+  height: 28px;
+  line-height: 28px;
+  color: white;
+  border: none;
+  -moz-appearance: none; 
+  padding-left: 29px;
+  padding-right: 10px;
+}
+
+.glome textbox.glome-search,
+.glome textbox.glome-search *
+{
+  color: white;
 }

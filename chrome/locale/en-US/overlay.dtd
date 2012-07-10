@@ -32,3 +32,11 @@
 <!ENTITY label.see_ad           "See ad">
 <!ENTITY label.not_now          "Not now">
 <!ENTITY label.never            "Never">
+<!ENTITY label.yes_please       "Yes, please">
+<!ENTITY label.no_thanks        "No, thanks">
+<!ENTITY hi_comma               "Hi,">
+<!ENTITY redeem_cash            "Redeem cash">
+<!ENTITY button.off             "Off">
+<!ENTITY button.on              "On">
+<!ENTITY label.you_have         "You have">
+<!ENTITY placeholder.discover_brands "Discover brands" >
