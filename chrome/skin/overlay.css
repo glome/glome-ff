@@ -559,8 +559,12 @@ checkbox.glome-switch[checked] label:before
   color: white;
 }
 
-
 [state="active"] .inactive
+{
+  display: none;
+}
+
+[state="disabled"] .active
 {
   display: none;
 }
