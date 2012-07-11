@@ -13,11 +13,6 @@
   <script type="application/x-javascript;version=1.8" src="notification.js"/>
   <!-- <script type="application/x-javascript;version=1.8" src="ff-overlay.js"/> -->
   
-  <!-- merge with preferences -->
-  <prefwindow id="BrowserPreferences">
-  
-  </prefwindow>
-  
   <!-- <menupopup id="menu_ToolsPopup">
     <menuitem id="glome-icon" label="Glome" oncommand="Glome.onMenuItemCommand(event);"/>
   </menupopup> -->
@@ -84,10 +79,19 @@
           </vbox>
           <hbox class="actions">
             <box flex="1">
-              <!-- note to self: attribute "control" is vital for a checkbox to work -->
-              <checkbox class="glome-switch small" id="glome_power_switch" preference="isGlomeOn">
-                <label control="glome_power_switch"></label>
-              </checkbox>
+              <!-- @TODO: I have a hunch that even though Firefox on OS X saves the preference without user action, this on Windows probably isn't so. Check! -->
+              <!-- @TODO: bind an event to observe status change -->
+              <prefwindow id="glome-switch" class="glome-preferences">
+                <prefpane id="glome-switch-preferences">
+                  <preferences>
+                    <preference id="glome-enabled-switch" name="extensions.glome.enabled" type="bool" />
+                  </preferences>
+                  <checkbox class="glome-switch small" id="glome_power_switch" preference="glome-enabled-switch">
+                    <!-- note to self: attribute "control" is vital for a checkbox to work -->
+                    <label control="glome_power_switch"></label>
+                  </checkbox>
+                </prefpane>
+              </prefwindow>
               <spacer flex="1" />
             </box>
             <box pack="end" flex="0">

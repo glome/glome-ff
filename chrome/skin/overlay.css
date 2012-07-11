@@ -231,6 +231,25 @@
   -moz-animation-name: none;
 }
 
+.glome-preferences,
+.glome-preferences *
+{
+  -moz-appearance: none;
+}
+
+.glome-preferences,
+.glome-preferences > *
+{
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.glome-preferences button
+{
+  display: none;
+}
+
 toolbar[iconsize="small"] #glome-toolbarbutton,
 #PersonalToolbar #glome-toolbarbutton,
 #glome-status image
