@@ -106,6 +106,7 @@ function glomeInit()
     contextMenu.appendChild(E("glome-image-menuitem"));
   }
   
+  
   // First run actions
   if (glome && !("doneFirstRunActions" in glomePrefs) && glome.versionComparator.compare(glomePrefs.lastVersion, "0.0") <= 0)
   {
@@ -195,16 +196,24 @@ function glomeUnload() {
   prefReloadTimer.cancel();
 }
 
-function glomeReloadPrefs() {
+function glomeReloadPrefs()
+{
   //glome.LOG("glomeReloadPrefs");
   
   var label;
   var state = null;
-  if (glome) {
+  if (glome)
+  {
     if (glomePrefs.enabled)
+    {
       state = "active";
+      //E('glome-overlay').setAttribute('glome', 'active');
+    }
     else
+    {
       state = "disabled";
+      //E('glome-overlay').setAttribute('glome', 'disabled');
+    }
   
     label = glome.getString("status_" + state + "_label");
     if (state == "active") {
@@ -213,7 +222,14 @@ function glomeReloadPrefs() {
       //   state = "whitelisted";
     }
   }
-
+  
+  // Set state to main window
+  overlay = E('main-window');
+  overlay.setAttribute('state', state);
+  
+  // @TODO: check if these are needed for anything after the new layout structure...
+  return;
+  
   var tooltip = E("glome-tooltip");
   if (state && tooltip)
     tooltip.setAttribute("curstate", state);
@@ -249,6 +265,7 @@ function glomeReloadPrefs() {
   };
 
   var status = E("glome-status");
+  
   updateElement(status);
   if (glomePrefs.defaultstatusbaraction == 0)
     status.setAttribute("popup", status.getAttribute("context"));

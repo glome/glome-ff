@@ -13,6 +13,11 @@
   <script type="application/x-javascript;version=1.8" src="notification.js"/>
   <!-- <script type="application/x-javascript;version=1.8" src="ff-overlay.js"/> -->
   
+  <!-- merge with preferences -->
+  <prefwindow id="BrowserPreferences">
+  
+  </prefwindow>
+  
   <!-- <menupopup id="menu_ToolsPopup">
     <menuitem id="glome-icon" label="Glome" oncommand="Glome.onMenuItemCommand(event);"/>
   </menupopup> -->
@@ -22,7 +27,7 @@
     <stack id="glome-controls" height="0" insertbefore="status-bar">
       <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end">
         <vbox>
-          <vbox class="inactive" hidden="false">
+          <vbox class="inactive">
             <hbox>
               <textbox placeholder="&placeholder.discover_brands;" class="glome-search" flex="1" />
               <vbox flex="0" pack="center">
@@ -42,7 +47,7 @@
               </box>
             </vbox>
           </vbox>
-          <vbox class="active" hidden="true">
+          <vbox class="active">
             <hbox>
               <vbox class="glome-ad-description">
                 <label value="&hi_comma;" />
@@ -80,7 +85,7 @@
           <hbox class="actions">
             <box flex="1">
               <!-- note to self: attribute "control" is vital for a checkbox to work -->
-              <checkbox class="glome-switch small" id="glome_power_switch">
+              <checkbox class="glome-switch small" id="glome_power_switch" preference="isGlomeOn">
                 <label control="glome_power_switch"></label>
               </checkbox>
               <spacer flex="1" />
@@ -107,7 +112,7 @@
         </vbox>
       </panel>
       <stack align="right" bottom="0" right="15" id="glome-controls-icon-wrapper" popup="glome-controls-window">
-        <box align="right" id="glome-controls-icon" class="active">
+        <box align="right" id="glome-controls-icon">
         </box>
         <box id="glome-controls-icon-counter">
           <label align="right" value="1" flex="0" />
@@ -191,15 +196,15 @@
   </window>
 
   <!-- Status bar -->
-<!--
   <statusbar id="status-bar">
     <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
+<!--
       <stack>
         <image tooltip="glome-tooltip" src="chrome://glome/skin/icons/statusbar-icon-inactive.png" id="glome-status-bar-icon" />
       </stack>
+-->
     </statusbarpanel>
   </statusbar> 
--->
 
   <!-- Firefox toolbar -->
   <toolbarpalette id="BrowserToolbarPalette">

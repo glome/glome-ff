@@ -12,8 +12,3 @@ Glome.showFirefoxContextMenu = function(event) {
 
 window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
 */
-
-window.addEventListener('load', function()
-{
-  glome.LOG('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-}, false);
