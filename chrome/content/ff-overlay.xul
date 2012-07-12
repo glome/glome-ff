@@ -158,7 +158,7 @@
       <command id="glome-command-enable" oncommand="//"/>
     </commandset>
     
-    <panel id="ad-stack-panel" level="parent" noautohide="true">
+    <panel id="ad-stack-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%">
       <stack id="ad-stack">
         <box id="ad-overlay">
           <vbox id="ad-overlay-display">
@@ -181,16 +181,25 @@
                 <label value="€" class="currency" flex="1" />
             </hbox>
             <hbox id="ad-overlay-footer">
-              <description>Glome Inc </description>
-              <label value="Content policy" />
-              <label value="Terms of Service" />
-              <label value="Privacy policy" />
-              <box flex="1">
-                <label value="Share" />
-                <label value="Share" />
-                <label value="Share" />
-                <label value="Share" />
-              </box>
+              <hbox class="links separators" align="center" pack="start">
+                <vbox>
+                  <label value="© Glome Inc" class="text-link" href="http://glome.me" />
+                </vbox>
+                <vbox>
+                  <label value="&label.content_policy;" class="text-link" href="" />
+                </vbox>
+                <vbox>
+                  <label value="&label.terms_of_service;" class="text-link" href="" />
+                </vbox>
+                <vbox>
+                  <label value="&label.privacy_policy;" class="text-link" href="" />
+                </vbox>
+              </hbox>
+              <hbox flex="1" pack="end" class="share">
+                <label href="https://www.facebook.com/GlomeInc" class="facebook text-link" value=" " />
+                <label href="https://twitter.com/glomeinc" class="twitter text-link" value=" " />
+                <label href="http://glome.me/" class="blog text-link" value=" " />
+              </hbox>
             </hbox>
           </vbox>
         </box>

@@ -304,11 +304,11 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #ad-overlay-common
 {
-  background-color: #a7aab1;
+  background-image: -moz-radial-gradient(center -50%, circle farthest-side, rgba(255,255,255,1), rgba(255,255,255,0)), url('chrome://glome/skin/configscreen-active-background.gif');
   border-top: solid 1px #b2b5ba;
   border-bottom: solid 1px #888892;
   height: 168px;
-  color: white;
+  color: #40414c;
 }
 
 #ad-overlay-common > .description,
@@ -354,7 +354,6 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #ad-overlay-common .content.h1
 {
-  color: white;
   font-size: 200%;
   text-transform: uppercase;
 }
@@ -383,9 +382,77 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #ad-overlay-footer
 {
-    height: 61px;
-    line-height: 61px;
+    padding: 20px 0;
     vertical-align: middle;
+}
+
+#ad-overlay-footer .links
+{
+}
+
+#ad-overlay-footer .links > *
+{
+  -moz-box-pack: start;
+  -moz-box-align: center;
+  -moz-flex: 0;
+}
+
+#ad-overlay-footer label.text-link
+{
+  background-repeat: no-repeat;
+  background-position: center center;
+  -moz-appearance: none;
+  text-decoration: none;
+  color: black;
+}
+
+#ad-overlay-footer .share label.text-link
+{
+  height: 25px;
+}
+
+#ad-overlay-footer label.text-link:hover
+{
+  text-decoration: underline;
+}
+
+#ad-overlay-footer .share label.text-link:hover
+{
+  text-decoration: none;
+}
+
+#ad-overlay-footer label.text-link.facebook
+{
+  background-image: url('chrome://glome/skin/icons/facebook-x25.png');
+  width: 11px;
+}
+
+#ad-overlay-footer label.text-link.twitter
+{
+  background-image: url('chrome://glome/skin/icons/twitter-x25.png');
+  width: 30px;
+}
+
+#ad-overlay-footer label.text-link.blog
+{
+  background-image: url('chrome://glome/skin/icons/blog-x25.png');
+  width: 24px;
+}
+
+#ad-overlay-footer label,
+#ad-overlay-footer description
+{
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  -moz-appearance: none;
+  vertical-align: middle;
+}
+
+#ad-overlay-footer .separators > * + *
+{
+  padding-left: 1em;
 }
 
 #ad-close
@@ -586,4 +653,23 @@ checkbox.glome-switch[checked] label:before
 [state="disabled"] .active
 {
   display: none;
+}
+
+.glome .separators > *
+{
+  margin-left: 0.5em;
+  padding-left: 0.5em;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+.glome .separators > :first-child
+{
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.glome .separators > * + *
+{
+  border-left: solid 1px;
 }

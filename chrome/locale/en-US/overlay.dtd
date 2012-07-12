@@ -43,3 +43,6 @@
 <!ENTITY button.on              "On">
 <!ENTITY label.you_have         "You have">
 <!ENTITY placeholder.discover_brands "Discover brands" >
+<!ENTITY label.content_policy   "Content policy">
+<!ENTITY label.terms_of_service "Terms of Service">
+<!ENTITY label.privacy_policy   "Privacy policy">
