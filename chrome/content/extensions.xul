@@ -14,8 +14,8 @@
   
     <!-- glome view -->
     <deck id="glome-view" class="view-pane" selectedIndex="0">
-      <hbox id="glome-dashboard-container" width="100%">
-        <vbox id="glome-selector-disabled" class="glome-selector" width="50%">
+      <hbox id="glome-dashboard-container" width="100%" class="glome-selector-container">
+        <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
           <box class="overflow-hidden">
             <label value="&title.block;" class="selector-title" />
           </box>
@@ -118,7 +118,7 @@
             </box>
           </box>
         </vbox>
-        <vbox id="glome-selector-enabled" class="glome-selector" width="50%">
+        <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
           <box class="overflow-hidden" pack="end">
             <label value="&title.allow;" class="selector-title" />
           </box>

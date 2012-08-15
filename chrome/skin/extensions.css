@@ -13,12 +13,12 @@
   width: 50%;
 }
 
-#glome-dashboard-container > hbox .selector-title
+.glome-selector-container .selector-title
 {
   clear: both;
 }
 
-#glome-dashboard-container .box-container
+.glome-selector-container .box-container
 {
   -moz-box-pack: start;
   float: left;
@@ -40,7 +40,7 @@
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.42);
 }
 
-#glome-dashboard-container .box-container > .item > *
+.glome-selector-container .box-container > .item > *
 {
   width: 100%;
 }
@@ -78,35 +78,35 @@
   background-image: url('chrome://glome/skin/selector-box-active-diagonal.gif');
 }
 
-#glome-dashboard-container .glome-selector
+.glome-selector-container .glome-selector
 {
   background-position: left top;
   -moz-box-flex: 1;
 }
 
-#glome-dashboard-container .glome-selector label.selector-title
+.glome-selector-container .glome-selector label.selector-title
 {
   font-size: 83px;
   margin-top: -20px;
   color: rgba(0,0,0,0.2);
 }
 
-#glome-dashboard-container #glome-selector-disabled
+.glome-selector-container .glome-selector.disabled
 {
   background-image: url('chrome://glome/skin/configscreen-inactive-background.gif');
 }
 
-#glome-dashboard-container #glome-selector-disabled label.selector-title
+.glome-selector-container .glome-selector.disabled label.selector-title
 {
   margin-left: -10px;
 }
 
-#glome-dashboard-container #glome-selector-enabled
+.glome-selector-container .glome-selector.enabled
 {
   background-image: url('chrome://glome/skin/configscreen-active-background.gif');
 }
 
-#glome-dashboard-container #glome-selector-enabled label.selector-title
+.glome-selector-container .glome-selector.enabled label.selector-title
 {
   margin-right: -10px;
   text-align: right;
@@ -116,3 +116,31 @@
 {
   overflow: hidden;
 }
+
+#glome-controls-view-all .glome-selector .item
+{
+  width: 180px;
+  height: 125px;
+  padding: 10px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.42);
+}
+
+@media screen and (min-width: 1100px)
+{
+  #glome-controls-view-all
+  {
+    min-width: 900px;
+  }
+}
+
+@media screen and (max-width: 1099px)
+{
+  #glome-controls-view-all
+  {
+    min-width: 500px;
+  }
+}
+

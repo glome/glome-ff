@@ -46,3 +46,7 @@
 <!ENTITY label.content_policy   "Content policy">
 <!ENTITY label.terms_of_service "Terms of Service">
 <!ENTITY label.privacy_policy   "Privacy policy">
+<!ENTITY label.all_pending_requests  "All pending ad requests">
+<!ENTITY label.glome_dashboard  "Glome Dashboard">
+<!ENTITY label.turn_glome_off   "Turn Glome OFF">
+<!ENTITY label.just_for_this_site  "Just for this site">

@@ -14,7 +14,8 @@ var prefService = Components.classes["@mozilla.org/preferences-service;1"]
 
 var ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream", "init");
 
-var prefs = {
+var prefs =
+{
   lastVersion: null,
   initialized: false,
   disableObserver: false,
@@ -23,35 +24,45 @@ var prefs = {
   prefList: [],
   listeners: [],
 
-  addObservers: function() {
+  addObservers: function()
+  {
     // Observe preferences changes
-    try {
+    try
+    {
       var branchInternal = this.branch.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
       branchInternal.addObserver("", this, true);
-    } catch (e) {
+    }
+    catch (e)
+    {
       dump("Glome: exception registering pref observer: " + e + "\n");
     }
 
-    var observerService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Components.interfaces.nsIObserverService);
+    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
 
     // Observe profile changes
-    try {
+    try
+    {
       observerService.addObserver(this, "profile-before-change", true);
       observerService.addObserver(this, "profile-after-change", true);
-    } catch (e) {
+    }
+    catch (e)
+    {
       dump("Glome: exception registering profile observer: " + e + "\n");
     }
 
     // Add Private Browsing observer
     if ("@mozilla.org/privatebrowsing;1" in Components.classes)
     {
-      try {
+      try
+      {
         this.privateBrowsing = Components.classes["@mozilla.org/privatebrowsing;1"]
-                                         .getService(Components.interfaces.nsIPrivateBrowsingService)
-                                         .privateBrowsingEnabled;
+          .getService(Components.interfaces.nsIPrivateBrowsingService)
+          .privateBrowsingEnabled;
+        
         observerService.addObserver(this, "private-browsing", true);
-      } catch(e) {
+      }
+      catch(e)
+      {
         dump("Glome: exception initializing private browsing observer: " + e + "\n");
       }
     }
@@ -59,7 +70,8 @@ var prefs = {
     this.observe(null, "profile-after-change", null);
   },
 
-  init: function() {
+  init: function()
+  {
     glome.LOG("glome.prefs::init");
     // Try to fix selected locale in Mozilla/SeaMonkey
     strings = stringService.createBundle("chrome://glome/locale/global.properties");
@@ -74,15 +86,19 @@ var prefs = {
     types[defaultBranch.PREF_BOOL] = "Bool";
 
     this.prefList = [];
-    for each (var name in defaultPrefs) {
+    for each (var name in defaultPrefs)
+    {
       var type = defaultBranch.getPrefType(name);
       var typeName = (type in types ? types[type] : "Char");
 
-      try {
+      try
+      {
         var pref = [name, typeName, defaultBranch["get" + typeName + "Pref"](name)];
         this.prefList.push(pref);
         this.prefList[" " + name] = pref;
-      } catch(e) {}
+      }
+      catch(e)
+      {}
     }
 
     // Initial prefs loading
@@ -90,7 +106,8 @@ var prefs = {
 
     // Update lastVersion pref if necessary
     this.lastVersion = this.currentVersion;
-    if (this.currentVersion != glome.getInstalledVersion()) {
+    if (this.currentVersion != glome.getInstalledVersion())
+    {
       this.currentVersion = glome.getInstalledVersion();
       this.save();
     }
@@ -100,21 +117,28 @@ var prefs = {
   },
 
   // Loads a pref and stores it as a property of the object
-  loadPref: function(pref) {
-    try {
+  loadPref: function(pref)
+  {
+    try
+    {
       this[pref[0]] = this.branch["get" + pref[1] + "Pref"](pref[0]);
-    } catch (e) {
+    }
+    catch (e)
+    {
       // Use default value
       this[pref[0]] = pref[2];
     }
   },
 
   // Saves a property of the object into the corresponding pref
-  savePref: function(pref) {
-    try {
+  savePref: function(pref)
+  {
+    try
+    {
       this.branch["set" + pref[1] + "Pref"](pref[0], this[pref[0]]);
     }
-    catch (e) {}
+    catch (e)
+    {}
   },
 
   // Reloads the preferences
@@ -140,50 +164,71 @@ var prefs = {
     this.disableObserver = false;
 
     // Make sure to save the prefs on disk (and if we don't - at least reload the prefs)
-    try {
+    try
+    {
       prefService.savePrefFile(null);
-    } catch(e) {}
+    }
+    catch(e)
+    {}
     
     this.reload();
   },
 
-  addListener: function(handler) {
+  addListener: function(handler)
+  {
     this.listeners.push(handler);
   },
 
-  removeListener: function(handler) {
+  removeListener: function(handler)
+  {
     for (var i = 0; i < this.listeners.length; i++)
+    {
       if (this.listeners[i] == handler)
+      {
         this.listeners.splice(i--, 1);
+      }
+    }
   },
 
   // nsIObserver implementation
-  observe: function(subject, topic, prefName) {
-    if (topic == "profile-after-change") {
+  observe: function(subject, topic, prefName)
+  {
+    if (topic == "profile-after-change")
+    {
       this.init();
       this.initialized = true;
     }
-    else if (this.initialized && topic == "profile-before-change") {
+    else if (this.initialized && topic == "profile-before-change")
+    {
       //filterStorage.saveToDisk();
       this.initialized = false;
     }
     else if (topic == "private-browsing")
     {
       if (prefName == "enter")
+      {
         this.privateBrowsing = true;
+      }
       else if (prefName == "exit")
+      {
         this.privateBrowsing = false;
+      }
     }
     else if (this.initialized && !this.disableObserver)
+    {
       this.reload();
+    }
   },
 
   // nsISupports implementation
-  QueryInterface: function(iid) {
+  QueryInterface: function(iid)
+  {
     if (!iid.equals(Components.interfaces.nsISupports) &&
         !iid.equals(Components.interfaces.nsISupportsWeakReference) &&
         !iid.equals(Components.interfaces.nsIObserver))
+    {
       throw Components.results.NS_ERROR_NO_INTERFACE;
+    }
 
     return this;
   }

@@ -1,10 +1,16 @@
 var glome = null;
 
-try {
+try
+{
   glome = Components.classes["@glome.me/glome-ext;1"].createInstance().wrappedJSObject;
+  
   if (!glome.prefs.initialized || !glome.abp.prefs.initialized)
+  {
     glome = null;
-} catch (e) {
+  }
+}
+catch (e)
+{
   dump("GET GLOME EXCEPTION");
   dump(e);
 }
@@ -13,6 +19,8 @@ var glomePrefs = glome ? glome.prefs : {enabled: false};
 var glomeOldShowInToolbar = glomePrefs.showintoolbar;
 var glomeHideImageManager;
 var glomeAbpHideImageManager;
+
+glome.initialized = false;
 
 /**
  * List of event handers to be registered. For each event handler the element ID,
@@ -53,13 +61,22 @@ function glomeInit()
   window.glomeDetachedSidebar = null;
   glomeReloadPrefs();
   
-  if (glome) {
+  if (glome)
+  {
     // Register event listeners
     window.addEventListener("unload", glomeUnload, false);
-    for each (let [id, event, handler] in eventHandlers) {
+    
+    // Register window resize events
+    window.addEventListener('resize', glomeResize, false);
+    
+    for each (let [id, event, handler] in eventHandlers)
+    {
       let element = E(id);
+      
       if (element)
+      {
         element.addEventListener(event, handler, false);
+      }
     }
     
     // Load jQuery. This needs window event so loading jQuery in extensions doesn't work
@@ -73,9 +90,14 @@ function glomeInit()
       
       glome.jQuery = window.jQuery.noConflict(true);
       glome.window = window;
-      
       // Load jQuery timers
       loader.loadSubScript("chrome://glome/content/jQuery/jquery.timers.src.js", glome);
+      
+      // Create reference to this
+      window.glome = this;
+      
+      // Load jQuery extensions
+      loader.loadSubScript("chrome://glome/content/jQuery/jquery.glome.js", glome);
     }
     catch(e)
     {
@@ -86,18 +108,26 @@ function glomeInit()
     prefReloadTimer = glome.createTimer(glomeReloadPrefs, 2000);
     prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
     
-    // Make sure we always configure keys but don't let them break anything
-    try {
+     // Make sure we always configure keys but don't let them break anything
+    try
+    {
       // Configure keys
       for (var key in glomePrefs)
+      {
         if (key.match(/(.*)_key$/))
+        {
           glomeConfigureKey(RegExp.$1, glomePrefs[key]);
-    } catch(e) {}
+        }
+      }
+    }
+    catch(e)
+    {}
   }
 
   // Install context menu handler
   var contextMenu = E("contentAreaContextMenu") || E("messagePaneContext") || E("popup_content");
-  if (contextMenu) {
+  if (contextMenu)
+  {
     contextMenu.addEventListener("popupshowing", glomeCheckContext, false);
   
     // Make sure our context menu items are at the bottom
@@ -123,32 +153,46 @@ function glomeInit()
 
   // Move toolbar button to a correct location in Mozilla
   var button = E("glome-toolbarbutton");
-  if (button && button.parentNode.id == "nav-bar-buttons") {
+  
+  if (button && button.parentNode.id == "nav-bar-buttons")
+  {
     var ptf = E("bookmarks-ptf");
     ptf.parentNode.insertBefore(button, ptf);
   }
 
   // Copy the menu from status bar icon to the toolbar
-  var fixId = function(node) {
+  var fixId = function(node)
+  {
     if (node.nodeType != node.ELEMENT_NODE)
+    {
       return node;
+    }
   
     if ("id" in node && node.id)
+    {
       node.id = node.id.replace(/glome-status/, "glome-toolbar");
+    }
   
     for (var child = node.firstChild; child; child = child.nextSibling)
+    {
       fixId(child);
+    }
   
     return node;
   };
-  var copyMenu = function(to) {
+  var copyMenu = function(to)
+  {
     if (!to || !to.firstChild)
+    {
       return;
+    }
   
     to = to.firstChild;
     var from = E("glome-status-popup");
     for (var node = from.firstChild; node; node = node.nextSibling)
+    {
       to.appendChild(fixId(node.cloneNode(true)));
+    }
   };
   copyMenu(E("glome-toolbarbutton"));
   copyMenu(glomeGetPaletteButton());
@@ -189,11 +233,74 @@ function glomeInit()
 */
 };
 
-function glomeUnload() {
+/**
+ * Resize Glome related canvases according to the resizing of the main window
+ * 
+ * @param Object e    onresize event
+ */
+function glomeResize(e)
+{
+  var obj = window.document.getElementById('browser');
+  var panel = window.document.getElementById('ad-stack-panel');
+  
+  glome.jQuery(panel)
+    .attr
+    (
+      {
+        width: glome.jQuery(obj).width(),
+        height: glome.jQuery(obj).height()
+      }
+    );
+}
+
+/**
+ * Get the currently viewed domain
+ * 
+ * @return string
+ */
+function glomeGetCurrentDomain()
+{
+  var current_url = window.top.getBrowser().selectedBrowser.contentWindow.location.href;
+  
+  // Do nothing for local pages
+  if (current_url.match(/(about|chrome):/))
+  {
+    return null;
+  }
+  
+  // Match the current domain
+  return current_url.match(/^.+:\/\/(.+?)(\/.*$|$)/)[1];
+}
+
+function glomeUnload()
+{
   //glome.LOG("glomeUnload");
   glomePrefs.removeListener(glomeReloadPrefs);
   glome.getBrowserInWindow(window).removeEventListener("select", glomeReloadPrefs, false); 
   prefReloadTimer.cancel();
+}
+
+function glomeExtractObject(object)
+{
+  var str = '';
+  
+  for (i in object)
+  {
+    if (str)
+    {
+      str += ', ';
+    }
+    
+    str += i + ': ' + typeof object[i];
+  }
+  
+  return str;
+}
+
+function glomeSwitch(domain)
+{
+  glomeTogglePref('enabled');
+  return glomePrefs.enabled;
 }
 
 function glomeReloadPrefs()
@@ -228,8 +335,7 @@ function glomeReloadPrefs()
   overlay.setAttribute('state', state);
   
   // @TODO: check if these are needed for anything after the new layout structure...
-  return;
-  
+/*
   var tooltip = E("glome-tooltip");
   if (state && tooltip)
     tooltip.setAttribute("curstate", state);
@@ -266,12 +372,15 @@ function glomeReloadPrefs()
 
   var status = E("glome-status");
   
-  updateElement(status);
-  if (glomePrefs.defaultstatusbaraction == 0)
-    status.setAttribute("popup", status.getAttribute("context"));
-  else
-    status.removeAttribute("popup");
-
+  if (status)
+  {
+    updateElement(status);
+    if (glomePrefs.defaultstatusbaraction == 0)
+      status.setAttribute("popup", status.getAttribute("context"));
+    else
+      status.removeAttribute("popup");
+  }
+  
   var button = E("glome-toolbarbutton");
   updateElement(button);
   
@@ -285,7 +394,7 @@ function glomeReloadPrefs()
   }
   
   updateElement(glomeGetPaletteButton());
-  
+*/
   //glome.LOG("glomeReloadPrefs done");
 };
 
@@ -343,40 +452,63 @@ function glomeCheckContext() {
   var nodeType = null;
   backgroundData = null;
   frameData = null;
-  if (glome && target) {
+  if (glome && target)
+  {
     // Lookup the node in our stored data
     var data = glome.getDataForNode(target);
     var targetNode = null;
-    if (data) {
+    if (data)
+    {
       targetNode = data[0];
       data = data[1];
     }
+    
     nodeData = data;
+    
     if (data && !data.filter)
+    {
       nodeType = data.typeDescr;
+    }
+    
 
     var wnd = (target ? target.ownerDocument.defaultView : null);
     var wndData = (wnd ? glome.getDataForWindow(wnd) : null);
 
     if (wnd.frameElement)
+    {
       frameData = glome.getDataForNode(wnd.frameElement, true);
+    }
+    
     if (frameData)
+    {
       frameData = frameData[1];
+    }
+    
     if (frameData && frameData.filter)
+    {
       frameData = null;
+    }
+    
 
-    if (nodeType != "IMAGE") {
+    if (nodeType != "IMAGE")
+    {
       // Look for a background image
       var imageNode = target;
-      while (imageNode && !backgroundData) {
-        if (imageNode.nodeType == imageNode.ELEMENT_NODE) {
+      while (imageNode && !backgroundData)
+      {
+        if (imageNode.nodeType == imageNode.ELEMENT_NODE)
+        {
           var bgImage = null;
           var style = wnd.getComputedStyle(imageNode, "");
           bgImage = glomeImageStyle(style, "background-image") || glomeImageStyle(style, "list-style-image");
-          if (bgImage) {
+          if (bgImage)
+          {
             backgroundData = wndData.getLocation(glome.abp.policy.type.BACKGROUND, bgImage);
+            
             if (backgroundData && backgroundData.filter)
+            {
               backgroundData = null;
+            }
           }
         }
 
@@ -386,10 +518,13 @@ function glomeCheckContext() {
 
     // Hide "Block Images from ..." if hideimagemanager pref is true and the image manager isn't already blocking something
     var imgManagerContext = E("context-blockimage");
-    if (imgManagerContext) {
+    if (imgManagerContext)
+    {
       if (typeof glomeAbpHideImageManager == "undefined")
+      {
         glomeAbpInitImageManagerHiding();
-    
+      }
+      
       // Don't use "hidden" attribute - it might be overridden by the default popupshowing handler
       imgManagerContext.style.display = (glomeAbpHideImageManager ? "none" : "");
     }
@@ -400,7 +535,13 @@ function glomeCheckContext() {
   E("glome-frame-menuitem").hidden = (frameData == null);
 }
 
-function glomeFillTooltip(event) {
+/**
+ * Fill tooltip 
+ * 
+ * @param Object event      
+ */
+function glomeFillTooltip(event)
+{
   if (!document.tooltipNode || !document.tooltipNode.hasAttribute("tooltip"))
   {
     event.preventDefault();
@@ -412,12 +553,16 @@ function glomeFillTooltip(event) {
   var type = (document.tooltipNode && document.tooltipNode.id == "glome-toolbarbutton" ? "toolbar" : "statusbar");
   var action = parseInt(glomePrefs["default" + type + "action"]);
   if (isNaN(action))
+  {
     action = -1;
+  }
 
   var actionDescr = E("glome-tooltip-action");
   actionDescr.hidden = (action < 0 || action > 3);
   if (!actionDescr.hidden)
+  {
     actionDescr.setAttribute("value", glome.getString("action" + action + "_tooltip"));
+  }
 
   var state = event.target.getAttribute("curstate");
   var statusDescr = E("glome-tooltip-status");
@@ -426,7 +571,9 @@ function glomeFillTooltip(event) {
   var activeFilters = [];
   E("glome-tooltip-blocked-label").hidden = (state != "active");
   E("glome-tooltip-blocked").hidden = (state != "active");
-  if (state == "active") {
+  
+  if (state == "active")
+  {
     var data = glome.getDataForWindow(glome.getBrowserInWindow(window).contentWindow);
     var locations = data.getAllLocations();
 
@@ -555,67 +702,106 @@ function glomeFillTooltip(event) {
 // }
 
 // Handle clicks on the Adblock statusbar panel
-function glomeClickHandler(e) {
+function glomeClickHandler(e)
+{
   glome.LOG("glomeClickHandler e.button: "+e.button);
   if (e.button == 0)
+  {
     glomeExecuteAction(glomePrefs.defaultstatusbaraction);
+  }
   else if (e.button == 1)
+  {
     glomeTogglePref("enabled");
+  }
 }
 
-function glomeCommandHandler(e) {
+function glomeCommandHandler(e)
+{
   glome.LOG("glomeCommandHandler");
   if (glomePrefs.defaulttoolbaraction == 0)
+  {
     e.target.open = true;
+  }
   else
+  {
     glomeExecuteAction(glomePrefs.defaulttoolbaraction);
+  }
 }
 
 // Executes default action for statusbar/toolbar by its number
 function glomeExecuteAction(action) {
   glome.LOG("glomeExecuteAction action: "+action);
-  if (action == 1) {
+  if (action == 1)
+  {
     //glomeToggleSidebar();
   }    
   else if (action == 2)
+  {
     glome.openSettingsDialog();
+  }
   else if (action == 3)
+  {
     glomeTogglePref("enabled");
+  }
 }
 
-// Toggles the value of a boolean pref
-function glomeTogglePref(pref) {
+/**
+ * Toggles the value of a boolean pref
+ * 
+ * @return boolean New preference (which SHOULD be now reversed status)
+ */
+function glomeTogglePref(pref)
+{
   glomePrefs[pref] = !glomePrefs[pref];
   glomePrefs.save();
+  
+  // Return the new status
+  return glomePrefs[pref];
 }
 
 // Bring up the settings dialog for the node the context menu was referring to
-function glomeNode(data) {
+function glomeNode(data)
+{
   glome.LOG("glomeNode");
   if (glome && data)
+  {
     window.openDialog("chrome://adblockplus/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", glome.getBrowserInWindow(window).contentWindow, data);
+  }
 }
 
-/* Adblock Plus related */
-
-function glomeAbpInitImageManagerHiding() {
+/**
+ * Adblock Plus related
+ * 
+ * @TODO: write what this does. Or find it out first...
+ */
+function glomeAbpInitImageManagerHiding()
+{
   if (!abp || typeof glomeAbpHideImageManager != "undefined")
+  {
     return;
+  }
 
   glomeAbpHideImageManager = false;
-  if (abpPrefs.hideimagemanager && "@mozilla.org/permissionmanager;1" in Components.classes) {
-    try {
+  
+  if (abpPrefs.hideimagemanager && "@mozilla.org/permissionmanager;1" in Components.classes)
+  {
+    try
+    {
       glomeAbpHideImageManager = true;
       var permissionManager = Components.classes["@mozilla.org/permissionmanager;1"]
                                         .getService(Components.interfaces.nsIPermissionManager);
       var enumerator = permissionManager.enumerator;
-      while (glomeAbpHideImageManager && enumerator.hasMoreElements()) {
+      while (glomeAbpHideImageManager && enumerator.hasMoreElements())
+      {
         var item = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
         if (item.type == "image" && item.capability == Components.interfaces.nsIPermissionManager.DENY_ACTION)
+        {
           glomeAbpHideImageManager = false;
+        }
       }
     } catch(e) {}
   }
 }
 
 glomeInit();
+glome.initialized = true;

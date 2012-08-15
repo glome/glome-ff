@@ -12,3 +12,51 @@ Glome.showFirefoxContextMenu = function(event) {
 
 window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
 */
+
+/**
+ * Change Glome state from the toolbar icon
+ */
+function glomeChangeState(id)
+{
+  state = window.glome.glomeSwitch('enabled', this);
+  
+  // Match the current domain
+  var domain = current_url.match(/^.+:\/\/(.+?)(\/.*$|$)/)[1];
+  alert(domain);
+  
+  if (state)
+  {
+    // @TODO: remove current domain
+    // window.glome.glomeEnableDomain(window.glome.glomeGetCurrentDomain());
+    return true;
+  }
+  
+  // @TODO: Suggest to turn off for just this site
+}
+
+/**
+ * Switch the state of a domain
+ * 
+ * @param String domain    Domain that needs to be switched
+ * @return boolean         Success status
+ */
+function glomeSwitchDomain(domain)
+{
+  if (!domain)
+  {
+    domain = glome.glomeGetCurrentDomain();
+  }
+  
+  // @TODO: Get requested domain status
+  // status = glome.glomeGetDomainStatus(domain);
+  
+  // @TODO: Switch domain
+  if (status)
+  {
+    //glome.glomeDisableDomain(domain);
+  }
+  else
+  {
+    //glome.glomeEnableDomain(domain);
+  }
+}

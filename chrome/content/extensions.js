@@ -1,6 +1,7 @@
 "use strict";
 
-var gGlomeDashboardView = {
+var gGlomeDashboardView =
+{
   node: null,
   enabled: true,
   // Set to true after the view is first shown. If initialization completes
@@ -23,43 +24,58 @@ var gGlomeDashboardView = {
     // this._browser = document.getElementById("glome-browser");
     
     var url = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
-                .getService(Ci.nsIURLFormatter)
-                .formatURLPref('http://glome.me');
+      .getService(Ci.nsIURLFormatter)
+      .formatURLPref('http://glome.me');
     // console.log('url',url);
+    
     var self = this;
 
-    function setURL(aURL) {
+    function setURL(aURL)
+    {
       console.log('setURL',aURL);
-      try {
+      try
+      {
         self.homepageURL = Services.io.newURI(aURL, null, null);
-      } catch (e) {
+      }
+      catch (e)
+      {
         self.showError();
         notifyInitialized();
         return;
       }
 
       self._browser.homePage = self.homepageURL.spec;
+      
+      // @NOTE: commenting out the line below fixes the blinking issue of addons screen, but it MIGHT break something
+/*
       self._browser.addProgressListener(self, Ci.nsIWebProgress.NOTIFY_ALL |
                                               Ci.nsIWebProgress.NOTIFY_STATE_ALL);
+*/
 
       if (self.loaded)
+      {
         self._loadURL(self.homepageURL.spec, false, notifyInitialized);
+      }
       else
+      {
         notifyInitialized();
+      }
     }
     
     //setURL(url);
     //setURL('http://glome.me');
   },
 
-  show: function(aParam, aRequest, aState, aIsRefresh) {
+  show: function(aParam, aRequest, aState, aIsRefresh)
+  {
     glome.LOG('Show dashboard');
     return;
     console.log('gGlomeDashboardView::show',aState);
     gViewController.updateCommands();
     
     // If we're being told to load a specific URL then just do that
-    if (aState && "url" in aState) {
+    if (aState && "url" in aState)
+    {
       console.log('gGlomeDashboardView - loaded');
       this.loaded = true;
       this._loadURL(aState.url);
@@ -79,57 +95,73 @@ var gGlomeDashboardView = {
 
     // No homepage means initialization isn't complete, the browser will get
     // loaded once initialization is complete
-    if (!this.homepageURL) {
+    if (!this.homepageURL)
+    {
       console.log('gGlomeDashboardView - !this.homepageURL');
       this._loadListeners.push(gViewController.notifyViewChanged.bind(gViewController));
       return;
     }
 
-    this._loadURL(this.homepageURL.spec, aIsRefresh,
-                  gViewController.notifyViewChanged.bind(gViewController));
+    this._loadURL(this.homepageURL.spec, aIsRefresh, gViewController.notifyViewChanged.bind(gViewController));
   },
   
-  canRefresh: function() {
+  canRefresh: function()
+  {
     glome.log('canRefresh');
     if (this._browser.currentURI &&
         this._browser.currentURI.spec == this._browser.homePage)
+    {
       return false;
+    }
+    
     return true;
   },
 
-  refresh: function(aParam, aRequest, aState) {
+  refresh: function(aParam, aRequest, aState)
+  {
     console.log('gGlomeDashboardView::refresh');
     this.show(aParam, aRequest, aState, true);
   },
 
   hide: function() { },
 
-  showError: function() {
+  showError: function()
+  {
     console.log('gGlomeDashboardView::showError',this._error);
     //this.node.selectedPanel = this._error;
   },
 
-  _loadURL: function(aURL, aKeepHistory, aCallback) {
+  _loadURL: function(aURL, aKeepHistory, aCallback)
+  {
     console.log('gGlomeDashboardView::_loadURL',aURL);
-    if (this._browser.currentURI.spec == aURL) {
+    if (this._browser.currentURI.spec == aURL)
+    {
       if (aCallback)
+      {
         aCallback();
+      }
+      
       return;
     }
 
     if (aCallback)
+    {
       this._loadListeners.push(aCallback);
+    }
 
     var flags = 0;
 
     this._browser.loadURIWithFlags(aURL, flags);
   },
 
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {
+  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags)
+  {
     console.log('gGlomeDashboardView::onLocationChange',aLocation.spec);
     // Ignore the about:blank load
     if (aLocation.spec == "about:blank")
+    {
       return;
+    }
 
     gViewController.updateCommands();
     
@@ -145,9 +177,11 @@ var gGlomeDashboardView = {
     //aRequest.cancel(Components.results.NS_BINDING_ABORTED);
   },
 
-  onSecurityChange: function(aWebProgress, aRequest, aState) {
+  onSecurityChange: function(aWebProgress, aRequest, aState)
+  {
     glome.log('onSecurityChange');
     return;
+    
     // Don't care about security if the page is not https
     if (!this.homepageURL.schemeIs("https"))
       return;
@@ -161,32 +195,45 @@ var gGlomeDashboardView = {
     aRequest.cancel(Components.results.NS_BINDING_ABORTED);
   },
 
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
+  {
     glome.log('onStateChange');
+    
     // Only care about the network events
     if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_IS_NETWORK)))
+    {
       return;
+    }
     
     // If this is the start of network activity then show the loading page
     if (aStateFlags & (Ci.nsIWebProgressListener.STATE_START))
+    {
       this.node.selectedPanel = this._loading;
+    }
     
     // Ignore anything except stop events
     if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_STOP)))
+    {
       return;
+    }
     
     // Consider the successful load of about:blank as still loading
     if (aRequest instanceof Ci.nsIChannel && aRequest.URI.spec == "about:blank")
+    {
       return;
+    }
     
     // If there was an error loading the page or the new hostname is not the
     // same as the default hostname or the default scheme is secure and the new
     // scheme is insecure then show the error page
     const NS_ERROR_PARSED_DATA_CACHED = 0x805D0021;
     if (!(Components.isSuccessCode(aStatus) || aStatus == NS_ERROR_PARSED_DATA_CACHED) ||
-        (aRequest && aRequest instanceof Ci.nsIHttpChannel && !aRequest.requestSucceeded)) {
+        (aRequest && aRequest instanceof Ci.nsIHttpChannel && !aRequest.requestSucceeded))
+    {
       this.showError();
-    } else {
+    }
+    else
+    {
       // Got a successful load, make sure the browser is visible
       this.node.selectedPanel = this._browser;
       gViewController.updateCommands();
@@ -195,7 +242,8 @@ var gGlomeDashboardView = {
     var listeners = this._loadListeners;
     this._loadListeners = [];
     
-    listeners.forEach(function(aListener) {
+    listeners.forEach(function(aListener)
+    {
       aListener();
     });
   },
@@ -210,15 +258,19 @@ var gGlomeDashboardView = {
 };
 
 
-var GlomeDashboard = {
-  onLoad: function(event) {
+var GlomeDashboard =
+{
+  onLoad: function(event)
+  {
     // initialization code
     LOG('GLOME - initialize dashboard');
 
-    if (event.target instanceof XMLStylesheetProcessingInstruction) {
+    if (event.target instanceof XMLStylesheetProcessingInstruction)
+    {
       console.log('XMLStylesheetProcessingInstruction');
       return;
     }
+    
     document.removeEventListener("load", GlomeDashboard.onLoad, true);
 
     this.initialized = true;
@@ -235,22 +287,29 @@ var GlomeDashboard = {
     // console.log('gViewController.viewObjects',gViewController.viewObjects);
   },
   
-  bindToCategory: function(event) {
+  bindToCategory: function(event)
+  {
     LOG('bindToCategory');
     var self = this;
     
-    this.node.addEventListener("select", function() {
+    this.node.addEventListener("select", function()
+    {
       console.log('select',self.node.selectedItem.value);
       var view = gViewController.parseViewId(self.node.selectedItem.value);
       console.log('gViewController.parseViewId',view);
-      if (!view.type || !(view.type in gViewController.viewObjects))
+      
+      if (   !view.type
+          || !(view.type in gViewController.viewObjects))
+      {
         console.log("Invalid view: " + view.type);
+      }
         
       console.log('gViewController.currentViewId',gViewController.currentViewId);
       console.log('gViewController.currentViewObj',gViewController.currentViewObj);
     }, false);
 
-    this.node.addEventListener("click", function(aEvent) {
+    this.node.addEventListener("click", function(aEvent)
+    {
       var selectedItem = self.node.selectedItem;
       console.log('click',self.node.selectedItem.value);
       console.log('aEvent.target.localName',aEvent.target.localName);

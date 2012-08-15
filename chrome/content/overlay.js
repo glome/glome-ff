@@ -1,17 +1,18 @@
 const GLOME_DEVELOPMENT_MODE = true;
 
-
-
-var Glome = {
-  onLoad: function() {
+var Glome =
+{
+  onLoad: function()
+  {
     // initialization code
-    GLOME_LOG("Glome - onLoad");
+    this.LOG("Glome - onLoad");
     this.initialized = true;
     //this.strings = document.getElementById("feeeme-strings");
   },
 
-  onMenuItemCommand: function(e) {
-      GLOME_LOG("onMenuItemCommand");
+  onMenuItemCommand: function(e)
+  {
+      this.LOG("onMenuItemCommand");
     // var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
     //                               .getService(Components.interfaces.nsIPromptService);
     // promptService.alert(window, this.strings.getString("helloMessageTitle"),
@@ -19,46 +20,54 @@ var Glome = {
       Glome.showNotification();
   },
 
-  onToolbarButtonCommand: function(e) {
+  onToolbarButtonCommand: function(e)
+  {
     // just reuse the function above.  you can change this, obviously!
     Glome.onMenuItemCommand(e);
   },
-  
-  showNotification: function() {
-      GLOME_LOG("showNotification");
-      
-      let opts = {
-          onYes: function() {
-            console.log('onYes clicked!');
-          }
-      };
-      let nofif = new Glome.Notification('Audi would like to take you on a test drive, interested?', 1, opts);
-      console.log('nofif',nofif);
-      nofif.show();
-      
-      // let nb = gBrowser.getNotificationBox();
-      // let acceptButton = new Object();
-      // let declineButton = new Object();
-      // let message = "Audi Center haluaisi pyytää sinut koeajolle";
-      // let that = this;
-      // 
-      // acceptButton.label = "Katso";
-      // acceptButton.accessKey = "K";
-      // acceptButton.popup = null;
-      // acceptButton.callback = function() { that.acceptRequest(); };
-      // 
-      // declineButton.label = "Hylkää";
-      // declineButton.accessKey = "H";
-      // declineButton.popup = null;//document.getElementById("ad-panel");
-      // declineButton.callback = function() { that.declineRequest(); };
-      // 
-      // nb.appendNotification(
-      //   message, "feeeme-ad-notification",
-      //   "chrome://feeeme/skin/toolbar-button.png",
-      //   nb.PRIORITY_INFO_HIGH, [ acceptButton, declineButton ]);
+  LOG: function(input)
+  {
+    console.log(input);
+    GLOME_LOG(input);
   },
   
-  acceptRequest: function() {
+  showNotification: function()
+  {
+    this.LOG("showNotification");
+    
+    let opts = {
+        onYes: function() {
+          console.log('onYes clicked!');
+        }
+    };
+    let nofif = new Glome.Notification('Audi would like to take you on a test drive, interested?', 1, opts);
+    console.log('nofif',nofif);
+    nofif.show();
+    
+    // let nb = gBrowser.getNotificationBox();
+    // let acceptButton = new Object();
+    // let declineButton = new Object();
+    // let message = "Audi Center haluaisi pyytää sinut koeajolle";
+    // let that = this;
+    // 
+    // acceptButton.label = "Katso";
+    // acceptButton.accessKey = "K";
+    // acceptButton.popup = null;
+    // acceptButton.callback = function() { that.acceptRequest(); };
+    // 
+    // declineButton.label = "Hylkää";
+    // declineButton.accessKey = "H";
+    // declineButton.popup = null;//document.getElementById("ad-panel");
+    // declineButton.callback = function() { that.declineRequest(); };
+    // 
+    // nb.appendNotification(
+    //   message, "feeeme-ad-notification",
+    //   "chrome://feeeme/skin/toolbar-button.png",
+    //   nb.PRIORITY_INFO_HIGH, [ acceptButton, declineButton ]);
+  },
+  
+  acceptRequest: function()
+  {
     //this._sendHBClick('cpc');
     //this._sendHBClick('cpa');
     var hbox = document.getElementById('ad-overlay');
@@ -76,7 +85,8 @@ var Glome = {
     document.getElementById('main-window').appendChild(panel);
     panel.openPopup(document.getElementById('main-window'), 'overlap');
   },
-  declineRequest: function() {
+  declineRequest: function()
+  {
       //this._sendHBClick('cpc');
   },
   _sendHBClick: function(event_type)
@@ -105,28 +115,29 @@ var Glome = {
       
       //url += (url.match(/\?/) == null ? '?' : '&') + (new Date()).getTime();
       
-      GLOME_LOG("_sendHBClick url: "+url);
+      this.LOG("_sendHBClick url: "+url);
       
       req.open(method.toUpperCase(), url, true);
       
-      req.onreadystatechange = function(aEvt) {  
+      req.onreadystatechange = function(aEvt)
+      {  
         if (req.readyState == 4)
         {
           if (req.status == 200) {
             if (GLOME_DEVELOPMENT_MODE)
             {
-                GLOME_LOG(req.status+"\n");
-                GLOME_LOG(req.responseText+"\n");
+                this.LOG(req.status+"\n");
+                this.LOG(req.responseText+"\n");
             }
             
             //listener.finished(req.responseXML, req.status);
           } else {
             if (GLOME_DEVELOPMENT_MODE)
             {
-                GLOME_LOG("Error loading page\n");
-                GLOME_LOG(req.status+"\n");
-                GLOME_LOG(req.responseXML+"\n");
-                GLOME_LOG(req.responseText+"\n");
+                this.LOG("Error loading page\n");
+                this.LOG(req.status+"\n");
+                this.LOG(req.responseXML+"\n");
+                this.LOG(req.responseText+"\n");
             }
           }
         }
@@ -136,11 +147,14 @@ var Glome = {
       //req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
       //req.overrideMimeType('text/xml');
       
-      try {
-          req.send(postdata);
-      } catch (e) {
-          GLOME_LOG("Exception when sending request: \n");
-          GLOME_LOG(e);
+      try
+      {
+         req.send(postdata);
+      }
+      catch (e)
+      {
+         this.LOG("Exception when sending request: \n");
+         this.LOG(e);
       }
   }
 };
@@ -158,19 +172,3 @@ window.addEventListener("load", function()
             .loadSubScript("chrome://glome/content/browserWindow.js", sandbox);
   
 }, false);
-
-
-
-function GLOME_LOG(text)
-{
-    if (! GLOME_DEVELOPMENT_MODE) {
-        return;
-    }
-    
-    if (typeof console != undefined) {
-      console.log(text);
-    } else {
-      Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService)
-      .logStringMessage(text);
-    }
-}

@@ -9,34 +9,49 @@ var stringService = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var strings = stringService.createBundle("chrome://glome/locale/global.properties");
 var abp_strings = stringService.createBundle("chrome://glome/locale/abp-global.properties");
 
-glome.getString = function(name) {
+glome.getString = function(name)
+{
   var res = '';
-  try {
+  try
+  {
     res = strings.GetStringFromName(name);
-  } catch (e) {}
+  }
+  catch (e)
+  {}
   
-  try {
+  try
+  {
     res = anp_strings.GetStringFromName(name);
-  } catch (e) {}
+  }
+  catch (e)
+  {}
   
   return res;
 };
 
 // Retrieves the window object for a node or returns null if it isn't possible
-function getWindow(node) {
+function getWindow(node)
+{
   if (node && node.nodeType != Node.DOCUMENT_NODE)
+  {
     node = node.ownerDocument;
+  }
 
   if (!node || node.nodeType != Node.DOCUMENT_NODE)
+  {
     return null;
+  }
 
   return node.defaultView;
 }
 
 // Unwraps jar:, view-source: and wyciwyg: URLs, returns the contained URL
-function unwrapURL(url) {
+function unwrapURL(url)
+{
   if (!(url instanceof Components.interfaces.nsIURI))
+  {
     url = makeURL(url);
+  }
 
   try
   {
@@ -44,36 +59,52 @@ function unwrapURL(url) {
     {
       case "view-source":
         return unwrapURL(url.path);
+      
       case "wyciwyg":
         return unwrapURL(url.path.replace(/^\/\/\d+\//, ""));
+      
       case "jar":
         return unwrapURL(url.QueryInterface(Components.interfaces.nsIJARURI).JARFile);
+      
       default:
         if (url instanceof Components.interfaces.nsIURL && url.ref)
+        {
           return makeURL(url.spec.replace(/#.*/, ""));
+        }
         else
+        {
           return url;
+        }
     }
   }
-  catch (e) { return url; }
+  catch (e)
+  {
+    return url;
+  }
 }
 glome.unwrapURL = unwrapURL;
 
 // Returns an nsIURI for given url
-function makeURL(url) {
-  try {
+function makeURL(url)
+{
+  try
+  {
     return ioService.newURI(url, null, null);
   }
-  catch (e) {
+  catch (e)
+  {
     return null;
   }
 }
 glome.makeURL = makeURL;
 
 // hides a blocked element and collapses it if necessary
-function postProcessNode(node) {
+function postProcessNode(node)
+{
   if (!(node instanceof Element))
+  {
     return;
+  }
 
   // adjust frameset's cols/rows for frames
   var parentNode = node.parentNode;
@@ -85,8 +116,12 @@ function postProcessNode(node) {
     {
       var index = -1;
       for (var frame = node; frame; frame = frame.previousSibling)
+      {
         if (frame instanceof Components.interfaces.nsIDOMHTMLFrameElement || frame instanceof Components.interfaces.nsIDOMHTMLFrameSetElement)
+        {
           index++;
+        }
+      }
   
       var property = (hasCols ? "cols" : "rows");
       var weights = parentNode[property].split(",");
@@ -99,9 +134,12 @@ function postProcessNode(node) {
 }
 
 // Generates a click handler for object tabs
-function generateClickHandler(wnd, data) {
+function generateClickHandler(wnd, data)
+{
   glome.LOG("generateClickHandler");
-  return function(event) {
+  
+  return function(event)
+  {
     event.preventDefault();
     //wnd.openDialog("chrome://glome/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", wnd, data); 
   }
@@ -110,22 +148,28 @@ function generateClickHandler(wnd, data) {
 var objTabBinding = null;
 
 // Creates a tab above/below the new object node
-function addObjectTab(wnd, node, data, tab) {
+function addObjectTab(wnd, node, data, tab)
+{
   glome.LOG("addObjectTab");
   var origNode = node;
 
-  if (node.parentNode && node.parentNode.tagName.toLowerCase() == "object") {
+  if (node.parentNode && node.parentNode.tagName.toLowerCase() == "object")
+  {
     // Don't insert object tabs inside an outer object, causes ActiveX Plugin to do bad things
     node = node.parentNode;
   }
 
   if (!node.parentNode || !node.offsetWidth || !node.offsetHeight)
+  {
     return;
+  }
 
   // Decide whether to display the tab on top or the bottom of the object
   var offsetTop = 0;
   for (var offsetNode = origNode; offsetNode; offsetNode = offsetNode.offsetParent)
+  {
     offsetTop += offsetNode.offsetTop;
+  }
 
   var onTop = (offsetTop > 40);
 
@@ -135,22 +179,29 @@ function addObjectTab(wnd, node, data, tab) {
 
   // Insert tab into the document
   if (node.nextSibling)
+  {
     node.parentNode.insertBefore(tab, node.nextSibling);
+  }
   else
+  {
     node.parentNode.appendChild(tab);
+  }
 
   // Attach binding
   var doc = node.ownerDocument;
   doc.loadBindingDocument("chrome://glome/content/objecttab.xml");
   doc.addBinding(tab, "chrome://glome/content/objecttab.xml#objectTab");
 
-  var initHandler = function() {
+  var initHandler = function()
+  {
     // Make binding apply properly
     tab.className = gObjtabClass;
 
     createTimer(initHandler2, 0);
   }
-  var initHandler2 = function() {
+  
+  var initHandler2 = function()
+  {
     // Initialization
     var label = doc.getAnonymousNodes(tab)[0];
 
@@ -189,7 +240,8 @@ function addObjectTab(wnd, node, data, tab) {
 }
 
 // Sets a timeout, comparable to the usual setTimeout function
-function createTimer(callback, delay) {
+function createTimer(callback, delay)
+{
   var timer = Components.classes["@mozilla.org/timer;1"];
   timer = timer.createInstance(Components.interfaces.nsITimer);
   timer.init({observe: callback}, delay, timer.TYPE_ONE_SHOT);
@@ -199,13 +251,15 @@ glome.createTimer = createTimer;
 
 // Returns plattform dependent line break string
 var lineBreak = null;
-function getLineBreak() {
+function getLineBreak()
+{
   glome.LOG("getLineBreak");
   if (lineBreak == null) {
     // HACKHACK: Gecko doesn't expose NS_LINEBREAK, try to determine
     // plattform's line breaks by reading prefs.js
     lineBreak = "\n";
-    try {
+    try
+    {
       var dirService = Components.classes["@mozilla.org/file/directory_service;1"]
                                   .createInstance(Components.interfaces.nsIProperties);
       var prefFile = dirService.get("PrefF", Components.interfaces.nsIFile);
@@ -220,36 +274,48 @@ function getLineBreak() {
       scriptableStream.close();
 
       if (/(\r\n?|\n\r?)/.test(data))
+      {
         lineBreak = RegExp.$1;
-    } catch (e) {}
+      }
+    }
+    catch (e)
+    {}
   }
   return lineBreak;
 }
 glome.getLineBreak = getLineBreak;
 
 // Removes unnecessary whitespaces from filter
-function normalizeFilter(text) {
+function normalizeFilter(text)
+{
   glome.LOG("normalizeFilter");
   if (!text)
+  {
     return text;
+  }
 
   // Remove line breaks and such
   text = text.replace(/[^\S ]/g, "");
 
-  if (/^\s*!/.test(text)) {
+  if (/^\s*!/.test(text))
+  {
     // Don't remove spaces inside comments
     return text.replace(/^\s+/, "").replace(/\s+$/, "");
   }
-  else if (Filter.elemhideRegExp.test(text)) {
+  else if (Filter.elemhideRegExp.test(text))
+  {
     // Special treatment for element hiding filters, right side is allowed to contain spaces
     /^(.*?)(#+)(.*)$/.test(text);   // .split(..., 2) will cut off the end of the string
     var domain = RegExp.$1;
     var separator = RegExp.$2;
     var selector = RegExp.$3;
+    
     return domain.replace(/\s/g, "") + separator + selector.replace(/^\s+/, "").replace(/\s+$/, "");
   }
   else
+  {
     return text.replace(/\s/g, "");
+  }
 }
 glome.normalizeFilter = normalizeFilter;
 
@@ -263,7 +329,9 @@ function generateChecksum(lines)
 {
   glome.LOG("generateChecksum");
   let stream = null;
-  try {
+  
+  try
+  {
     // Checksum is an MD5 checksum (base64-encoded without the trailing "=") of
     // all lines in UTF-8 without the checksum line, joined with "\n".
 
@@ -277,11 +345,18 @@ function generateChecksum(lines)
     hashEngine.init(hashEngine.MD5);
     hashEngine.updateFromStream(stream, stream.available());
     return hashEngine.finish(true).replace(/=+$/, "");
-  } catch (e) {
+  }
+  catch (e)
+  {
     return null;
-  } finally {
+  }
+  finally
+  {
     if (stream)
+    {
       stream.close();
+    }
   }
 }
+
 glome.generateChecksum = generateChecksum;
