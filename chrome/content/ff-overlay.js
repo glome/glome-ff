@@ -16,47 +16,96 @@ window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
 /**
  * Change Glome state from the toolbar icon
  */
-function glomeChangeState(id)
+function glomeChangeState()
 {
-  state = window.glome.glomeSwitch('enabled', this);
+  glome.glome.LOG('Change state initiated');
   
-  // Match the current domain
-  var domain = current_url.match(/^.+:\/\/(.+?)(\/.*$|$)/)[1];
-  alert(domain);
+  var state = glome.glomeSwitch('enabled');
+  var domain = glome.glomeGetCurrentDomain();
   
-  if (state)
-  {
-    // @TODO: remove current domain
-    // window.glome.glomeEnableDomain(window.glome.glomeGetCurrentDomain());
-    return true;
-  }
-  
-  // @TODO: Suggest to turn off for just this site
-}
-
-/**
- * Switch the state of a domain
- * 
- * @param String domain    Domain that needs to be switched
- * @return boolean         Success status
- */
-function glomeSwitchDomain(domain)
-{
   if (!domain)
   {
-    domain = glome.glomeGetCurrentDomain();
+    //return;
+    domain = 'www.google.fi';
   }
   
-  // @TODO: Get requested domain status
-  // status = glome.glomeGetDomainStatus(domain);
+  var element = document.getElementById('glome-switch-domain');
+  var overlay = document.getElementById('main-window');
   
-  // @TODO: Switch domain
-  if (status)
+  glome.glome.LOG(typeof element);
+  
+  // Remove the current domain from the disabled list
+  if (state)
   {
-    //glome.glomeDisableDomain(domain);
+    element.setAttribute('domain', 'working');
+    overlay.setAttribute('state', 'active');
+    glome.glome.LOG('glome set on, hide domain switcher');
+    glome.glomePrefs.enableForDomain(domain);
   }
   else
   {
-    //glome.glomeEnableDomain(domain);
+    element.setAttribute('domain', glomeGetPanelState());
+    element.hidden = false;
+    overlay.setAttribute('state', 'disabled');
+    glome.glome.LOG('glome set on, reveal domain switcher');
   }
+  
+  glome.glome.LOG('Change state finished');
+}
+
+/**
+ * Change the panel state according to Glome status and domain restrictions:
+ * 
+ * 'working' if Glome is up and running everywhere
+ * 'on' if Glome is off and the current domain is not disabled
+ * 'off' if Glome is off and the current domain is explicitly disabled
+ * 
+ * @return string
+ */
+function glomeGetPanelState()
+{
+  // If Glome is on, return null
+  if (glome.glomePrefs.enabled)
+  {
+    return 'working';
+  }
+  
+  var domain = glome.glomeGetCurrentDomain();
+  
+  if (!domain)
+  {
+    //return;
+    domain = 'www.google.fi';
+  }
+  
+  return glome.glomePrefs.getDomainStatus(domain).toString();
+}
+
+function glomeChangeDomainState()
+{
+  var domain = glome.glomeGetCurrentDomain();
+  
+  if (!domain)
+  {
+    //return;
+    domain = 'www.google.fi';
+  }
+  
+  var element = document.getElementById('glome-switch-domain');
+  
+  // Toggle the status
+  var status = glome.glomePrefs.getDomainStatus(domain);
+  switch (status)
+  {
+    case 'on':
+      glome.glomePrefs.enableForDomain(domain);
+      break;
+    
+    case 'off':
+      glome.glomePrefs.disableForDomain(domain);
+      break;
+  }
+  
+  // Update with new status
+  element.setAttribute('domain', glome.glomePrefs.getDomainStatus(domain));
 }

@@ -803,5 +803,23 @@ function glomeAbpInitImageManagerHiding()
   }
 }
 
+function glomeJQuery()
+{
+  for (i in window)
+  {
+    if (!i.match(/jQuery/))
+    {
+      continue;
+    }
+    
+    if (typeof window[i] != 'object')
+    {
+      continue;
+    }
+    
+    return window[i];
+  }
+}
+
 glomeInit();
 glome.initialized = true;

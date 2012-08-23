@@ -23,6 +23,105 @@ var prefs =
   branch: prefService.getBranch(prefRoot),
   prefList: [],
   listeners: [],
+  
+  /**
+   * Disable Glome for the requested domain
+   * 
+   * @param string domain    Domain name
+   */
+  disableForDomain: function(domain)
+  {
+    glome.LOG('disable for domain: ' + domain);
+    
+    domains = this.getDomains();
+    
+    // Add domain if it isn't already on the list
+    if (domains.indexOf(domain) == -1)
+    {
+      domains.push(domain);
+      this.sitesDisabled = domains.toString().replace(/^,/, '');
+      this.save();
+    }
+    
+    glome.LOG('saved: ' + this.sitesDisabled);
+    
+    return true;
+  },
+  
+  /**
+   * Enable Glome for the requested domain
+   * 
+   * @param string domain    Domain name
+   */
+  enableForDomain: function(domain)
+  {
+    glome.LOG('enable for domain: ' + domain);
+    
+    var tmp = new Array();
+    domains = this.getDomains();
+    //domains.push(domain);
+    
+    for (var i = 0; i < domains.length; i++)
+    {
+      // Remove the current domain from the list
+      if (domains[i].toLowerCase() == domain.toLowerCase())
+      {
+        continue;
+      }
+      
+      // Do a bit of housekeeping and clean duplicates or non-domain names already
+      if (   tmp.indexOf(domains[i]) >= 0
+          || !domains[i]
+          || !domains[i].toLowerCase().match(/^[a-z0-9\-_\.]+$/))
+      {
+        continue;
+      }
+      
+      tmp.push(domains[i].toLowerCase());
+    }
+    
+    this.sitesDisabled = tmp.toString();
+    glome.LOG('saved: ' + this.sitesDisabled);
+    this.save();
+    
+    return true;
+  },
+  
+  /**
+   * Get the status of the current domain
+   * 
+   * @param string domain
+   * @return boolean        True if the domain is disabled, false if it is not
+   */
+  getDomainStatus: function(domain)
+  {
+    if (!domain)
+    {
+      return 'undefined';
+    }
+    
+    glome.LOG('indexOf: ' + this.getDomains().indexOf(domain));
+    
+    if (this.getDomains().indexOf(domain) == -1)
+    {
+      return 'off';
+    }
+    else
+    {
+      return 'on';
+    }
+  },
+  
+  /**
+   * Get a full list of disabled domains
+   * 
+   * @param string domain
+   * @return boolean        True if the domain is disabled, false if it is not
+   */
+  getDomains: function()
+  {
+    return this.sitesDisabled.split(',');
+  },
 
   addObservers: function()
   {

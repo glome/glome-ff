@@ -124,6 +124,77 @@
   -moz-appearance: none;
 }
 
+#glome-switch-domain,
+[state=active] #glome-switch-domain
+{
+  -moz-box-align: center;
+  display: none;
+}
+
+#glome-switch-domain[domain=on],
+#glome-switch-domain[domain=off]
+{
+  display: block;
+}
+
+#glome-switch-domain .action
+{
+  color: #0080ff;
+}
+
+#glome-switch-domain[domain=off] .action
+{
+  color: #0080ff;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+
+#glome-switch-domain[domain] .action > *
+{
+  height: 24px;
+  margin-bottom: 10px;
+  -moz-box-align: center;
+  font-size: 20px;
+}
+
+#glome-switch-domain[domain] .action > .button
+{
+}
+
+#glome-switch-domain[domain] .action .on,
+#glome-switch-domain[domain] .action .off
+{
+  background-image: url('chrome://glome/skin/elements/ball-plus-grey.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 22px;
+  height: 22px;
+  display: none;
+}
+
+#glome-switch-domain[domain=off] .action .off
+{
+  display: block;
+}
+
+#glome-switch-domain[domain=off] .action,
+#glome-switch-domain[domain=off] .action .button
+{
+  color: #aeb0b7;
+}
+
+#glome-switch-domain[domain=on] .action .on
+{
+  background-image: url('chrome://glome/skin/elements/ball-minus-blue.png');
+  display: block;
+}
+
+#glome-switch-domain .label
+{
+  font-size: 13px;
+  font-weight: bold;
+}
+
 #glome-tooltip .container
 {
   background-color: transparent;
@@ -275,7 +346,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   -moz-box-pack: center;
   -moz-appearance: none;
   top: 0;
-  left: 0;
+  left: 0;
   bottom: 0;
   right: 0;
 }
