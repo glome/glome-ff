@@ -233,6 +233,12 @@ function glomeInit()
 */
 };
 
+function glomeInitPage(e)
+{
+  glomeReloadPrefs();
+  return true;
+}
+
 /**
  * Resize Glome related canvases according to the resizing of the main window
  * 
@@ -280,21 +286,57 @@ function glomeUnload()
   prefReloadTimer.cancel();
 }
 
-function glomeExtractObject(object)
+function glomeExtract(object, levels, indent)
 {
-  var str = '';
+  if (!indent)
+  {
+    dump('--- DUMP starts: ---\n');
+    indent = String('');
+  }
+  
+  if (!levels)
+  {
+    levels = 2;
+  }
+  
+  if (indent.length > levels * 2)
+  {
+    //dump('-- too much of recursion\n');
+    return;
+  }
   
   for (i in object)
   {
-    if (str)
-    {
-      str += ', ';
-    }
+    dump(indent + i + ' (' + typeof object[i] + ')');
     
-    str += i + ': ' + typeof object[i];
+    switch (typeof object[i])
+    {
+      case 'object':
+        // Prevent infinite chains
+        if (object == object[i])
+        {
+          break;
+        }
+        
+        dump('\n');
+        
+        glomeExtract(object[i], levels, indent + '  ');
+        break;
+      
+      case 'function':
+        dump('\n');
+        break;
+        // Do nothing
+      
+      default:
+        dump(indent + ': ' + object[i] + '\n');
+    }
   }
   
-  return str;
+  if (!indent)
+  {
+    dump('--- DUMP ends ---\n');
+  }
 }
 
 function glomeSwitch(domain)
@@ -309,21 +351,37 @@ function glomeReloadPrefs()
   
   var label;
   var state = null;
+  
   if (glome)
   {
     if (glomePrefs.enabled)
     {
-      state = "active";
-      //E('glome-overlay').setAttribute('glome', 'active');
+      state = 'active';
     }
     else
     {
-      state = "disabled";
-      //E('glome-overlay').setAttribute('glome', 'disabled');
+      state = 'disabled';
     }
-  
-    label = glome.getString("status_" + state + "_label");
-    if (state == "active") {
+    
+    var domain = glomeGetCurrentDomain();
+    
+    if (!domain)
+    {
+      E('glome-switch-domain').setAttribute('domain', 'undefined');
+    }
+    
+    // Glome is off for the currently viewed domain
+    if (glomePrefs.getDomainStatus(glomeGetCurrentDomain()) == 'on')
+    {
+      state = 'disabled';
+    }
+    
+    label = glome.getString('status_' + state + '_label');
+    
+    dump('Glome state: ' + state + ' and for domain ' + glomeGetCurrentDomain() + ': ' + glomePrefs.getDomainStatus(glomeGetCurrentDomain()) + '\n');
+    
+    if (state == 'active')
+    {
       let location = getCurrentLocation();
       // if (location && glome.abp.policy.isWhitelisted(location.spec))
       //   state = "whitelisted";
@@ -412,11 +470,17 @@ function glomeGetPaletteButton() {
   //glome.LOG("glomeGetPaletteButton");
   var toolbox = E("navigator-toolbox");
   if (!toolbox || !("palette" in toolbox) || !toolbox.palette)
+  {
     return null;
+  }
 
   for (var child = toolbox.palette.firstChild; child; child = child.nextSibling)
+  {
     if (child.id == "glome-toolbarbutton")
+    {
       return child;
+    }
+  }
 
   return null;
 }

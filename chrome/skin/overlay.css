@@ -132,7 +132,8 @@
 }
 
 #glome-switch-domain[domain=on],
-#glome-switch-domain[domain=off]
+#glome-switch-domain[domain=off],
+[state=active] #glome-switch-domain[domain=off]
 {
   display: block;
 }

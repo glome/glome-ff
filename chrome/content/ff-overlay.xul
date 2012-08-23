@@ -21,9 +21,9 @@
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
     <stack id="glome-controls" height="0" insertbefore="status-bar">
-      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="document.getElementById('glome-switch-domain').setAttribute('domain', glomeGetPanelState());">
+      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomePopupShow();">
         <vbox flex="0" pack="center">
-          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="getElementById('glome-controls-window').hidePopup();" />
+          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomePopupHide();" />
         </vbox>
         <hbox>
           <vbox id="glome-controls-view-all" class="glome-selector-container" width="100%" flex="1" hidden="true">
@@ -152,15 +152,15 @@
     <keyset id="glome-keyset"/>
     <commandset id="glome-commandset">
       <!-- Dummy oncommand attributes are work-arounds for bug 371900 -->
-      <command id="glome-command-settings" oncommand="//"/>
-      <command id="glome-command-sidebar" oncommand="//"/>
-      <command id="glome-command-togglesitewhitelist"/>
-      <command id="glome-command-togglepagewhitelist"/>
-      <command id="glome-command-toggleobjtabs"/>
-      <command id="glome-command-togglecollapse"/>
-      <command id="glome-command-toggleshowintoolbar"/>
-      <command id="glome-command-toggleshowinstatusbar"/>
-      <command id="glome-command-enable" oncommand="//"/>
+      <command id="glome-command-settings" oncommand="//" />
+      <command id="glome-command-sidebar" oncommand="//" />
+      <command id="glome-command-togglesitewhitelist" />
+      <command id="glome-command-togglepagewhitelist" />
+      <command id="glome-command-toggleobjtabs" />
+      <command id="glome-command-togglecollapse" />
+      <command id="glome-command-toggleshowintoolbar" />
+      <command id="glome-command-toggleshowinstatusbar" />
+      <command id="glome-command-enable" oncommand="//" />
     </commandset>
     
     <panel id="ad-stack-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center">

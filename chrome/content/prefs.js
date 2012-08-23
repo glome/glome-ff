@@ -31,8 +31,6 @@ var prefs =
    */
   disableForDomain: function(domain)
   {
-    glome.LOG('disable for domain: ' + domain);
-    
     domains = this.getDomains();
     
     // Add domain if it isn't already on the list
@@ -42,8 +40,6 @@ var prefs =
       this.sitesDisabled = domains.toString().replace(/^,/, '');
       this.save();
     }
-    
-    glome.LOG('saved: ' + this.sitesDisabled);
     
     return true;
   },
@@ -55,8 +51,6 @@ var prefs =
    */
   enableForDomain: function(domain)
   {
-    glome.LOG('enable for domain: ' + domain);
-    
     var tmp = new Array();
     domains = this.getDomains();
     //domains.push(domain);
@@ -81,7 +75,6 @@ var prefs =
     }
     
     this.sitesDisabled = tmp.toString();
-    glome.LOG('saved: ' + this.sitesDisabled);
     this.save();
     
     return true;
@@ -91,7 +84,7 @@ var prefs =
    * Get the status of the current domain
    * 
    * @param string domain
-   * @return boolean        True if the domain is disabled, false if it is not
+   * @return string        'on' if the domain is disabled, 'off' if it is not
    */
   getDomainStatus: function(domain)
   {
@@ -99,8 +92,6 @@ var prefs =
     {
       return 'undefined';
     }
-    
-    glome.LOG('indexOf: ' + this.getDomains().indexOf(domain));
     
     if (this.getDomains().indexOf(domain) == -1)
     {
@@ -171,7 +162,6 @@ var prefs =
 
   init: function()
   {
-    glome.LOG("glome.prefs::init");
     // Try to fix selected locale in Mozilla/SeaMonkey
     strings = stringService.createBundle("chrome://glome/locale/global.properties");
     fixPackageLocale("glome");
