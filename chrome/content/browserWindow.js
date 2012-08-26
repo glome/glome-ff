@@ -236,6 +236,7 @@ function glomeInit()
 function glomeInitPage(e)
 {
   glomeReloadPrefs();
+  glomeABPHideElements();
   return true;
 }
 
@@ -299,12 +300,6 @@ function glomeExtract(object, levels, indent)
     levels = 2;
   }
   
-  if (indent.length > levels * 2)
-  {
-    //dump('-- too much of recursion\n');
-    return;
-  }
-  
   for (i in object)
   {
     dump(indent + i + ' (' + typeof object[i] + ')');
@@ -320,7 +315,11 @@ function glomeExtract(object, levels, indent)
         
         dump('\n');
         
-        glomeExtract(object[i], levels, indent + '  ');
+        if (indent.length < (levels - 1) * 2)
+        {
+          glomeExtract(object[i], levels, indent + '  ');
+        }
+        
         break;
       
       case 'function':
@@ -333,7 +332,8 @@ function glomeExtract(object, levels, indent)
     }
   }
   
-  if (!indent)
+  if (   !indent
+      || indent == '')
   {
     dump('--- DUMP ends ---\n');
   }
@@ -378,8 +378,6 @@ function glomeReloadPrefs()
     
     label = glome.getString('status_' + state + '_label');
     
-    dump('Glome state: ' + state + ' and for domain ' + glomeGetCurrentDomain() + ': ' + glomePrefs.getDomainStatus(glomeGetCurrentDomain()) + '\n');
-    
     if (state == 'active')
     {
       let location = getCurrentLocation();
@@ -391,69 +389,6 @@ function glomeReloadPrefs()
   // Set state to main window
   overlay = E('main-window');
   overlay.setAttribute('state', state);
-  
-  // @TODO: check if these are needed for anything after the new layout structure...
-/*
-  var tooltip = E("glome-tooltip");
-  if (state && tooltip)
-    tooltip.setAttribute("curstate", state);
-
-  var updateElement = function(element) {
-    if (!element)
-      return;
-  
-    if (glome) {
-      element.removeAttribute("disabled");
-  
-      if (element.tagName == "statusbarpanel" || element.tagName == "vbox") {
-        element.hidden = !glomePrefs.showinstatusbar;
-  
-        var labelElement = element.getElementsByTagName("label")[0];
-        labelElement.setAttribute("value", label);
-      }
-      else
-        element.hidden = !glomePrefs.showintoolbar;
-  
-      if (glomeOldShowInToolbar != glomePrefs.showintoolbar)
-        glomeInstallInToolbar();
-      
-      glomeOldShowInToolbar = glomePrefs.showintoolbar;
-    }
-  
-    element.removeAttribute("deactivated");
-    element.removeAttribute("whitelisted");
-    if (state == "whitelisted")
-      element.setAttribute("whitelisted", "true");
-    else if (state == "disabled")
-      element.setAttribute("deactivated", "true");
-  };
-
-  var status = E("glome-status");
-  
-  if (status)
-  {
-    updateElement(status);
-    if (glomePrefs.defaultstatusbaraction == 0)
-      status.setAttribute("popup", status.getAttribute("context"));
-    else
-      status.removeAttribute("popup");
-  }
-  
-  var button = E("glome-toolbarbutton");
-  updateElement(button);
-  
-  if (button) {
-    if (button.hasAttribute("context") && glomePrefs.defaulttoolbaraction == 0) {
-      button.setAttribute("popup", button.getAttribute("context"));
-      button.removeAttribute("type");
-    }
-    else
-      button.removeAttribute("popup");
-  }
-  
-  updateElement(glomeGetPaletteButton());
-*/
-  //glome.LOG("glomeReloadPrefs done");
 };
 
 /**
@@ -830,6 +765,39 @@ function glomeNode(data)
   if (glome && data)
   {
     window.openDialog("chrome://adblockplus/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", glome.getBrowserInWindow(window).contentWindow, data);
+  }
+}
+
+function glomeABPHideElements()
+{
+  if ("@adblockplus.org/abp/public;1" in Components.classes)
+  {
+    var abpURL = Components.classes["@adblockplus.org/abp/public;1"].getService(Components.interfaces.nsIURI);
+    var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
+    dump('ABP subscription count: ' + AdblockPlus.subscriptionCount + '\n');
+  }
+  else
+  {
+    // *ad-container*
+    var filter = new glome.abp.BlockingFilter('ad-container');
+    filter.elemhideRegExp = '.*ad-container*.';
+    //glomeExtract(filter);
+    
+    var selected_tab = window.gBrowser.getBrowserForTab(window.gBrowser.selectedTab);
+    //glomeExtract(selected_tab.contentDocument, 1);
+    glomeExtract(glome.abp);
+    
+    var filters =
+    [
+      filter
+    ];
+    
+    glome.abp.addPatterns(filter);
+    
+    glome.abp.elemhide.add(filter);
+    glome.abp.elemhide.apply();
+    glome.abp.policy.processNode(window, selected_tab.contentDocument);
+    
   }
 }
 
