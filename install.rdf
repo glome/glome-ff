@@ -5,8 +5,9 @@
     <em:type>2</em:type>
     <em:name>Glome.me</em:name>
     <em:version>0.1</em:version>
-    <em:creator>Jerry Jalava</em:creator>
+    <em:creator>Glome Inc.</em:creator>
     <em:contributor>Arttu Manninen</em:contributor>
+    <em:contributor>Ferenc Szekely</em:contributor>
     <em:homepageURL>http://glome.me</em:homepageURL>
     <em:aboutURL>chrome://glome/content/about.xul</em:aboutURL>
     <em:optionsURL>chrome://glome/content/settings.xul</em:optionsURL>
