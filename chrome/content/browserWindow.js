@@ -59,7 +59,7 @@ function glomeInit()
   
   // Process preferences
   window.glomeDetachedSidebar = null;
-  glomeReloadPrefs();
+  glomeTimedUpdater();
   
   if (glome)
   {
@@ -105,7 +105,7 @@ function glomeInit()
     }
   
     // Make sure whitelisting gets displayed after at most 2 seconds
-    prefReloadTimer = glome.createTimer(glomeReloadPrefs, 2000);
+    prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
     prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
     
      // Make sure we always configure keys but don't let them break anything
@@ -235,7 +235,7 @@ function glomeInit()
 
 function glomeInitPage(e)
 {
-  glomeReloadPrefs();
+  glomeTimedUpdater();
   glomeABPHideElements();
   return true;
 }
@@ -282,8 +282,8 @@ function glomeGetCurrentDomain()
 function glomeUnload()
 {
   //glome.LOG("glomeUnload");
-  glomePrefs.removeListener(glomeReloadPrefs);
-  glome.getBrowserInWindow(window).removeEventListener("select", glomeReloadPrefs, false); 
+  glomePrefs.removeListener(glomeTimedUpdater);
+  glome.getBrowserInWindow(window).removeEventListener("select", glomeTimedUpdater, false); 
   prefReloadTimer.cancel();
 }
 
@@ -345,9 +345,9 @@ function glomeSwitch(domain)
   return glomePrefs.enabled;
 }
 
-function glomeReloadPrefs()
+function glomeTimedUpdater()
 {
-  //glome.LOG("glomeReloadPrefs");
+  //glome.LOG("glomeTimedUpdater");
   
   var label;
   var state = null;
@@ -547,7 +547,7 @@ function glomeFillTooltip(event)
     return;
   }
 
-  glomeReloadPrefs();
+  glomeTimedUpdater();
 
   var type = (document.tooltipNode && document.tooltipNode.id == "glome-toolbarbutton" ? "toolbar" : "statusbar");
   var action = parseInt(glomePrefs["default" + type + "action"]);
