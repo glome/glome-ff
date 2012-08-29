@@ -148,8 +148,6 @@ function glomePopupShow()
   var state = glomeGetPanelState();
   document.getElementById('glome-switch-domain').setAttribute('domain', state);
   
-  glome.glomeExtract(glome);
-  
   // Set the checkbox status
   if (!glome.glomePrefs.enabled)
   {
@@ -167,4 +165,13 @@ function glomePopupShow()
 function glomePopupHide()
 {
   document.getElementById('glome-controls-window').hidePopup();
+}
+
+function glomeOpenCategoryView(cat_id)
+{
+  var stack = getElementById('ad-stack-panel');
+  stack.openPopup(getElementById('browser'), null, 0, 0);
+  stack.setAttribute('view', 'category');
+  
+  getElementById('glome-controls-window').hidePopup();
 }

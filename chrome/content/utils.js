@@ -288,7 +288,7 @@ glome.getLineBreak = getLineBreak;
 // Removes unnecessary whitespaces from filter
 function normalizeFilter(text)
 {
-  glome.LOG("normalizeFilter");
+  //glome.LOG("normalizeFilter");
   if (!text)
   {
     return text;

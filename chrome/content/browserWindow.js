@@ -1,4 +1,22 @@
 var glome = null;
+var last_updated = null;
+var request = null;
+
+var date = new Date();
+
+// Set the last updated to the current moment
+last_updated = date.getTime();
+
+const { XMLHttpRequest } = Components.classes['@mozilla.org/appshell/appShellService;1'].getService(Components.interfaces.nsIAppShellService).hiddenDOMWindow;
+
+// Set constants
+const GLOME_AD_STATUS_LATER = -1;
+const GLOME_AD_STATUS_PENDING = 0;
+const GLOME_AD_STATUS_VIEWED = 1;
+
+// Initialize SQLite
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 try
 {
@@ -202,6 +220,9 @@ function glomeInit()
   glome.connection.open();
   glome.connection.sendTest();
   
+  // Update database
+  glomeInitDb();
+  
   glome.LOG("glomeInit done");
   
 /*
@@ -328,7 +349,7 @@ function glomeExtract(object, levels, indent)
         // Do nothing
       
       default:
-        dump(indent + ': ' + object[i] + '\n');
+        dump(': ' + object[i] + '\n');
     }
   }
   
@@ -347,8 +368,6 @@ function glomeSwitch(domain)
 
 function glomeTimedUpdater()
 {
-  //glome.LOG("glomeTimedUpdater");
-  
   var label;
   var state = null;
   
@@ -389,6 +408,114 @@ function glomeTimedUpdater()
   // Set state to main window
   overlay = E('main-window');
   overlay.setAttribute('state', state);
+  
+  // Update ticker
+  var date = new Date();
+  
+  if (date.getTime() - last_updated > 3000)
+  {
+    last_updated += 10000000;
+    dump('last updated start -----------------------------------------------\n');
+    
+    // Get subscribed categories from database
+    let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+    let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+    let q = 'SELECT id, name FROM categories WHERE subscribed = 1';
+    
+    var statement = db.createStatement(q);
+    statement.executeAsync
+    (
+      {
+        handleResult: function(resultset)
+        {
+          dump('-- results fetched\n');
+          
+          var values = new Array();
+          var categories = new Array();
+          
+          for (let row = resultset.getNextRow(); row; row = resultset.getNextRow())
+          {
+            values.push
+            (
+              {
+                id: row.getResultByName('id'),
+                name: row.getResultByName('name'),
+              }
+            )
+            
+            categories.push(row.getResultByName('id'));
+          }
+          
+          // Get the ads from Glome API
+          dump('-- init request\n');
+          glome.request = new XMLHttpRequest();
+          glome.request.timeout = 5000;
+          glome.request.onreadystatechange = function(e)
+          {
+            dump('-- request readyState: ' + e.originalTarget.readyState + '\n');
+            if (e.originalTarget.readyState !== 4)
+            {
+              return;
+            }
+            
+            data = JSON.parse(e.originalTarget.response);
+            glomeExtract(data);
+            
+            // Update locally stored ad data
+            let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+            let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+            
+            for (let i = 0; i < data.length; i++)
+            {
+/*
+      program: 'INTEGER',
+      element: 'INTEGER',
+      language: 'TEXT',
+      title: 'TEXT',
+      adtype: 'TEXT',
+      content: 'TEXT',
+      action: 'TEXT',
+      expires: 'TEXT',
+      adcategory_ids: 'TEXT',
+      description: 'TEXT',
+      notice: 'TEXT',
+      width: 'INTEGER',
+      height: 'INTEGER',
+      expired: 'INTEGER',
+      
+      status: 'INTEGER', // View status. 
+*/
+              // Store the ads locally
+              q = "INSERT INTO ads (values) VALUES(:values)";
+              dump('query: ' + q + '\n');
+              
+              let statement = db.createStatement(q);
+              let params = statement.newBindingParamsArray();
+              
+              for (key in data[i])
+              {
+                let param = params.newBindingParams();
+                param.bindByName('values', data[i][key]);
+                params.addParam(param);
+              }
+              
+              statement.bindParameters(params);
+              statement.executeAsync();
+            }
+          }
+          
+          glome.request.open('GET', 'http://api.glome.me/ads.json', true);
+          glome.request.send();
+        }
+      }
+    );
+    
+    // Abort the previous request if it is still pending
+    if (typeof glome.request != 'undefined')
+    {
+      glome.request.abort();
+    }
+  }
 };
 
 /**
@@ -785,7 +912,7 @@ function glomeABPHideElements()
     
     var selected_tab = window.gBrowser.getBrowserForTab(window.gBrowser.selectedTab);
     //glomeExtract(selected_tab.contentDocument, 1);
-    glomeExtract(glome.abp);
+    //glomeExtract(glome.abp);
     
     var filters =
     [
@@ -851,6 +978,125 @@ function glomeJQuery()
     
     return window[i];
   }
+}
+
+function glomeInitDb()
+{
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  
+  //glomeExtract(db);
+  
+  // Initialize database
+  dump('-- initialize categories\n');
+  
+  var tables =
+  {
+    categories:
+    {
+      name: 'TEXT',
+      subscribed: 'INTEGER',
+      extras: 'TEXT',
+    },
+    ads:
+    {
+      program: 'INTEGER',
+      element: 'INTEGER',
+      language: 'TEXT',
+      title: 'TEXT',
+      adtype: 'TEXT',
+      content: 'TEXT',
+      action: 'TEXT',
+      expires: 'TEXT',
+      adcategory_ids: 'TEXT',
+      description: 'TEXT',
+      notice: 'TEXT',
+      width: 'INTEGER',
+      height: 'INTEGER',
+      expired: 'INTEGER',
+      
+      status: 'INTEGER', // View status. 
+    }
+  }
+  
+  // Try to create and update tables
+  for (tablename in tables)
+  {
+    // Table fields
+    var table = tables[tablename];
+    
+    try
+    {
+      var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY);';
+      db.executeSimpleSQL(q);
+      dump('execute: "' + q + '"\n');
+      dump('-- done!\n');
+    }
+    catch (e)
+    {
+      dump('-- caught error: ' + e.message + '\n');
+    }
+    
+    // Add columns to the table
+    for (i in table)
+    {
+      try
+      {
+        var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
+        dump('execute: "' + q + '"\n');
+        db.executeSimpleSQL(q);
+        dump('-- done!\n');
+      }
+      catch (e)
+      {
+        dump('-- caught error: ' + e.message + '\n');
+      }
+    }
+  }
+  
+  // @TODO: Verify that it is possible to make a connection
+  
+  // Update category data
+  glome.request = new XMLHttpRequest();
+  glome.request.timeout = 5000;
+  glome.request.onreadystatechange = function(e)
+  {
+    if (e.originalTarget.readyState !== 4)
+    {
+      return;
+    }
+    
+    data = JSON.parse(e.originalTarget.response);
+    
+    // Initialize database connection
+    let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+    let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+    
+    // Add all of the categories to database
+    for (i = 0; i < data.length; i++)
+    {
+      // Update categories
+      var statement = db.createStatement('UPDATE categories SET name = :name WHERE id = :id');
+      statement.params.id = data[i].id;
+      statement.params.name = data[i].name;
+      dump('UPDATE categories SET name = :name WHERE id = :id\n');
+      statement.executeAsync();
+      
+      // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
+      var statement = db.createStatement('INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)');
+      statement.params.id = data[i].id;
+      statement.params.name = data[i].name;
+      dump('INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)\n');
+      statement.executeAsync();
+      
+      // @TODO: This needs a check to delete the removed categories as well
+    }
+  }
+  
+  glome.request.open('GET', 'http://api.glome.me/adcategories.json', true);
+  glome.request.send();
+  
+  dump('-- database initialized\n');
 }
 
 glomeInit();

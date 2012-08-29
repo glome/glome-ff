@@ -32,13 +32,18 @@
 <!ENTITY view.blockableItems.label  "Adblock Plus: Blockable Items">
 
 <!ENTITY label.see_all          "See all">
+<!ENTITY label.show_all         "Show all">
+<!ENTITY label.show_all_s_offers  "Show all s offers">
 <!ENTITY label.see_ad           "See ad">
 <!ENTITY label.not_now          "Not now">
 <!ENTITY label.never            "Never">
 <!ENTITY label.yes_please       "Yes, please">
 <!ENTITY label.no_thanks        "No, thanks">
+<!ENTITY label.offers           "offers">
 <!ENTITY hi_comma               "Hi,">
 <!ENTITY redeem_cash            "Redeem cash">
+<!ENTITY yes                    "Yes">
+<!ENTITY no                     "No">
 <!ENTITY button.off             "Off">
 <!ENTITY button.on              "On">
 <!ENTITY label.you_have         "You have">
@@ -50,3 +55,7 @@
 <!ENTITY label.glome_dashboard  "Glome Dashboard">
 <!ENTITY label.turn_glome_off   "Turn Glome OFF">
 <!ENTITY label.just_for_this_site  "Just for this site">
+<!ENTITY label.interested_in    "Interested in">
+<!ENTITY glome_will_not_spam_you_with_ads_you_dont_want "Glome will not spam you with ads you don't want.">
+<!ENTITY label.no_more_offers_for "No more offers for">
+<!ENTITY remember_that_you_can_always_change_your_mind "(Remember that you can always change your mind.)">

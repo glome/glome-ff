@@ -61,7 +61,7 @@
             <vbox class="active">
               <vbox class="glome-ad-description">
                 <description class="large">
-                  Audi has an offer for You
+                  Procter &amp; Gamble has an offer for You
                 </description>
                 <label value="Up to 13 $ per order." />
               </vbox>
@@ -69,19 +69,16 @@
                 <!-- @TODO: bind events to these buttons -->
 <!--               <button flex="1" popup="ad-stack-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
                 <button onclick="getElementById('ad-stack-panel').openPopup(getElementById('browser'), null, 0, 0); getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button>
-                <button onclick="getElementById('glome-controls-window').hidePopup();">&label.not_now;</button>
+                <button onclick="glomeOpenCategoryView();">&label.not_now;</button>
 <!--                 <button flex="1">&label.never;</button> -->
               </box>
               <hbox class="navigation">
                 <!-- @TODO: use real data and remove inline code from this element -->
-                <label flex="1" value="&label.see_all;" />
-                <box flex="1" class="navigators">
-                  <separator flex="1" />
+                <box flex="1" class="navigators" pack="center" align="center" id="glome-ad-pager">
                   <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" />
+                  <label value="1/12" class="pager" />
                   <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" />
-                  <separator flex="1" />
                 </box>
-                <label flex="1" value="1 / 12" class="pager" />
               </hbox>
             </vbox>
             <hbox class="actions">
@@ -149,9 +146,123 @@
         <menuitem id="glome-status-enabled" label="&enable.label;" accesskey="&enable.accesskey;" type="checkbox" key="glome-key-enable" command="glome-command-enable"/>
       </popup>
     </popupset>
+    
+    <panel id="ad-stack-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center" view="category">
+      <stack id="ad-stack">
+        <box id="ad-overlay">
+          <box id="ad-overlay-display">
+            <!-- common headers -->
+            <hbox align="center" class="header">
+              <label value="Category:" />
+              <label value="Automotive" data-type="category-title" />
+              <spacer flex="1" />
+              <box>
+                <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="getElementById('ad-stack-panel').hidePopup();" />
+              </box>
+            </hbox>
+            <!-- end common headers -->
+            
+            <!-- display a single ad -->
+            <vbox id="ad-overlay-single" class="ad-overlay-content">
+              <box id="ad-overlay-single-image">
+                <image src="chrome://glome/skin/temp/audi-image.jpg" />
+              </box>
+              <hbox class="inner" flex="1">
+                <vbox class="description">
+                  <label value="Procter &amp; Gamble 2012 test drive" class="header h1 content" />
+                  <description class="content">You are welcome to meet our new fleet of engineering. Click to find the closest dealer and book a time for test drive.</description>
+                </vbox>
+                <vbox flex="1" />
+                <vbox class="actions" pack="center" align="end">
+                  <label value="+12 €" class="glome-profit" hidden="true" />
+                  <label value="&label.yes_please;" class="action yes" />
+                  <label value="&label.no_thanks;" class="action no" />
+                </vbox>
+              </hbox>
+              <hbox id="ad-overlay-cashback" class="footer">
+                <separator flex="1" />
+                <label value="Up to" />
+                <label value="13" class="amount" />
+                <label value="$" class="currency" />
+                <label value="per order" />
+                <separator flex="1" />
+              </hbox>
+            </vbox>
+            <!-- end displaying a single ad -->
+            
+            <!-- display an ad category -->
+            <vbox id="ad-overlay-category" class="ad-overlay-content">
+              <vbox id="ad-overlay-categories-list" class="inner" pack="center" align="center">
+                <box pack="center" align="center" class="header-line">
+                  <label value="&label.interested_in;" class="h1" />
+                  <label data-type="category-title" value="Cars" class="h1 no-margins" />
+                  <label value="?" class="h1 no-margin-left" />
+                </box>
+                <label value="&glome_will_not_spam_you_with_ads_you_dont_want;" class="with-space" />
+                <hbox class="actions" pack="center" align="center">
+                  <button orient="vertical">
+                    <label value="&yes;" class="h1" />
+                    <hbox pack="center">
+                      <label value="&label.show_all_s_offers;" />
+                    </hbox>
+                  </button>
+                  <button orient="vertical">
+                    <label value="&label.not_now;" class="h1" />
+                    <hbox pack="center">
+                      <label value="&label.no_more_offers_for;" />
+                      <label value="cars" class="no-margin-left" />
+                    </hbox>
+                  </button>
+                </hbox>
+                <label value="&remember_that_you_can_always_change_your_mind;" class="with-space" />
+              </vbox>
+              <hbox pack="center" align="center" class="footer">
+              </hbox>
+            </vbox>
+            <!-- end displaying an ad category -->
+            
+            <!-- display all ads in a category -->
+            <vbox id="ad-overlay-category-ads" class="ad-overlay-content">
+              <vbox id="ad-overlay-categories-list" class="inner">
+                <box class="list-item">
+                  <box class="thumbnail">
+                    <description>Image here</description>
+                  </box>
+                  <vbox flex="1">
+                    <label class="h2" value="Procter &amp; Gamble has an offer for You." />
+                    <label value="Up to 13$ per order." />
+                  </vbox>
+                  <vbox class="buttons">
+                    <button>&label.see_ad;</button>
+                    <button>&label.not_now;</button>
+                  </vbox>
+                </box>
+                <box class="list-item">
+                  <box class="thumbnail">
+                    <description>Image here</description>
+                  </box>
+                  <vbox flex="1">
+                    <label class="h2" value="Procter &amp; Gamble has an offer for You." />
+                    <label value="Up to 13$ per order." />
+                  </vbox>
+                  <vbox class="buttons">
+                    <button>&label.see_ad;</button>
+                    <button>&label.not_now;</button>
+                  </vbox>
+                </box>
+              </vbox>
+              <hbox pack="center" align="center" class="footer">
+              </hbox>
+            </vbox>
+            <!-- end displaying all ads in a category -->
+          </box>
+        </box>
+      </stack>
+    </panel>
     <keyset id="glome-keyset"/>
+    <!-- Dummy oncommand attributes are work-arounds for bug 371900 -->
+<!--
     <commandset id="glome-commandset">
-      <!-- Dummy oncommand attributes are work-arounds for bug 371900 -->
       <command id="glome-command-settings" oncommand="//" />
       <command id="glome-command-sidebar" oncommand="//" />
       <command id="glome-command-togglesitewhitelist" />
@@ -162,39 +273,7 @@
       <command id="glome-command-toggleshowinstatusbar" />
       <command id="glome-command-enable" oncommand="//" />
     </commandset>
-    
-    <panel id="ad-stack-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center">
-      <stack id="ad-stack">
-        <box id="ad-overlay">
-          <vbox id="ad-overlay-display">
-            <box align="end" pack="end">
-              <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="getElementById('ad-stack-panel').hidePopup();" />
-            </box>
-            <box id="ad-overlay-content"><image src="chrome://glome/skin/temp/audi-image.jpg" /></box>
-            <hbox id="ad-overlay-common" class="inner">
-              <vbox class="description">
-                <label value="Audi 2012 test drive" class="header h1 content" />
-                <description class="content">You are welcome to meet our new fleet of engineering. Click to find the closest dealer and book a time for test drive.</description>
-              </vbox>
-              <vbox flex="1" />
-              <vbox class="actions" pack="center" align="end">
-                <label value="+12 €" class="glome-profit" hidden="true" />
-                <label value="&label.yes_please;" class="action yes" />
-                <label value="&label.no_thanks;" class="action no" />
-              </vbox>
-            </hbox>
-            <hbox id="ad-overlay-cashback" pack="center" align="center">
-              <separator flex="1" />
-              <label value="Up to" />
-              <label value="13" class="amount" />
-              <label value="$" class="currency" />
-              <label value="per order" />
-              <separator flex="1" />
-            </hbox>
-          </vbox>
-        </box>
-      </stack>
-    </panel>
+-->
   </window>
 
   <!-- Status bar -->
