@@ -150,7 +150,7 @@
             <!-- common headers -->
             <hbox align="center" class="header">
               <label value="Category:" />
-              <label value="Automotive" data-type="category-title" />
+              <label value="Automotive" class="category-title" />
               <spacer flex="1" />
               <box>
                 <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="getElementById('ad-stack-panel').hidePopup();" />
@@ -163,8 +163,8 @@
               <box id="ad-overlay-single-image"></box>
               <hbox class="inner" flex="1">
                 <vbox class="description">
-                  <label value="Procter &amp; Gamble 2012 test drive" class="header h1 content" />
-                  <description class="content">You are welcome to meet our new fleet of engineering. Click to find the closest dealer and book a time for test drive.</description>
+                  <label value="Ad label comes here" class="header h1 content" />
+                  <description class="content">Ad description text comes here</description>
                 </vbox>
                 <vbox flex="1" />
                 <vbox class="actions" pack="center" align="end">
@@ -194,13 +194,13 @@
                 </box>
                 <label value="&glome_will_not_spam_you_with_ads_you_dont_want;" class="with-space" />
                 <hbox class="actions" pack="center" align="center">
-                  <button orient="vertical">
+                  <button orient="vertical" class="yes">
                     <label value="&yes;" class="h1" />
                     <hbox pack="center">
-                      <label value="&label.show_all_s_offers;" />
+                      <label value="&label.show_all_s_offers;" class="show-all-s" />
                     </hbox>
                   </button>
-                  <button orient="vertical">
+                  <button orient="vertical" class="no">
                     <label value="&label.not_now;" class="h1" />
                     <hbox pack="center">
                       <label value="&label.no_more_offers_for;" />
@@ -217,33 +217,27 @@
             
             <!-- display all ads in a category -->
             <vbox id="ad-overlay-category-ads" class="ad-overlay-content">
-              <vbox id="ad-overlay-categories-list" class="inner">
-                <box class="list-item">
-                  <box class="thumbnail">
-                    <description>Image here</description>
-                  </box>
-                  <vbox flex="1">
-                    <label class="h2" value="Procter &amp; Gamble has an offer for You." />
-                    <label value="Up to 13$ per order." />
-                  </vbox>
-                  <vbox class="buttons">
-                    <button>&label.see_ad;</button>
-                    <button>&label.not_now;</button>
-                  </vbox>
-                </box>
-                <box class="list-item">
-                  <box class="thumbnail">
-                    <description>Image here</description>
-                  </box>
-                  <vbox flex="1">
-                    <label class="h2" value="Procter &amp; Gamble has an offer for You." />
-                    <label value="Up to 13$ per order." />
-                  </vbox>
-                  <vbox class="buttons">
-                    <button>&label.see_ad;</button>
-                    <button>&label.not_now;</button>
-                  </vbox>
-                </box>
+              <vbox id="ad-overlay-categories-list" class="inner" datasources="profile:glome.sqlite" ref="*" querytype="storage">
+                <template>
+                  <query>
+                    SELECT * FROM ads
+                  </query>
+                  <action>
+                    <box class="list-item" data-id="?id">
+                      <box class="thumbnail">
+                        <description value="?title"></description>
+                      </box>
+                      <vbox flex="1">
+                        <label class="h2" value="?content" />
+                        <label value="Up to 13 per order." />
+                      </vbox>
+                      <vbox class="buttons">
+                        <button>See ad</button>
+                        <button>Not now</button>
+                      </vbox>
+                    </box>
+                  </action>
+                </template>
               </vbox>
               <hbox pack="center" align="center" class="footer">
               </hbox>

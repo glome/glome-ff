@@ -222,11 +222,47 @@ function glomePopupHide()
 
 function glomeOpenCategoryView(cat_id)
 {
-  var stack = getElementById('ad-stack-panel');
-  stack.openPopup(getElementById('browser'), null, 0, 0);
-  stack.setAttribute('view', 'category');
+  var stack = jQuery('#ad-stack-panel');
+  stack.attr('view', 'category');
   
-  getElementById('glome-controls-window').hidePopup();
+  stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
+  
+  jQuery('#ad-overlay-category')
+    .find('button.no')
+    .unbind('click')
+    .bind('click', function(e)
+    {
+      glome.glomeCategorySubscription(1, false);
+      
+      // Hide the ad displayer
+      document.getElementById('ad-stack-panel').hidePopup();
+    });
+  
+  // @TODO: calculate the length according to the category. Requires changes in Glome data API
+  var label = stack.find('.show-all-s');
+  let text = label.attr('data-original');
+  
+  if (!text)
+  {
+    text = label.attr('value');
+    label.attr('data-original', text);
+  }
+  
+  label.attr('value', text.replace(/ s /, ' ' + glome.glome_ad_stack.length + ' '))
+  
+  jQuery('#ad-overlay-category')
+    .find('button.yes')
+    .unbind('click')
+    .bind('click', function(e)
+    {
+      // Populate with ads of the category
+      jQuery('#ad-overlay-categories-list')
+        .populate_category_list(1);
+      
+      jQuery('#ad-stack-panel').attr('view', 'list');
+    });
+  
+  document.getElementById('glome-controls-window').hidePopup();
 }
 
 function glomeDisplayAd()
@@ -266,13 +302,37 @@ function glomeDisplayAd()
       break;
   }
   
+  // Redirect to the vendor page and close the ad display
   container.find('.action.yes')
     .attr('action', ad.action)
+    .unbind('click')
     .bind('click', function(e)
     {
       // Create a new browser tab
-      document.getElementById('ad-stack-panel').hidePopup();
       window.gBrowser.selectedTab = window.gBrowser.addTab(jQuery(this).attr('action'));
+      
+      // Set ad status to clicked
+      glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_CLICKED);
+      
+      // Hide the ad displayer
+      document.getElementById('ad-stack-panel').hidePopup();
+      return false;
+    });
+  
+  // Set the ad as uninterested and close the ad display
+  container.find('.action.no')
+    .unbind('click')
+    .bind('click', function(e)
+    {
+      // Set ad status to uninterested
+      glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
+      
+      // Hide the ad displayer
+      document.getElementById('ad-stack-panel').hidePopup();
+      
+      // Update ticker to match the new view count
+      glome.glomeUpdateTicker();
+      
       return false;
     });
   
@@ -280,7 +340,7 @@ function glomeDisplayAd()
   
   document.getElementById('ad-stack-panel').openPopup(document.getElementById('browser'), null, 0, 0);
   document.getElementById('glome-controls-window').hidePopup();
-  
+    
   // Set ad as displayed
   //glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_VIEWED);
 }
@@ -288,4 +348,12 @@ function glomeDisplayAd()
 function glomeExtract(target)
 {
   return glome.glomeExtract(target);
+}
+
+jQuery.fn.populate_category_list = function(id)
+{
+  // @TODO: Get the ads of this particular category. This needs changes to data API on Glome server
+  // and cannot be finished before that.
+  
+  
 }

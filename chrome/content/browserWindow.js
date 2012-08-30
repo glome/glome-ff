@@ -1,7 +1,7 @@
 var glome = null;
 var last_updated = null;
 var request = null;
-var glome_is_online = false;
+var glome_is_online = true;
 var glome_ad_stack = new Array();;
 
 var page = 0;
@@ -16,9 +16,11 @@ last_updated = date.getTime();
 const { XMLHttpRequest } = Components.classes['@mozilla.org/appshell/appShellService;1'].getService(Components.interfaces.nsIAppShellService).hiddenDOMWindow;
 
 // Set constants
+const GLOME_AD_STATUS_UNINTERESTED = -2;
 const GLOME_AD_STATUS_LATER = -1;
 const GLOME_AD_STATUS_PENDING = 0;
 const GLOME_AD_STATUS_VIEWED = 1;
+const GLOME_AD_STATUS_CLICKED = 2;
 
 // Initialize SQLite
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -1227,6 +1229,35 @@ function glomeSetAdStatus(ad_id, status)
 }
 
 /**
+ * Update ad category subscription status
+ * 
+ * @param int id          ID of the category
+ * @param boolean status  New status
+ */
+function glomeCategorySubscription(id, status)
+{
+  // Initialize database connection
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  
+  var q = 'UPDATE categories SET subscribed = :status WHERE id = :id';
+  var statement = db.createStatement(q);
+  statement.params.id = id;
+  statement.params.status = (status) ? 1 : 0;
+  
+  // Execute and update ticker
+  statement.executeAsync
+  (
+    {
+      handleCompletion: function(reason)
+      {
+        glomeUpdateTicker();
+      }
+    }
+  );
+}
+
+/**
  * Get ad according to its id
  * 
  * @param int ad_id
@@ -1247,7 +1278,7 @@ function glomeGetAd(ad_id)
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   
-  var q = 'SELECT * FROM ads WHERE status = :status WHERE id = :id';
+  var q = 'SELECT * FROM ads WHERE status = :status AND id = :id';
   var statement = db.createStatement(q);
   statement.params.id = ad_id;
   
