@@ -1,6 +1,12 @@
 var glome = null;
 var last_updated = null;
 var request = null;
+var glome_is_online = false;
+var glome_ad_stack = new Array();;
+
+var page = 0;
+var pages = 0;
+var ad_id = 0;
 
 var date = new Date();
 
@@ -360,12 +366,20 @@ function glomeExtract(object, levels, indent)
   }
 }
 
-function glomeSwitch(domain)
+/**
+ * Switch Glome on and off
+ * 
+ * @return boolean    Current Glome status
+ */
+function glomeSwitch()
 {
   glomeTogglePref('enabled');
   return glomePrefs.enabled;
 }
 
+/**
+ * Timed updating of Glome
+ */
 function glomeTimedUpdater()
 {
   var label;
@@ -409,14 +423,17 @@ function glomeTimedUpdater()
   overlay = E('main-window');
   overlay.setAttribute('state', state);
   
-  // Update ticker
+  // Stop execution here if Glome is off
+  if (state == 'disabled')
+  {
+    return;
+  }
+  
+  // Fetch ads from Glome server
   var date = new Date();
   
   if (date.getTime() - last_updated > 3000)
   {
-    last_updated += 10000000;
-    dump('last updated start -----------------------------------------------\n');
-    
     // Get subscribed categories from database
     let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
     let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
@@ -428,8 +445,6 @@ function glomeTimedUpdater()
       {
         handleResult: function(resultset)
         {
-          dump('-- results fetched\n');
-          
           var values = new Array();
           var categories = new Array();
           
@@ -447,19 +462,15 @@ function glomeTimedUpdater()
           }
           
           // Get the ads from Glome API
-          dump('-- init request\n');
           glome.request = new XMLHttpRequest();
           glome.request.timeout = 5000;
           glome.request.onreadystatechange = function(e)
           {
-            dump('-- request readyState: ' + e.originalTarget.readyState + '\n');
-            if (e.originalTarget.readyState !== 4)
+            if (e.originalTarget.readyState < 4)
             {
               return;
             }
-            
             data = JSON.parse(e.originalTarget.response);
-            glomeExtract(data);
             
             // Update locally stored ad data
             let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
@@ -467,45 +478,46 @@ function glomeTimedUpdater()
             
             for (let i = 0; i < data.length; i++)
             {
-/*
-      program: 'INTEGER',
-      element: 'INTEGER',
-      language: 'TEXT',
-      title: 'TEXT',
-      adtype: 'TEXT',
-      content: 'TEXT',
-      action: 'TEXT',
-      expires: 'TEXT',
-      adcategory_ids: 'TEXT',
-      description: 'TEXT',
-      notice: 'TEXT',
-      width: 'INTEGER',
-      height: 'INTEGER',
-      expired: 'INTEGER',
-      
-      status: 'INTEGER', // View status. 
-*/
-              // Store the ads locally
-              q = "INSERT INTO ads (values) VALUES(:values)";
-              dump('query: ' + q + '\n');
+              // Get keys
+              if (typeof keys == 'undefined')
+              {
+                var keys = new Array();
+                var keys_with_colon = new Array();
+                
+                for (key in data[i])
+                {
+                  keys.push(key);
+                  keys_with_colon.push(':' + key);
+                }
+                
+                keys.push('status');
+                keys_with_colon.push(':status');
+              }
               
+              // Store the ads locally
+              q = 'INSERT INTO ads (' + keys.toString() + ') VALUES(' + keys_with_colon.toString() + ')';
               let statement = db.createStatement(q);
-              let params = statement.newBindingParamsArray();
               
               for (key in data[i])
               {
-                let param = params.newBindingParams();
-                param.bindByName('values', data[i][key]);
-                params.addParam(param);
+                statement.params[key] = data[i][key];
               }
               
-              statement.bindParameters(params);
+              // Set status to zero for new ads
+              statement.params.status = 0;
+              
               statement.executeAsync();
             }
+            
+            // Update ticker
+            glomeUpdateTicker();
           }
           
-          glome.request.open('GET', 'http://api.glome.me/ads.json', true);
-          glome.request.send();
+          if (glome_is_online)
+          {
+            glome.request.open('GET', 'http://api.glome.me/ads.json', true);
+            glome.request.send();
+          }
         }
       }
     );
@@ -517,6 +529,75 @@ function glomeTimedUpdater()
     }
   }
 };
+
+/**
+ * Update Glome ticker
+ */
+function glomeUpdateTicker()
+{
+  // Update locally stored ad data
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  
+  q = 'SELECT * FROM ads WHERE status = 0';
+  let statement = db.createStatement(q);
+  
+  statement.executeAsync
+  (
+    {
+      handleResult: function(results)
+      {
+        let ads_table = glomeGetTable('ads');
+        glome_ad_stack = new Array();
+        let date = new Date();
+        let now = date.getTime();
+        
+        for (let row = results.getNextRow(); row; row = results.getNextRow())
+        {
+          let item = {};
+          
+          for (i in ads_table)
+          {
+            item[i] = row.getResultByName(i);
+          }
+          
+          // Skip if the item has expired
+          if (item.expired)
+          {
+            continue;
+          }
+          
+          //dump('id: ' + item.id + ', expired: ' + item.expired + ', expires: ' + item.expires + '\n');
+          
+          let date = new Date(item.expires);
+          //dump('-- as timestamp: ' + date.getTime() + '\n');
+          
+          if (date.getTime() < now)
+          {
+            continue;
+          }
+          
+          // Populate ad stack
+          let id = item[id];
+          glome_ad_stack.push(item);
+        }
+      },
+      handleCompletion: function(reason)
+      {
+        if (!glome_ad_stack.length)
+        {
+          E('glome-controls-icon-counter-value').hidden = true;
+        }
+        else
+        {
+          E('glome-controls-icon-counter-value').hidden = false;
+        }
+        
+        E('glome-controls-icon-counter-value').setAttribute('value', glome_ad_stack.length);
+      }
+    }
+  );
+}
 
 /**
  * Retrieves the current location of the browser (might return null on failure).
@@ -980,26 +1061,19 @@ function glomeJQuery()
   }
 }
 
-function glomeInitDb()
+function glomeGetTable(tablename)
 {
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-  
-  //glomeExtract(db);
-  
-  // Initialize database
-  dump('-- initialize categories\n');
-  
   var tables =
   {
-    categories:
-    {
+    categories: {
+      id: 'INTEGER',
       name: 'TEXT',
       subscribed: 'INTEGER',
       extras: 'TEXT',
     },
     ads:
     {
+      id: 'INTEGER',
       program: 'INTEGER',
       element: 'INTEGER',
       language: 'TEXT',
@@ -1014,9 +1088,31 @@ function glomeInitDb()
       width: 'INTEGER',
       height: 'INTEGER',
       expired: 'INTEGER',
-      
+      expires: 'TEXT',
+      created_at: 'TEXT',
+      updated_at: 'TEXT',
       status: 'INTEGER', // View status. 
     }
+  }
+  
+  if (typeof tables[tablename] == 'undefined')
+  {
+    return false;
+  }
+  
+  return tables[tablename];
+}
+
+function glomeInitDb()
+{
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  
+  // Initialize database
+  var tables =
+  {
+    categories: glomeGetTable('categories'),
+    ads: glomeGetTable('ads'),
   }
   
   // Try to create and update tables
@@ -1025,31 +1121,35 @@ function glomeInitDb()
     // Table fields
     var table = tables[tablename];
     
-    try
+    if (!db.tableExists(tablename))
     {
-      var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY);';
-      db.executeSimpleSQL(q);
-      dump('execute: "' + q + '"\n');
-      dump('-- done!\n');
-    }
-    catch (e)
-    {
-      dump('-- caught error: ' + e.message + '\n');
+      try
+      {
+        var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY);';
+        db.executeSimpleSQL(q);
+      }
+      catch (e)
+      {
+        return;
+      }
     }
     
     // Add columns to the table
     for (i in table)
     {
+      // Skip ID as it is always created with the table
+      if (i == 'id')
+      {
+        continue;
+      }
+      
       try
       {
         var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
-        dump('execute: "' + q + '"\n');
         db.executeSimpleSQL(q);
-        dump('-- done!\n');
       }
       catch (e)
       {
-        dump('-- caught error: ' + e.message + '\n');
       }
     }
   }
@@ -1079,25 +1179,108 @@ function glomeInitDb()
       var statement = db.createStatement('UPDATE categories SET name = :name WHERE id = :id');
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
-      dump('UPDATE categories SET name = :name WHERE id = :id\n');
       statement.executeAsync();
       
       // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
       var statement = db.createStatement('INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)');
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
-      dump('INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)\n');
       statement.executeAsync();
       
       // @TODO: This needs a check to delete the removed categories as well
     }
   }
   
-  glome.request.open('GET', 'http://api.glome.me/adcategories.json', true);
-  glome.request.send();
+  if (glome_is_online)
+  {
+    glome.request.open('GET', 'http://api.glome.me/adcategories.json', true);
+    glome.request.send();
+  }
+}
+
+/**
+ * Set ad status to
+ * 
+ * @param int ad_id    ID of the advertisement
+ * @param int status   Status for the ad
+ */
+function glomeSetAdStatus(ad_id, status)
+{
+  // Initialize database connection
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   
-  dump('-- database initialized\n');
+  var q = 'UPDATE ads SET status = :status WHERE id = :id';
+  var statement = db.createStatement(q);
+  statement.params.id = ad_id;
+  statement.params.status = Number(status);
+  
+  if (!statement.params.status)
+  {
+    statement.params.status = 0;
+  }
+  
+  statement.executeAsync();
+  
+  // Update ticker
+  glomeUpdateTicker();
+}
+
+/**
+ * Get ad according to its id
+ * 
+ * @param int ad_id
+ * @return mixed      Object with populated values or false on failure
+ */
+function glomeGetAd(ad_id)
+{
+  // Check if the ad has already been loaded?
+  for (let i = 0; i < glome_ad_stack.length; i++)
+  {
+    if (glome_ad_stack[i].id == ad_id)
+    {
+      return glome_ad_stack[i];
+    }
+  }
+  
+  // Initialize database connection
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  
+  var q = 'SELECT * FROM ads WHERE status = :status WHERE id = :id';
+  var statement = db.createStatement(q);
+  statement.params.id = ad_id;
+  
+  var ad = {};
+  
+  while (statement.executeStep())
+  {
+    for (i in glomeGetTable('ads'))
+    {
+      if (typeof statement.row[i] == 'undefined')
+      {
+        ad[i] = null;
+      }
+      else
+      {
+        ad[i] = statement.row[i];
+      }
+    }
+  }
+  
+  if (typeof ad.id == 'undefined')
+  {
+    return false;
+  }
+  
+  return ad;
 }
 
 glomeInit();
 glome.initialized = true;
+
+glomeUpdateTicker();
+
+// Run update ticker once a minute
+window.setInterval(function(){glomeUpdateTicker()}, 60 * 1000);
+
