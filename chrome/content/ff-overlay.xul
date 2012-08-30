@@ -9,6 +9,7 @@
 ]>
 
 <overlay id="glome-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript;version=1.8" src="jQuery/jquery-1.7.2.min.js" />
   <script type="application/x-javascript;version=1.8" src="tools.js" />
   <script type="application/x-javascript;version=1.8" src="overlay.js" />
   <script type="application/x-javascript;version=1.8" src="notification.js" />
@@ -26,9 +27,7 @@
           <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomePopupHide();" />
         </vbox>
         <hbox>
-          <vbox id="glome-controls-view-all" class="glome-selector-container" width="100%" flex="1" hidden="true">
-          </vbox>
-          <vbox>
+          <vbox id="glome-controls-wrapper">
             <vbox id="glome-switch-domain" domain="null">
               <vbox align="center">
                 <label value="&label.turn_glome_off;" class="label" />
@@ -60,24 +59,21 @@
             </vbox>
             <vbox class="active">
               <vbox class="glome-ad-description">
-                <description class="large">
-                  Procter &amp; Gamble has an offer for You
-                </description>
-                <label value="Up to 13 $ per order." />
+                <description class="large" id="glome-ad-description-title"></description>
+                <label value="" id="glome-ad-description-value" />
               </vbox>
               <box class="buttons" pack="center">
                 <!-- @TODO: bind events to these buttons -->
 <!--               <button flex="1" popup="ad-stack-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
-                <button onclick="getElementById('ad-stack-panel').openPopup(getElementById('browser'), null, 0, 0); getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button>
+                <button onclick="glomeDisplayAd();">&label.see_ad;</button>
                 <button onclick="glomeOpenCategoryView();">&label.not_now;</button>
 <!--                 <button flex="1">&label.never;</button> -->
               </box>
               <hbox class="navigation">
-                <!-- @TODO: use real data and remove inline code from this element -->
                 <box flex="1" class="navigators" pack="center" align="center" id="glome-ad-pager">
-                  <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" />
-                  <label value="1/12" class="pager" />
-                  <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" />
+                  <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" onclick="glomeChangeKnockingAd(-1);" />
+                  <label value="" class="pager" id="glome-ad-pager-page" />
+                  <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeChangeKnockingAd(1);" />
                 </box>
               </hbox>
             </vbox>
@@ -121,7 +117,7 @@
         <box align="right" id="glome-controls-icon">
         </box>
         <box id="glome-controls-icon-counter">
-          <label align="right" value="1" flex="0" />
+          <label align="right" value="0" flex="0" id="glome-controls-icon-counter-value" hidden="true" />
         </box>
       </stack>
     </stack>
@@ -164,9 +160,7 @@
             
             <!-- display a single ad -->
             <vbox id="ad-overlay-single" class="ad-overlay-content">
-              <box id="ad-overlay-single-image">
-                <image src="chrome://glome/skin/temp/audi-image.jpg" />
-              </box>
+              <box id="ad-overlay-single-image"></box>
               <hbox class="inner" flex="1">
                 <vbox class="description">
                   <label value="Procter &amp; Gamble 2012 test drive" class="header h1 content" />

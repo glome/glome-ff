@@ -91,6 +91,11 @@
   outline: none;
 }
 
+#glome-controls-wrapper > *
+{
+  width: 220px;
+}
+
 #glome-controls-window .glome-profit
 {
   margin: 0 -10px 0 0;
@@ -414,9 +419,13 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #ad-overlay-single-image
 {
-  background-color: #a7aab1;
+  background-color: #000000;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
   border-radius: 4px 4px 0 0;
   overflow: hidden;
+  height: 300px;
   -moz-box-align: center;
   -moz-box-pack: center;
   -moz-box-orient: vertical;
@@ -490,9 +499,18 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 #ad-overlay-single .inner > .description,
 #ad-overlay-single .inner > .actions
 {
-  width: 300px;
   padding: 30px 11px;
   white-space: normal;
+}
+
+#ad-overlay-single .inner > .description
+{
+  width: 400px;
+}
+
+#ad-overlay-single .inner > .actions
+{
+  width: 200px;
 }
 
 .glome-profit

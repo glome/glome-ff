@@ -157,6 +157,59 @@ function glomePopupShow()
   {
     document.getElementById('glome_power_switch').setAttribute('checked', 'true');
   }
+  
+  glomeChangeKnockingAd();
+}
+
+/**
+ * Change the advertisement visible on knocker
+ * 
+ * @param int dt    Delta for ad display related to current
+ */
+function glomeChangeKnockingAd(dt)
+{
+  if (!dt)
+  {
+    var dt = 0;
+  }
+  
+  glome.pages = glome.glome_ad_stack.length;
+  dump('page: ' + glome.page + ', pages: ' + glome.pages + ', dt: ' + dt + '\n')
+  
+  if (!glome.page)
+  {
+    glome.page = 0;
+  }
+  
+  glome.page += dt;
+  
+  if (glome.page < 0)
+  {
+    glome.page = glome.pages - 1;
+  }
+  
+  if (glome.page >= glome.pages)
+  {
+    glome.page = 0;
+  }
+  
+  index = glome.page;
+  dump('-- index: ' + index + '\n')
+  
+  // Display ad
+  var ad = glome.glome_ad_stack[index];
+  
+  glome.ad_id = ad.id;
+  
+  var current = index + 1;
+  
+  jQuery('#glome-ad-pager-page').attr('value', (index + 1) + '/' + glome.pages);
+  
+  // Randomize value in this point
+  var worth = Math.round(Math.random() * 10000) / 100;
+  
+  document.getElementById('glome-ad-description-title').textContent = ad.title;
+  jQuery('#glome-ad-description-value').attr('value', 'Up to ' + worth + ' e per order');
 }
 
 /**
@@ -174,4 +227,65 @@ function glomeOpenCategoryView(cat_id)
   stack.setAttribute('view', 'category');
   
   getElementById('glome-controls-window').hidePopup();
+}
+
+function glomeDisplayAd()
+{
+  // Get the ad to be displayed
+  var ad = glome.glomeGetAd(glome.ad_id);
+  
+  var container = jQuery(document).find('#ad-overlay-single');
+  
+  // Set the view mode to single item
+  jQuery('#ad-stack-panel').attr('view', 'single');
+  
+  // Remove the currently displayed ad
+  dump('Got ' + container.size() + ' container\n');
+  
+  switch (ad.adtype)
+  {
+    case 'image':
+      container.find('#ad-overlay-single-image').css('background-image', 'url("' + ad.content + '")');
+      dump(container.find('#ad-overlay-single-image').css('background-image') + '\n');
+      
+/*
+      var img = container.find('#ad-overlay-single-image').find('image');
+      img.attr
+      (
+        {
+          src: ad.content,
+          width: ad.width,
+          height: ad.height,
+        }
+      );
+*/
+      
+      container.find('label.header').attr('value', ad.title);
+      container.find('.description description').get(0).textContent = ad.description;
+      
+      break;
+  }
+  
+  container.find('.action.yes')
+    .attr('action', ad.action)
+    .bind('click', function(e)
+    {
+      // Create a new browser tab
+      document.getElementById('ad-stack-panel').hidePopup();
+      window.gBrowser.selectedTab = window.gBrowser.addTab(jQuery(this).attr('action'));
+      return false;
+    });
+  
+  glomeExtract(ad);
+  
+  document.getElementById('ad-stack-panel').openPopup(document.getElementById('browser'), null, 0, 0);
+  document.getElementById('glome-controls-window').hidePopup();
+  
+  // Set ad as displayed
+  //glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_VIEWED);
+}
+
+function glomeExtract(target)
+{
+  return glome.glomeExtract(target);
 }
