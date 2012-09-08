@@ -1,7 +1,3 @@
-// Add to enable extending jQuery for Glome
-jQuery = glome.jQuery;
-window = glome.window;
-
 /**
  * jQuery.timers - Timer abstractions for jQuery
  * Written by Blair Mitchelmore (blair DOT mitchelmore AT gmail DOT com)

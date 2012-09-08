@@ -9,7 +9,8 @@
 ]>
 
 <overlay id="glome-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript;version=1.8" src="jQuery/jquery-1.7.2.min.js" />
+  <script type="application/x-javascript;version=1.8" src="jQuery/jquery-xul.js" />
+  <script type="application/x-javascript;version=1.8" src="jQuery/jquery.timers.src.js" />
   <script type="application/x-javascript;version=1.8" src="tools.js" />
   <script type="application/x-javascript;version=1.8" src="overlay.js" />
   <script type="application/x-javascript;version=1.8" src="notification.js" />
@@ -21,7 +22,7 @@
   
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
-    <stack id="glome-controls" height="0" insertbefore="status-bar">
+    <stack id="glome-controls" height="0" insertbefore="container">
       <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomePopupShow();">
         <vbox flex="0" pack="center">
           <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomePopupHide();" />
@@ -217,26 +218,23 @@
             
             <!-- display all ads in a category -->
             <vbox id="ad-overlay-category-ads" class="ad-overlay-content">
-              <vbox id="ad-overlay-categories-list" class="inner" datasources="profile:glome.sqlite" ref="*" querytype="storage">
+              <vbox id="ad-overlay-categories-ads-list" class="inner">
                 <template>
-                  <query>
-                    SELECT * FROM ads
-                  </query>
-                  <action>
-                    <box class="list-item" data-id="?id">
+                  <![CDATA[
+                    <box class="list-item" data-id="::id">
                       <box class="thumbnail">
-                        <description value="?title"></description>
+                        <description>::title</description>
                       </box>
                       <vbox flex="1">
-                        <label class="h2" value="?content" />
+                        <label class="h2" value="::title" />
                         <label value="Up to 13 per order." />
                       </vbox>
                       <vbox class="buttons">
-                        <button>See ad</button>
-                        <button>Not now</button>
+                        <button class="action yes">See ad</button>
+                        <button class="action no">Not now</button>
                       </vbox>
                     </box>
-                  </action>
+                  ]]>
                 </template>
               </vbox>
               <hbox pack="center" align="center" class="footer">

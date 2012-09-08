@@ -38,6 +38,26 @@ window.addEventListener('TabSelect', function(e)
 }, false);
 
 /**
+ * Resize Glome related canvases according to the resizing of the main window
+ * 
+ * @param Object e    onresize event
+ */
+function glomeResize(e)
+{
+  jQuery('#ad-stack-panel')
+    .attr
+    (
+      {
+        width: jQuery('#browser').width(),
+        height: jQuery('#browser').height()
+      }
+    );
+}
+
+// Register window resize events
+window.addEventListener('resize', glomeResize, false);
+
+/**
  * Change Glome state from the toolbar icon
  */
 function glomeChangeState()
@@ -174,7 +194,6 @@ function glomeChangeKnockingAd(dt)
   }
   
   glome.pages = glome.glome_ad_stack.length;
-  dump('page: ' + glome.page + ', pages: ' + glome.pages + ', dt: ' + dt + '\n')
   
   if (!glome.page)
   {
@@ -194,7 +213,6 @@ function glomeChangeKnockingAd(dt)
   }
   
   index = glome.page;
-  dump('-- index: ' + index + '\n')
   
   // Display ad
   var ad = glome.glome_ad_stack[index];
@@ -265,10 +283,14 @@ function glomeOpenCategoryView(cat_id)
   document.getElementById('glome-controls-window').hidePopup();
 }
 
-function glomeDisplayAd()
+function glomeDisplayAd(ad_id)
 {
+  if (!ad_id)
+  {
+    let ad_id = glome.ad_id;
+  }
   // Get the ad to be displayed
-  var ad = glome.glomeGetAd(glome.ad_id);
+  var ad = glome.glomeGetAd(ad_id);
   
   var container = jQuery(document).find('#ad-overlay-single');
   
@@ -276,13 +298,11 @@ function glomeDisplayAd()
   jQuery('#ad-stack-panel').attr('view', 'single');
   
   // Remove the currently displayed ad
-  dump('Got ' + container.size() + ' container\n');
   
   switch (ad.adtype)
   {
     case 'image':
       container.find('#ad-overlay-single-image').css('background-image', 'url("' + ad.content + '")');
-      dump(container.find('#ad-overlay-single-image').css('background-image') + '\n');
       
 /*
       var img = container.find('#ad-overlay-single-image').find('image');
@@ -308,11 +328,7 @@ function glomeDisplayAd()
     .unbind('click')
     .bind('click', function(e)
     {
-      // Create a new browser tab
-      window.gBrowser.selectedTab = window.gBrowser.addTab(jQuery(this).attr('action'));
-      
-      // Set ad status to clicked
-      glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_CLICKED);
+      glomeGotoAd(glome.ad_id);
       
       // Hide the ad displayer
       document.getElementById('ad-stack-panel').hidePopup();
@@ -350,10 +366,103 @@ function glomeExtract(target)
   return glome.glomeExtract(target);
 }
 
+function glomeGotoAd(ad_id)
+{
+  // Create a new browser tab
+  for (let i = 0; i < glome.glome_ad_stack.length; i++)
+  {
+    if (glome.glome_ad_stack[i].id == ad_id)
+    {
+      window.gBrowser.selectedTab = window.gBrowser.addTab(glome.glome_ad_stack[i].action);
+      
+      // Set ad status to clicked
+      glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_CLICKED);
+      return;
+    }
+  }
+  
+  dump('no matching ad found for id ' + ad_id + '\n');
+}
+
 jQuery.fn.populate_category_list = function(id)
 {
-  // @TODO: Get the ads of this particular category. This needs changes to data API on Glome server
-  // and cannot be finished before that.
+  // Set the view mode to single item
+  jQuery('#ad-stack-panel').attr('view', 'list');
   
+  var container = jQuery('#ad-overlay-categories-ads-list');
+  var template = container.find('template').text();
   
+  // Remove the old content
+  container.find('> *').not('template').remove();
+  
+  for (var i = 0; i < glome.glome_ad_stack.length; i++)
+  {
+    // Copy the template
+    var tmp = template;
+    
+    var ad = glome.glome_ad_stack[i];
+    glome.glomeExtract(ad);
+    
+    // Replace with ad values
+    while (regs = tmp.match(/::([a-z0-9_]+)/i))
+    {
+      var value = '';
+      var key = regs[1];
+      var regexp = new RegExp(regs[0], 'g');
+      
+      if (typeof ad[key] != 'undefined')
+      {
+        value = ad[key];
+      }
+      
+      tmp = tmp.replace(regexp, value);
+    }
+    
+    // Convert HTML to DOM
+    jQuery(tmp).appendTo(container);
+  }
+  
+  // Set actions
+  container.find('.action.yes')
+    .bind('click', function()
+    {
+      var item = jQuery(this).parents('.list-item');
+      var ad_id = Number(item.attr('data-id'));
+      glomeGotoAd(ad_id);
+      item.remove();
+    });
+  
+  container.find('.action.no')
+    .bind('click', function()
+    {
+      var item = jQuery(this).parents('.list-item');
+      var ad_id = Number(item.attr('data-id'));
+      
+      // Set ad status to uninterested
+      glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
+      
+      item.remove();
+    });
 }
+
+/*
+<box id="ad-overlay-categories-list-template" class="list-item template">
+  <box class="thumbnail">
+    <description></description>
+  </box>
+  <vbox flex="1">
+    <label class="h2" value="" />
+    <label value="Up to 13 per order." />
+  </vbox>
+  <vbox class="buttons">
+    <button>See ad</button>
+    <button>Not now</button>
+  </vbox>
+</box>
+*/
+
+setTimeout(function()
+{
+  document.getElementById('ad-stack-panel').openPopup(document.getElementById('browser'), null, 0, 0);
+  jQuery('#ad-overlay-categories-list').populate_category_list(1);
+}, 1500);

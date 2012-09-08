@@ -935,3 +935,7 @@ checkbox.glome-switch[checked] label:before
   margin-right: 0;
 }
 
+.template
+{
+  display: none !important;
+}

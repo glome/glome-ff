@@ -92,9 +92,6 @@ function glomeInit()
     // Register event listeners
     window.addEventListener("unload", glomeUnload, false);
     
-    // Register window resize events
-    window.addEventListener('resize', glomeResize, false);
-    
     for each (let [id, event, handler] in eventHandlers)
     {
       let element = E(id);
@@ -267,26 +264,6 @@ function glomeInitPage(e)
   glomeTimedUpdater();
   glomeABPHideElements();
   return true;
-}
-
-/**
- * Resize Glome related canvases according to the resizing of the main window
- * 
- * @param Object e    onresize event
- */
-function glomeResize(e)
-{
-  var obj = window.document.getElementById('browser');
-  var panel = window.document.getElementById('ad-stack-panel');
-  
-  glome.jQuery(panel)
-    .attr
-    (
-      {
-        width: glome.jQuery(obj).width(),
-        height: glome.jQuery(obj).height()
-      }
-    );
 }
 
 /**
