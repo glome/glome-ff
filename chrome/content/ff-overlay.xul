@@ -22,10 +22,10 @@
   
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
-    <stack id="glome-controls" height="0" insertbefore="container">
-      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomePopupShow();">
+    <stack id="glome-controls" height="0" insertbefore="document">
+      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomeWidgetShow();">
         <vbox flex="0" pack="center">
-          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomePopupHide();" />
+          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomeWidgetHide();" />
         </vbox>
         <hbox>
           <vbox id="glome-controls-wrapper">
@@ -65,7 +65,7 @@
               </vbox>
               <box class="buttons" pack="center">
                 <!-- @TODO: bind events to these buttons -->
-<!--               <button flex="1" popup="ad-stack-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
+<!--               <button flex="1" popup="glome-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
                 <button onclick="glomeDisplayAd();">&label.see_ad;</button>
                 <button onclick="glomeOpenCategoryView();">&label.not_now;</button>
 <!--                 <button flex="1">&label.never;</button> -->
@@ -144,24 +144,24 @@
       </popup>
     </popupset>
     
-    <panel id="ad-stack-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center" view="category">
-      <stack id="ad-stack">
-        <box id="ad-overlay">
-          <box id="ad-overlay-display">
+    <panel id="glome-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center" view="category">
+      <stack id="glome-overlay-wrapper">
+        <box id="glome-overlay">
+          <box id="glome-overlay-display">
             <!-- common headers -->
             <hbox align="center" class="header">
               <label value="Category:" />
               <label value="Automotive" class="category-title" />
               <spacer flex="1" />
               <box>
-                <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="getElementById('ad-stack-panel').hidePopup();" />
+                <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="glomeHideStack();" />
               </box>
             </hbox>
             <!-- end common headers -->
             
             <!-- display a single ad -->
-            <vbox id="ad-overlay-single" class="ad-overlay-content">
-              <box id="ad-overlay-single-image"></box>
+            <vbox id="glome-overlay-single" class="glome-overlay-content">
+              <box id="glome-overlay-single-image"></box>
               <hbox class="inner" flex="1">
                 <vbox class="description">
                   <label value="Ad label comes here" class="header h1 content" />
@@ -174,7 +174,7 @@
                   <label value="&label.no_thanks;" class="action no" />
                 </vbox>
               </hbox>
-              <hbox id="ad-overlay-cashback" class="footer">
+              <hbox id="glome-overlay-cashback" class="footer">
                 <separator flex="1" />
                 <label value="Up to" />
                 <label value="13" class="amount" />
@@ -186,8 +186,8 @@
             <!-- end displaying a single ad -->
             
             <!-- display an ad category -->
-            <vbox id="ad-overlay-category" class="ad-overlay-content">
-              <vbox id="ad-overlay-categories-list" class="inner" pack="center" align="center">
+            <vbox id="glome-overlay-category" class="glome-overlay-content">
+              <vbox id="glome-overlay-categories-list" class="inner" pack="center" align="center">
                 <box pack="center" align="center" class="header-line">
                   <label value="&label.interested_in;" class="h1" />
                   <label data-type="category-title" value="Cars" class="h1 no-margins" />
@@ -212,13 +212,19 @@
                 <label value="&remember_that_you_can_always_change_your_mind;" class="with-space" />
               </vbox>
               <hbox pack="center" align="center" class="footer">
+                <box pack="center" align="center" class="glome-switch-wrapper">
+                  <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+                    <label control="glome_power_switch"></label>
+                  </checkbox>
+                </box>
+                <separator flex="1" />
               </hbox>
             </vbox>
             <!-- end displaying an ad category -->
             
             <!-- display all ads in a category -->
-            <vbox id="ad-overlay-category-ads" class="ad-overlay-content">
-              <vbox id="ad-overlay-categories-ads-list" class="inner">
+            <vbox id="glome-overlay-category-ads" class="glome-overlay-content">
+              <vbox id="glome-overlay-categories-ads-list" class="inner">
                 <template>
                   <![CDATA[
                     <box class="list-item" data-id="::id">
@@ -237,7 +243,13 @@
                   ]]>
                 </template>
               </vbox>
-              <hbox pack="center" align="center" class="footer">
+              <hbox class="footer">
+                <box pack="center" align="center" class="glome-switch-wrapper">
+                  <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+                    <label control="glome_power_switch"></label>
+                  </checkbox>
+                </box>
+                <separator flex="1" />
               </hbox>
             </vbox>
             <!-- end displaying all ads in a category -->

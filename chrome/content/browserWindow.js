@@ -407,106 +407,6 @@ function glomeTimedUpdater()
   {
     return;
   }
-  
-  // Fetch ads from Glome server
-  var date = new Date();
-  
-  if (date.getTime() - last_updated > 3000)
-  {
-    // Get subscribed categories from database
-    let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-    let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-    let q = 'SELECT id, name FROM categories WHERE subscribed = 1';
-    
-    var statement = db.createStatement(q);
-    statement.executeAsync
-    (
-      {
-        handleResult: function(resultset)
-        {
-          var values = new Array();
-          var categories = new Array();
-          
-          for (let row = resultset.getNextRow(); row; row = resultset.getNextRow())
-          {
-            values.push
-            (
-              {
-                id: row.getResultByName('id'),
-                name: row.getResultByName('name'),
-              }
-            )
-            
-            categories.push(row.getResultByName('id'));
-          }
-          
-          // Get the ads from Glome API
-          glome.request = new XMLHttpRequest();
-          glome.request.timeout = 5000;
-          glome.request.onreadystatechange = function(e)
-          {
-            if (e.originalTarget.readyState < 4)
-            {
-              return;
-            }
-            data = JSON.parse(e.originalTarget.response);
-            
-            // Update locally stored ad data
-            let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-            let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-            
-            for (let i = 0; i < data.length; i++)
-            {
-              // Get keys
-              if (typeof keys == 'undefined')
-              {
-                var keys = new Array();
-                var keys_with_colon = new Array();
-                
-                for (key in data[i])
-                {
-                  keys.push(key);
-                  keys_with_colon.push(':' + key);
-                }
-                
-                keys.push('status');
-                keys_with_colon.push(':status');
-              }
-              
-              // Store the ads locally
-              q = 'INSERT INTO ads (' + keys.toString() + ') VALUES(' + keys_with_colon.toString() + ')';
-              let statement = db.createStatement(q);
-              
-              for (key in data[i])
-              {
-                statement.params[key] = data[i][key];
-              }
-              
-              // Set status to zero for new ads
-              statement.params.status = 0;
-              
-              statement.executeAsync();
-            }
-            
-            // Update ticker
-            glomeUpdateTicker();
-          }
-          
-          if (glome_is_online)
-          {
-            glome.request.open('GET', 'http://api.glome.me/ads.json', true);
-            glome.request.send();
-          }
-        }
-      }
-    );
-    
-    // Abort the previous request if it is still pending
-    if (typeof glome.request != 'undefined')
-    {
-      glome.request.abort();
-    }
-  }
 };
 
 /**
@@ -1061,7 +961,7 @@ function glomeGetTable(tablename)
       content: 'TEXT',
       action: 'TEXT',
       expires: 'TEXT',
-      adcategory_ids: 'TEXT',
+      adcategories: 'TEXT',
       description: 'TEXT',
       notice: 'TEXT',
       width: 'INTEGER',
@@ -1292,3 +1192,188 @@ glomeUpdateTicker();
 // Run update ticker once a minute
 window.setInterval(function(){glomeUpdateTicker()}, 60 * 1000);
 
+/**
+ * Update Glome ads from server per interval
+ */
+window.setInterval(function()
+{
+  dump('Load ads from Glome server\n');
+  // Get subscribed categories from database
+  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  let q = 'SELECT id, name FROM categories WHERE subscribed = 1';
+  
+  var statement = db.createStatement(q);
+  statement.executeAsync
+  (
+    {
+      resultset: null,
+      handleResult: function(resultset)
+      {
+        this.resultset = resultset;
+      },
+      handleCompletion: function()
+      {
+        var values = new Array();
+        var categories = new Array();
+        
+        dump('Completed\n');
+        
+        if (!this.resultset)
+        {
+          dump('Got no resultset\n');
+          return;
+        }
+        
+        for (let row = this.resultset.getNextRow(); row; row = this.resultset.getNextRow())
+        {
+          values.push
+          (
+            {
+              id: row.getResultByName('id'),
+              name: row.getResultByName('name'),
+            }
+          )
+          
+          categories.push(row.getResultByName('id'));
+        }
+        
+        // Get the ads from Glome API
+        glome.request = new XMLHttpRequest();
+        glome.request.timeout = 5000;
+        glome.request.onreadystatechange = function(e)
+        {
+          if (e.originalTarget.readyState < 4)
+          {
+            return;
+          }
+          
+          data = JSON.parse(e.originalTarget.response);
+          
+          // Update locally stored ad data
+          let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+          let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+          
+          for (let i = 0; i < data.length; i++)
+          {
+            // Get keys
+            if (typeof keys == 'undefined')
+            {
+              var keys = new Array();
+              var keys_with_colon = new Array();
+              
+              for (key in data[i])
+              {
+                keys.push(key);
+                keys_with_colon.push(':' + key);
+              }
+              
+              keys.push('status');
+              keys_with_colon.push(':status');
+            }
+            
+            // Store the ads locally
+            q = 'INSERT INTO ads (' + keys.toString() + ') VALUES(' + keys_with_colon.toString() + ')';
+            let statement = db.createStatement(q);
+            
+            for (key in data[i])
+            {
+              // Per key rules
+              switch (key)
+              {
+                case 'adcategories':
+                  selection = new Array();
+                  
+                  for (k in data[i][key])
+                  {
+                    selection.push(data[i][key][k].id);
+                  }
+                  
+                  // Store as JSON
+                  statement.params[key] = JSON.stringify(selection);
+                  break;
+                
+                default:
+                  statement.params[key] = data[i][key];
+              }
+            }
+            
+            // Set status to zero for new ads
+            statement.params.status = 0;
+            
+            // Check if updateable on error, since probably the primary keyed ID already exists
+            statement.executeAsync
+            (
+              {
+                rval: statement.params,
+                handleError: function(error)
+                {
+                  // Update locally stored ad data
+                  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+                  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+                  
+                  q = 'UPDATE ads SET ';
+                  
+                  var first = true;
+                  
+                  for (key in this.rval)
+                  {
+                    if (key == 'id')
+                    {
+                      continue;
+                    }
+                    
+                    if (first)
+                    {
+                      first = false;
+                    }
+                    else
+                    {
+                      q += ', ';
+                    }
+                    
+                    q += key + ' = :key';
+                  }
+                  
+                  q += ' WHERE id = ' + this.rval.id;
+                  
+                  dump('--try to update with: ' + q + '\n');
+                  glomeExtract(this.rval);
+                  
+                  let statement = db.createStatement(q);
+                  statement.params = this.rval;
+                  
+                  statement.executeAsync
+                  (
+                    {
+                      handleCompletion: function(msg)
+                      {
+                        dump('-- completed\n');
+                      },
+                      handleError: function(error)
+                      {
+                        glomeExtract(error);
+                      }
+                    }
+                  );
+                }
+              }
+            );
+          }
+        }
+        
+        if (glome_is_online)
+        {
+          glome.request.open('GET', 'http://api.glome.me/ads.json', true);
+          glome.request.send();
+        }
+      }
+    }
+  );
+  
+  // Abort the previous request if it is still pending
+  if (typeof glome.request != 'undefined')
+  {
+    glome.request.abort();
+  }
+}, 3 * 1000);

@@ -29,12 +29,52 @@ window.addEventListener('DOMContentLoaded', function(e)
  */
 window.addEventListener('TabSelect', function(e)
 {
+  stack_panel = document.getElementById('glome-panel');
+  
+  // Check if the currently selected tab should have Glome ad stack open
+  if (!stack_panel)
+  {
+    // Stack panel not available, do nothing
+  }
+  else if (window.gBrowser.selectedTab.hasAttribute('glomepanel'))
+  {
+    stack_panel.openPopup(document.getElementById('browser'), null, 0, 0);
+  }
+  else
+  {
+    stack_panel.hidePopup();
+  }
+  
   // Initialize page
   glome.glomeInitPage(e);
   
   // Hide the Glome popup
-  glomePopupHide();
+  glomeWidgetHide();
   
+/*
+  var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+  
+  
+  for (var found = false, index = 0, tabbrowser = wm.getEnumerator('navigator:browser').getNext().gBrowser;
+      index < tabbrowser.tabContainer.childNodes.length && !found;
+      index++)
+  {
+      // Get the next tab
+      var currentTab = tabbrowser.tabContainer.childNodes[index];
+  
+      // Does this tab contain our custom attribute?
+      if (currentTab.hasAttribute('glomepanel'))
+      {
+        var mode = currentTab.getAttribute('glomepanel');
+        
+        var stack = jQuery('#glome-panel');
+        stack.attr('view', mode);
+        
+        stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
+      }
+  }
+*/
+
 }, false);
 
 /**
@@ -44,7 +84,7 @@ window.addEventListener('TabSelect', function(e)
  */
 function glomeResize(e)
 {
-  jQuery('#ad-stack-panel')
+  jQuery('#glome-panel')
     .attr
     (
       {
@@ -67,10 +107,20 @@ function glomeChangeState()
   var state = glome.glomeSwitch('enabled');
   var domain = glome.glomeGetCurrentDomain();
   
+  // Set the checkbox status
+  if (!glome.glomePrefs.enabled)
+  {
+    jQuery('.glome-switch').removeAttr('checked');
+    glomeHideStack();
+  }
+  else
+  {
+    jQuery('.glome-switch').attr('checked', 'true');
+  }
+  
   if (!domain)
   {
-    //return;
-    domain = 'www.google.fi';
+    return;
   }
   
   var element = document.getElementById('glome-switch-domain');
@@ -152,7 +202,7 @@ function glomeChangeDomainState()
     case 'off':
       glome.glomePrefs.disableForDomain(domain);
       glome.glomeTogglePref('enabled');
-      glomePopupHide();
+      glomeWidgetHide();
       break;
   }
   
@@ -163,20 +213,10 @@ function glomeChangeDomainState()
 /**
  * Process the popup right before showing it
  */
-function glomePopupShow()
+function glomeWidgetShow()
 {
   var state = glomeGetPanelState();
   document.getElementById('glome-switch-domain').setAttribute('domain', state);
-  
-  // Set the checkbox status
-  if (!glome.glomePrefs.enabled)
-  {
-    document.getElementById('glome_power_switch').removeAttribute('checked');
-  }
-  else
-  {
-    document.getElementById('glome_power_switch').setAttribute('checked', 'true');
-  }
   
   glomeChangeKnockingAd();
 }
@@ -194,6 +234,15 @@ function glomeChangeKnockingAd(dt)
   }
   
   glome.pages = glome.glome_ad_stack.length;
+  
+  if (!glome.pages)
+  {
+    jQuery('#glome-controls-wrapper').find('.active').attr('hidden', true);
+  }
+  else
+  {
+    jQuery('#glome-controls-wrapper').find('.active').removeAttr('hidden');
+  }
   
   if (!glome.page)
   {
@@ -233,19 +282,20 @@ function glomeChangeKnockingAd(dt)
 /**
  * Hide the popup
  */
-function glomePopupHide()
+function glomeWidgetHide()
 {
   document.getElementById('glome-controls-window').hidePopup();
 }
 
 function glomeOpenCategoryView(cat_id)
 {
-  var stack = jQuery('#ad-stack-panel');
+  var stack = jQuery('#glome-panel');
   stack.attr('view', 'category');
   
   stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
+  window.gBrowser.selectedTab.setAttribute('glomepanel', 'visible');
   
-  jQuery('#ad-overlay-category')
+  jQuery('#glome-overlay-category')
     .find('button.no')
     .unbind('click')
     .bind('click', function(e)
@@ -253,7 +303,8 @@ function glomeOpenCategoryView(cat_id)
       glome.glomeCategorySubscription(1, false);
       
       // Hide the ad displayer
-      document.getElementById('ad-stack-panel').hidePopup();
+      glomeHideStack();
+      window.gBrowser.selectedTab.removeAttribute('glomepanel');
     });
   
   // @TODO: calculate the length according to the category. Requires changes in Glome data API
@@ -268,16 +319,16 @@ function glomeOpenCategoryView(cat_id)
   
   label.attr('value', text.replace(/ s /, ' ' + glome.glome_ad_stack.length + ' '))
   
-  jQuery('#ad-overlay-category')
+  jQuery('#glome-overlay-category')
     .find('button.yes')
     .unbind('click')
     .bind('click', function(e)
     {
       // Populate with ads of the category
-      jQuery('#ad-overlay-categories-list')
+      jQuery('#glome-overlay-categories-list')
         .populate_category_list(1);
       
-      jQuery('#ad-stack-panel').attr('view', 'list');
+      jQuery('#glome-panel').attr('view', 'list');
     });
   
   document.getElementById('glome-controls-window').hidePopup();
@@ -292,20 +343,20 @@ function glomeDisplayAd(ad_id)
   // Get the ad to be displayed
   var ad = glome.glomeGetAd(ad_id);
   
-  var container = jQuery(document).find('#ad-overlay-single');
+  var container = jQuery(document).find('#glome-overlay-single');
   
   // Set the view mode to single item
-  jQuery('#ad-stack-panel').attr('view', 'single');
+  jQuery('#glome-panel').attr('view', 'single');
   
   // Remove the currently displayed ad
   
   switch (ad.adtype)
   {
     case 'image':
-      container.find('#ad-overlay-single-image').css('background-image', 'url("' + ad.content + '")');
+      container.find('#glome-overlay-single-image').css('background-image', 'url("' + ad.content + '")');
       
 /*
-      var img = container.find('#ad-overlay-single-image').find('image');
+      var img = container.find('#glome-overlay-single-image').find('image');
       img.attr
       (
         {
@@ -329,9 +380,6 @@ function glomeDisplayAd(ad_id)
     .bind('click', function(e)
     {
       glomeGotoAd(glome.ad_id);
-      
-      // Hide the ad displayer
-      document.getElementById('ad-stack-panel').hidePopup();
       return false;
     });
   
@@ -344,7 +392,7 @@ function glomeDisplayAd(ad_id)
       glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
       
       // Hide the ad displayer
-      document.getElementById('ad-stack-panel').hidePopup();
+      glomeHideStack();
       
       // Update ticker to match the new view count
       glome.glomeUpdateTicker();
@@ -352,9 +400,7 @@ function glomeDisplayAd(ad_id)
       return false;
     });
   
-  glomeExtract(ad);
-  
-  document.getElementById('ad-stack-panel').openPopup(document.getElementById('browser'), null, 0, 0);
+  document.getElementById('glome-panel').openPopup(document.getElementById('browser'), null, 0, 0);
   document.getElementById('glome-controls-window').hidePopup();
     
   // Set ad as displayed
@@ -373,23 +419,26 @@ function glomeGotoAd(ad_id)
   {
     if (glome.glome_ad_stack[i].id == ad_id)
     {
+      window.gBrowser.selectedTab.setAttribute('glomepanel', jQuery('#glome-panel').attr('view'));
       window.gBrowser.selectedTab = window.gBrowser.addTab(glome.glome_ad_stack[i].action);
       
       // Set ad status to clicked
       glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_CLICKED);
+      
+      // Remove this ad from ads list
+      glome.glome_ad_stack.splice(i, 1);
+      
       return;
     }
   }
-  
-  dump('no matching ad found for id ' + ad_id + '\n');
 }
 
 jQuery.fn.populate_category_list = function(id)
 {
   // Set the view mode to single item
-  jQuery('#ad-stack-panel').attr('view', 'list');
+  jQuery('#glome-panel').attr('view', 'list');
   
-  var container = jQuery('#ad-overlay-categories-ads-list');
+  var container = jQuery('#glome-overlay-categories-ads-list');
   var template = container.find('template').text();
   
   // Remove the old content
@@ -426,6 +475,12 @@ jQuery.fn.populate_category_list = function(id)
   container.find('.action.yes')
     .bind('click', function()
     {
+      // Closing the last one, hide panel
+      if (!jQuery(this).parents('.list-item').siblings('.list-item').size())
+      {
+        glomeHideStack();
+      }
+      
       var item = jQuery(this).parents('.list-item');
       var ad_id = Number(item.attr('data-id'));
       glomeGotoAd(ad_id);
@@ -435,8 +490,24 @@ jQuery.fn.populate_category_list = function(id)
   container.find('.action.no')
     .bind('click', function()
     {
+      // Closing the last one, hide panel
+      if (!jQuery(this).parents('.list-item').siblings('.list-item').size())
+      {
+        glomeHideStack();
+      }
+      
       var item = jQuery(this).parents('.list-item');
       var ad_id = Number(item.attr('data-id'));
+      
+      // Create a new browser tab
+      for (let i = 0; i < glome.glome_ad_stack.length; i++)
+      {
+        if (glome.glome_ad_stack[i].id == ad_id)
+        {
+          // Remove this ad from ads list
+          glome.glome_ad_stack.splice(i, 1);
+        }
+      }
       
       // Set ad status to uninterested
       glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
@@ -446,7 +517,7 @@ jQuery.fn.populate_category_list = function(id)
 }
 
 /*
-<box id="ad-overlay-categories-list-template" class="list-item template">
+<box id="glome-overlay-categories-list-template" class="list-item template">
   <box class="thumbnail">
     <description></description>
   </box>
@@ -463,6 +534,14 @@ jQuery.fn.populate_category_list = function(id)
 
 setTimeout(function()
 {
-  document.getElementById('ad-stack-panel').openPopup(document.getElementById('browser'), null, 0, 0);
-  jQuery('#ad-overlay-categories-list').populate_category_list(1);
+  document.getElementById('glome-panel').openPopup(document.getElementById('browser'), null, 0, 0);
+  jQuery('#glome-overlay-categories-list').populate_category_list(1);
 }, 1500);
+
+
+function glomeHideStack()
+{
+  window.gBrowser.selectedTab.removeAttribute('glomepanel');
+  document.getElementById('glome-panel').hidePopup();
+}
+
