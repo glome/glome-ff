@@ -433,6 +433,11 @@ function glomeGotoAd(ad_id)
   }
 }
 
+/**
+ * Populate category list
+ * 
+ * @param int id    glome.sqlite:categories:id
+ */
 jQuery.fn.populate_category_list = function(id)
 {
   // Set the view mode to single item
@@ -446,6 +451,21 @@ jQuery.fn.populate_category_list = function(id)
   
   for (var i = 0; i < glome.glome_ad_stack.length; i++)
   {
+    found = false;
+    for (var k = 0; k < glome.glome_ad_stack[i].adcategories.length; k++)
+    {
+      if (glome.glome_ad_stack[i].adcategories[k] == id)
+      {
+        found = true;
+      }
+    }
+    
+    // Skip if not in the requested category
+    if (!found)
+    {
+      continue;
+    }
+    
     // Copy the template
     var tmp = template;
     

@@ -1184,20 +1184,8 @@ function glomeGetAd(ad_id)
   return ad;
 }
 
-glomeInit();
-glome.initialized = true;
-
-glomeUpdateTicker();
-
-// Run update ticker once a minute
-window.setInterval(function(){glomeUpdateTicker()}, 60 * 1000);
-
-/**
- * Update Glome ads from server per interval
- */
-window.setInterval(function()
+function glomeFetchAds()
 {
-  dump('Load ads from Glome server\n');
   // Get subscribed categories from database
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
@@ -1217,11 +1205,8 @@ window.setInterval(function()
         var values = new Array();
         var categories = new Array();
         
-        dump('Completed\n');
-        
         if (!this.resultset)
         {
-          dump('Got no resultset\n');
           return;
         }
         
@@ -1332,30 +1317,16 @@ window.setInterval(function()
                       q += ', ';
                     }
                     
-                    q += key + ' = :key';
+                    q += key + ' = :' + key;
                   }
                   
                   q += ' WHERE id = ' + this.rval.id;
                   
-                  dump('--try to update with: ' + q + '\n');
-                  glomeExtract(this.rval);
                   
                   let statement = db.createStatement(q);
                   statement.params = this.rval;
                   
-                  statement.executeAsync
-                  (
-                    {
-                      handleCompletion: function(msg)
-                      {
-                        dump('-- completed\n');
-                      },
-                      handleError: function(error)
-                      {
-                        glomeExtract(error);
-                      }
-                    }
-                  );
+                  statement.executeAsync();
                 }
               }
             );
@@ -1376,4 +1347,21 @@ window.setInterval(function()
   {
     glome.request.abort();
   }
-}, 3 * 1000);
+}
+
+glomeInit();
+glome.initialized = true;
+
+glomeUpdateTicker();
+
+// Run update ticker once a minute
+window.setInterval(function(){glomeUpdateTicker()}, 60 * 1000);
+
+/**
+ * Update Glome ads from server once an hour
+ */
+window.setInterval(function()
+{
+  glomeFetchAds();
+}, 60 * 60 * 1000);
+glomeFetchAds();
