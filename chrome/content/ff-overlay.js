@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', function(e)
 window.addEventListener('DOMTitleChanged', function(e)
 {
   // Hide Glome icon in the addons view
-  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
   {
     jQuery('#glome-controls').attr('hidden', 'true');
     return;
@@ -35,7 +35,7 @@ window.addEventListener('DOMTitleChanged', function(e)
 window.addEventListener('load', function(e)
 {
   // Hide Glome icon in the addons view
-  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
   {
     jQuery('#glome-controls').attr('hidden', 'true');
     return;
