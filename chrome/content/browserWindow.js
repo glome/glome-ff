@@ -121,7 +121,9 @@ function glomeInit()
       }
     }
     catch(e)
-    {}
+    {
+      
+    }
   }
 
   // Install context menu handler
@@ -202,9 +204,41 @@ function glomeInit()
   glome.connection.open();
   glome.connection.sendTest();
   
-  // Update database
+  // Run startup stuff
   glomeInitDb();
   glomeGetCategories();
+  glomeFetchAds();
+  
+  // Set timed updater
+  window.setInterval
+  (
+    function()
+    {
+      glomeTimedUpdater();
+    },
+    10 * 1000
+  );
+  
+  // Set a long delay for ad retrieval. When debugging this should be minutes and
+  // for production probably an hour
+  window.setInterval
+  (
+    function()
+    {
+      glomeFetchAds();
+    },
+    60 * 1000
+  );
+  
+  // Refresh every now and then the list of categories
+  window.setInterval
+  (
+    function()
+    {
+        glomeGetCategories();
+    },
+    60 * 1000
+  );
   
   glome.LOG("glomeInit done");
 };
@@ -357,6 +391,8 @@ function glomeTimedUpdater()
   {
     return;
   }
+  
+  glomeUpdateTicker();
 };
 
 /**
@@ -364,9 +400,7 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  // Refresh the list of categories with subscription
-  glomeGetCategories();
-  glomeExtract(glome_ad_categories);
+  glome.LOG('glomeUpdateTicker');
   
   // Update locally stored ad data
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
@@ -445,8 +479,6 @@ function glomeUpdateTicker()
           {
             continue;
           }
-          
-          glomeExtract(item);
           
           // Populate ad stack
           let id = item[id];
@@ -964,6 +996,8 @@ function glomeGetTable(tablename)
 
 function glomeInitDb()
 {
+  glome.LOG('initialize database');
+  
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   

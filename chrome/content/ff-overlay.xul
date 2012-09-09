@@ -16,10 +16,6 @@
   <script type="application/x-javascript;version=1.8" src="notification.js" />
   <script type="application/x-javascript;version=1.8" src="ff-overlay.js" />
   
-  <!-- <menupopup id="menu_ToolsPopup">
-    <menuitem id="glome-icon" label="Glome" oncommand="Glome.onMenuItemCommand(event);"/>
-  </menupopup> -->
-  
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
     <stack id="glome-controls" height="0" insertbefore="document">
@@ -99,11 +95,6 @@
                     <description>Lorem ipsum</description>
                   </menupopup>
                 </popupset>
-<!--
-                <button popup="glome-personals" class="arrow icon" width="20">
-                  <image src="chrome://glome/skin/icons/icon-person.png" width="20" height="20" />
-                </button>
--->
                 <box>
                   <button popup="glome-config" class="arrow icon" width="20">
                     <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
@@ -114,7 +105,7 @@
           </vbox>
         </hbox>
       </panel>
-      <stack align="right" bottom="0" right="15" id="glome-controls-icon-wrapper" popup="glome-controls-window">
+      <stack align="right" bottom="0" right="15" id="glome-controls-icon-wrapper" popup="glome-controls-window" hidden="true">
         <box align="right" id="glome-controls-icon">
         </box>
         <box id="glome-controls-icon-counter">

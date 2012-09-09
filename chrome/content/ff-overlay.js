@@ -45,20 +45,7 @@ window.addEventListener('load', function(e)
     jQuery('#glome-controls').removeAttr('hidden');
   }
   
-  glome.glomeUpdateTicker();
-  
-  // Run update ticker once a minute
-  window.setInterval(function(){glome.glomeUpdateTicker()}, 30 * 1000);
-  
-  /**
-   * Update Glome ads from server once an hour
-   */
-  window.setInterval(function()
-  {
-    glome.glomeFetchAds();
-  }, 60 * 60 * 1000);
-  
-  glome.glomeFetchAds();
+  jQuery('#glome-controls-icon-wrapper').removeAttr('hidden');
 }, false);
 
 /**
@@ -96,6 +83,7 @@ window.addEventListener('TabSelect', function(e)
   
   // Initialize page
   glome.glomeInitPage(e);
+  glome.updateTicker();
   
   // Hide the Glome popup
   glomeWidgetHide();
