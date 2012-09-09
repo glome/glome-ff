@@ -22,8 +22,29 @@ window.addEventListener('DOMContentLoaded', function(e)
   glome.glomeInitPage(e);
 }, false);
 
+window.addEventListener('DOMTitleChanged', function(e)
+{
+  // Hide Glome icon in the addons view
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  {
+    jQuery('#glome-controls').attr('hidden', 'true');
+    return;
+  }
+}, false)
+
 window.addEventListener('load', function(e)
 {
+  // Hide Glome icon in the addons view
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  {
+    jQuery('#glome-controls').attr('hidden', 'true');
+    return;
+  }
+  else
+  {
+    jQuery('#glome-controls').removeAttr('hidden');
+  }
+  
   glome.glomeUpdateTicker();
   
   // Run update ticker once a minute
@@ -46,6 +67,17 @@ window.addEventListener('load', function(e)
  */
 window.addEventListener('TabSelect', function(e)
 {
+  // Hide Glome icon in the addons view
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  {
+    jQuery('#glome-controls').attr('hidden', 'true');
+    return;
+  }
+  else
+  {
+    jQuery('#glome-controls').removeAttr('hidden');
+  }
+  
   stack_panel = document.getElementById('glome-panel');
   
   // Check if the currently selected tab should have Glome ad stack open
@@ -621,13 +653,6 @@ jQuery.fn.populate_category_list = function(id)
   </vbox>
 </box>
 */
-
-setTimeout(function()
-{
-  document.getElementById('glome-panel').openPopup(document.getElementById('browser'), null, 0, 0);
-  jQuery('#glome-overlay-categories-list').populate_category_list(2);
-}, 1500);
-
 
 function glomeHideStack()
 {
