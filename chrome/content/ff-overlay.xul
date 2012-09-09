@@ -151,7 +151,7 @@
             <!-- common headers -->
             <hbox align="center" class="header">
               <label value="Category:" />
-              <label value="Automotive" class="category-title" />
+              <label value="---" class="category-title" />
               <spacer flex="1" />
               <box>
                 <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="glomeHideStack();" />
@@ -190,7 +190,7 @@
               <vbox id="glome-overlay-categories-list" class="inner" pack="center" align="center">
                 <box pack="center" align="center" class="header-line">
                   <label value="&label.interested_in;" class="h1" />
-                  <label data-type="category-title" value="Cars" class="h1 no-margins" />
+                  <label data-type="category-title" value="---" class="h1 no-margins category-title" />
                   <label value="?" class="h1 no-margin-left" />
                 </box>
                 <label value="&glome_will_not_spam_you_with_ads_you_dont_want;" class="with-space" />
@@ -203,10 +203,10 @@
                   </button>
                   <button orient="vertical" class="no">
                     <label value="&label.not_now;" class="h1" />
-                    <hbox pack="center">
+                    <box pack="center">
                       <label value="&label.no_more_offers_for;" />
-                      <label value="cars" class="no-margin-left" />
-                    </hbox>
+                      <label value="---" class="no-margin-left category-title" />
+                    </box>
                   </button>
                 </hbox>
                 <label value="&remember_that_you_can_always_change_your_mind;" class="with-space" />

@@ -1,4 +1,3 @@
-// This is probably obsolete after changing to floating Glome icon
 /*
 Glome.onFirefoxLoad = function(event) {
   document.getElementById("contentAreaContextMenu")
@@ -21,6 +20,24 @@ window.addEventListener('DOMContentLoaded', function(e)
 {
   // Initialize page
   glome.glomeInitPage(e);
+}, false);
+
+window.addEventListener('load', function(e)
+{
+  glome.glomeUpdateTicker();
+  
+  // Run update ticker once a minute
+  window.setInterval(function(){glome.glomeUpdateTicker()}, 30 * 1000);
+  
+  /**
+   * Update Glome ads from server once an hour
+   */
+  window.setInterval(function()
+  {
+    glome.glomeFetchAds();
+  }, 60 * 60 * 1000);
+  
+  glome.glomeFetchAds();
 }, false);
 
 /**
@@ -271,6 +288,7 @@ function glomeChangeKnockingAd(dt)
   var current = index + 1;
   
   jQuery('#glome-ad-pager-page').attr('value', (index + 1) + '/' + glome.pages);
+  jQuery('#glome-ad-pager').attr('data-category', JSON.stringify(ad.adcategories));
   
   // Randomize value in this point
   var worth = Math.round(Math.random() * 10000) / 100;
@@ -289,6 +307,23 @@ function glomeWidgetHide()
 
 function glomeOpenCategoryView(cat_id)
 {
+  document.getElementById('glome-controls-window').hidePopup();
+  
+  if (!cat_id)
+  {
+    stored = JSON.parse(jQuery('#glome-ad-pager').attr('data-category'));
+    for (i in stored)
+    {
+      cat_id = stored[i];
+      break;
+    }
+  }
+  
+  if (!cat_id)
+  {
+    return;
+  }
+  
   var stack = jQuery('#glome-panel');
   stack.attr('view', 'category');
   
@@ -300,7 +335,7 @@ function glomeOpenCategoryView(cat_id)
     .unbind('click')
     .bind('click', function(e)
     {
-      glome.glomeCategorySubscription(1, false);
+      glome.glomeCategorySubscription(jQuery('#glome-overlay-category').attr('data-id'), false);
       
       // Hide the ad displayer
       glomeHideStack();
@@ -317,7 +352,34 @@ function glomeOpenCategoryView(cat_id)
     label.attr('data-original', text);
   }
   
-  label.attr('value', text.replace(/ s /, ' ' + glome.glome_ad_stack.length + ' '))
+  
+  // Change the titles
+  jQuery('#glome-panel').find('.category-title').attr('value', glome.glome_ad_categories[cat_id].name);
+  
+  // Get the count
+  var count = 0;
+  
+  for (let i = 0; i < glome.glome_ad_stack.length; i++)
+  {
+    if (jQuery.inArray(cat_id, glome.glome_ad_stack[i].adcategories) >= 0)
+    {
+      count++;
+    }
+  }
+  
+  jQuery('#glome-overlay-category').attr('data-count', count);
+  jQuery('#glome-overlay-category').attr('data-id', cat_id);
+  
+  if (!count)
+  {
+    jQuery('#glome-overlay-category').find('.show-all-s').attr('hidden', 'true');
+  }
+  else
+  {
+    jQuery('#glome-overlay-category').find('.show-all-s').removeAttr('hidden');
+  }
+  
+  label.attr('value', text.replace(/ s /, ' ' + count + ' '))
   
   jQuery('#glome-overlay-category')
     .find('button.yes')
@@ -326,12 +388,10 @@ function glomeOpenCategoryView(cat_id)
     {
       // Populate with ads of the category
       jQuery('#glome-overlay-categories-list')
-        .populate_category_list(1);
+        .populate_category_list(jQuery('#glome-overlay-category').attr('data-id'));
       
       jQuery('#glome-panel').attr('view', 'list');
     });
-  
-  document.getElementById('glome-controls-window').hidePopup();
 }
 
 function glomeDisplayAd(ad_id)
@@ -440,8 +500,19 @@ function glomeGotoAd(ad_id)
  */
 jQuery.fn.populate_category_list = function(id)
 {
+  // Header data
+  if (typeof glome.glome_ad_categories[id] == 'undefined')
+  {
+    glomeHideStack();
+    return;
+  }
+  
+  jQuery('#glome-panel').find('.category-title').attr('value', glome.glome_ad_categories[id].name);
+  
   // Set the view mode to single item
   jQuery('#glome-panel').attr('view', 'list');
+  
+  // Get the category name
   
   var container = jQuery('#glome-overlay-categories-ads-list');
   var template = container.find('template').text();
@@ -470,7 +541,6 @@ jQuery.fn.populate_category_list = function(id)
     var tmp = template;
     
     var ad = glome.glome_ad_stack[i];
-    glome.glomeExtract(ad);
     
     // Replace with ad values
     while (regs = tmp.match(/::([a-z0-9_]+)/i))
@@ -555,7 +625,7 @@ jQuery.fn.populate_category_list = function(id)
 setTimeout(function()
 {
   document.getElementById('glome-panel').openPopup(document.getElementById('browser'), null, 0, 0);
-  jQuery('#glome-overlay-categories-list').populate_category_list(1);
+  jQuery('#glome-overlay-categories-list').populate_category_list(2);
 }, 1500);
 
 
