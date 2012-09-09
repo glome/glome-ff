@@ -14,6 +14,7 @@ var date = new Date();
 // Set the last updated to the current moment
 last_updated = date.getTime();
 
+// Initialize XMLHttpRequest class
 const { XMLHttpRequest } = Components.classes['@mozilla.org/appshell/appShellService;1'].getService(Components.interfaces.nsIAppShellService).hiddenDOMWindow;
 
 // Set constants
@@ -1177,8 +1178,7 @@ function glomeGetCategories()
   statement.executeAsync
   (
     {
-      resultset: null,
-      handleResult: function(resultset)
+      handleResult: function(results)
       {
         // Old stack
         var stack = {}
@@ -1187,7 +1187,7 @@ function glomeGetCategories()
           stack[k] = false;
         }
         
-        for (let row = resultset.getNextRow(); row; row = resultset.getNextRow())
+        for (let row = results.getNextRow(); row; row = results.getNextRow())
         {
           let id = row.getResultByName('id');
           stack[id] = true;
