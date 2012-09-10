@@ -91,71 +91,72 @@ var Glome =
   },
   _sendHBClick: function(event_type)
   {    
-      var method = 'get';
-      var data = {
-          'events': event_type,
-          'f': Math.ceil(Math.random() * 1000000)
-      };
-      var url = 'http://hb.glomedev:8000/tracking_pixel.gif';
-      
-      var req = new XMLHttpRequest();
-      var postdata = null;
-      
-      if (data !== undefined) {
-          url += (url.match(/\?/) == null ? '?' : '&');
-          
-          for (var key in data) {
-              url += key + '=' + data[key] + '&';
+    var method = 'get';
+    var data =
+    {
+        'events': event_type,
+        'f': Math.ceil(Math.random() * 1000000)
+    };
+    var url = 'http://hb.glomedev:8000/tracking_pixel.gif';
+    
+    var req = new XMLHttpRequest();
+    var postdata = null;
+    
+    if (data !== undefined) {
+        url += (url.match(/\?/) == null ? '?' : '&');
+        
+        for (var key in data) {
+            url += key + '=' + data[key] + '&';
+        }
+    }
+    
+    if (url.substr(url.length - 1, 1) == '&') {
+        url = url.substring(0, url.length - 1);
+    }
+    
+    //url += (url.match(/\?/) == null ? '?' : '&') + (new Date()).getTime();
+    
+    this.LOG("_sendHBClick url: "+url);
+    
+    req.open(method.toUpperCase(), url, true);
+    
+    req.onreadystatechange = function(aEvt)
+    {  
+      if (req.readyState == 4)
+      {
+        if (req.status == 200) {
+          if (GLOME_DEVELOPMENT_MODE)
+          {
+              this.LOG(req.status+"\n");
+              this.LOG(req.responseText+"\n");
           }
-      }
-      
-      if (url.substr(url.length - 1, 1) == '&') {
-          url = url.substring(0, url.length - 1);
-      }
-      
-      //url += (url.match(/\?/) == null ? '?' : '&') + (new Date()).getTime();
-      
-      this.LOG("_sendHBClick url: "+url);
-      
-      req.open(method.toUpperCase(), url, true);
-      
-      req.onreadystatechange = function(aEvt)
-      {  
-        if (req.readyState == 4)
-        {
-          if (req.status == 200) {
-            if (GLOME_DEVELOPMENT_MODE)
-            {
-                this.LOG(req.status+"\n");
-                this.LOG(req.responseText+"\n");
-            }
-            
-            //listener.finished(req.responseXML, req.status);
-          } else {
-            if (GLOME_DEVELOPMENT_MODE)
-            {
-                this.LOG("Error loading page\n");
-                this.LOG(req.status+"\n");
-                this.LOG(req.responseXML+"\n");
-                this.LOG(req.responseText+"\n");
-            }
+          
+          //listener.finished(req.responseXML, req.status);
+        } else {
+          if (GLOME_DEVELOPMENT_MODE)
+          {
+              this.LOG("Error loading page\n");
+              this.LOG(req.status+"\n");
+              this.LOG(req.responseXML+"\n");
+              this.LOG(req.responseText+"\n");
           }
         }
-      };
-      
-      //req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      //req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
-      //req.overrideMimeType('text/xml');
-      
-      try
-      {
-         req.send(postdata);
       }
-      catch (e)
-      {
-         this.LOG("Exception when sending request: \n");
-         this.LOG(e);
-      }
+    };
+    
+    //req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    //req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
+    //req.overrideMimeType('text/xml');
+    
+    try
+    {
+       req.send(postdata);
+    }
+    catch (e)
+    {
+       this.LOG("Exception when sending request: \n");
+       this.LOG(e);
+    }
   }
 };
 
