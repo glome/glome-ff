@@ -1,5 +1,9 @@
 "use strict";
 
+// Initialize SQLite
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
+
 var gGlomeDashboardView =
 {
   node: null,
@@ -13,7 +17,8 @@ var gGlomeDashboardView =
   homepageURL: null,
   _loadListeners: [],
 
-  initialize: function() {
+  initialize: function()
+  {
     console.log('gGlomeDashboardView::initialize');
     
     this.node = document.getElementById("glome-view");
@@ -69,6 +74,7 @@ var gGlomeDashboardView =
   show: function(aParam, aRequest, aState, aIsRefresh)
   {
     glome.LOG('Show dashboard');
+    dump('Initialize view\n');
     return;
     console.log('gGlomeDashboardView::show',aState);
     gViewController.updateCommands();
@@ -264,6 +270,7 @@ var GlomeDashboard =
   {
     // initialization code
     LOG('GLOME - initialize dashboard');
+    dump('Initialize GlomeDashboard::onLoad\n');
 
     if (event.target instanceof XMLStylesheetProcessingInstruction)
     {
@@ -285,6 +292,8 @@ var GlomeDashboard =
     gViewController.viewObjects["glome"] = gGlomeDashboardView;
     //gViewController.viewObjects["glome"].initialize();
     // console.log('gViewController.viewObjects',gViewController.viewObjects);
+    
+    LOG(glome.glome_ad_categories);
   },
   
   bindToCategory: function(event)
@@ -319,7 +328,8 @@ var GlomeDashboard =
 };
 
 
-function initialize(event) {
+function initialize(event)
+{
   LOG('GLOME - initialize extensions');
   // XXXbz this listener gets _all_ load events for all nodes in the
   // document... but relies on not being called "too early".
@@ -337,10 +347,14 @@ function initialize(event) {
 }
 
 //document.addEventListener("load", initialize, false);
-window.addEventListener("load", function (event) { GlomeDashboard.onLoad(event); }, true);
+window.addEventListener("load", function (event)
+{
+  //Glome.onLoad();  
+  GlomeDashboard.onLoad(event);
+}, true);
 
 function LOG(text)
-{    
+{
   if (typeof console != undefined)
   {
     console.log(text + ' (' + typeof text + ')');
@@ -349,4 +363,96 @@ function LOG(text)
   {
     Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService).logStringMessage(text);
   }
+}
+
+function glomeInitConfigView()
+{
+  dump('initialize configuration view\n');
+  // Update locally stored ad data
+  let db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["glome.sqlite"])); // Will also create the file if it does not exist
+  let q = 'SELECT * FROM categories';
+  let statement = db.createStatement(q);
+  
+  // Empty the current category selections
+  jQuery('#glome-dashboard-container').find('.box-container').find('.item').remove();
+  
+  statement.executeAsync
+  (
+    {
+      handleResult: function(results)
+      {
+        for (let row = results.getNextRow(); row; row = results.getNextRow())
+        {
+          var category = 
+          {
+            id: row.getResultByName('id'),
+            name: row.getResultByName('name'),
+            subscribed: row.getResultByName('subscribed')
+          }
+          
+          var tmp = jQuery('#glome-category-template').text().toString();
+          var regs = tmp.match(/::([a-z0-9_]+)/i);
+          
+          // Replace with category values
+          do
+          {
+            regs = tmp.match(/::([a-z0-9_]+)/i);
+            var value = '';
+            var key = regs[1];
+            var regexp = new RegExp(regs[0], 'g');
+            
+            if (typeof category[key] != 'undefined')
+            {
+              value = String(category[key]);
+              value = value.replace(/&(amp;)?/g, '&amp;');
+            }
+            
+            tmp = tmp.replace(regexp, value);
+          }
+          while (tmp.match(/::([a-z0-9_]+)/i));
+          
+          dump(tmp + '\n');
+          
+          if (   typeof category.subscribed != 'undefined'
+              && category.subscribed)
+          {
+            jQuery(tmp).appendTo(jQuery('#glome-selector-enabled').find('.box-container'));
+          }
+          else
+          {
+            jQuery(tmp).appendTo(jQuery('#glome-selector-disabled').find('.box-container'));
+          }
+        }
+      },
+      handleCompletion: function()
+      {
+        jQuery('#glome-dashboard-container').find('.box-container').find('.item button.toggle')
+          .bind('click', function()
+          {
+            var item = jQuery(this).parents('.item');
+            
+            if (jQuery(this).parents('#glome-selector-disabled').size())
+            {
+              item.appendTo(jQuery('#glome-selector-enabled').find('.box-container'));
+              var subscribed = 1;
+            }
+            else
+            {
+              item.appendTo(jQuery('#glome-selector-disabled').find('.box-container'));
+              var subscribed = 0;
+            }
+            
+            // Update database
+            let db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["glome.sqlite"])); // Will also create the file if it does not exist
+            let q = 'UPDATE categories SET subscribed = :subscribed WHERE id = :id';
+            
+            let statement = db.createStatement(q);
+            statement.params.subscribed = subscribed;
+            statement.params.id = Number(item.attr('data-id'));
+            
+            statement.executeAsync();
+          });
+      }
+    }
+  );
 }

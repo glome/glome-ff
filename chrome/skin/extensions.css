@@ -52,6 +52,32 @@
   height: 30px;
 }
 
+#glome-dashboard-container .box-container > .item .icons button
+{
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-color: none;
+  border: none !important;
+  outline: none;
+  box-shadow: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  padding: 0 !important;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+#glome-selector-disabled .icons button
+{
+  background-image: url('chrome://glome/skin/icons/icon-plus-30x30.png');
+}
+
+#glome-selector-enabled .icons button
+{
+  background-image: url('chrome://glome/skin/icons/icon-minus-30x30.png');
+}
+
 #glome-dashboard-container .box-container > .item .label
 {
   vertical-align: bottom;
@@ -76,6 +102,16 @@
 #glome-dashboard-container #glome-selector-disabled .box-container > .item:hover
 {
   background-image: url('chrome://glome/skin/selector-box-active-diagonal.gif');
+}
+
+#glome-dashboard-container #glome-selector-enabled .box-container > .item
+{
+  opacity: 0.2;
+}
+
+#glome-dashboard-container #glome-selector-enabled .box-container > .item:hover
+{
+  opacity: 1;
 }
 
 .glome-selector-container .glome-selector

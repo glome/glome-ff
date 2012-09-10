@@ -2,11 +2,16 @@
 <?xml-stylesheet href="chrome://glome/skin/extensions.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://glome/locale/overlay.dtd">
 <overlay id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/javascript" src="chrome://glome/content/extensions.js"/>
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery-xul.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/tools.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/overlay.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/notification.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/extensions.js"/>
   
   <!-- category list -->
   <richlistbox id="categories">
-    <richlistitem id="category-glome" value="addons://glome/dashboard" class="category" name="Glome" priority="200000" insertafter="category-plugins" tooltiptext="Glome"/>
+    <richlistitem id="category-glome" value="addons://glome/dashboard" class="category" name="Glome" priority="200000" insertafter="category-plugins" tooltiptext="Glome" onclick="glomeInitConfigView();" />
   </richlistbox>
   
   <!-- view port -->
@@ -14,108 +19,24 @@
   
     <!-- glome view -->
     <deck id="glome-view" class="view-pane" selectedIndex="0">
+      <template id="glome-category-template">
+        <![CDATA[
+          <vbox class="item" align="end" data-id="::id" data-subscribed="::subscribed">
+            <hbox class="icons" pack="end">
+              <button class="toggle"></button>
+            </hbox>
+            <box class="label">
+              <description>::name</description>
+            </box>
+          </vbox>
+        ]]>
+      </template>
       <hbox id="glome-dashboard-container" width="100%" class="glome-selector-container">
         <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
           <box class="overflow-hidden">
             <label value="&title.block;" class="selector-title" />
           </box>
           <box class="box-container">
-            <box class="item" align="end">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol &amp; tobacco</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Tobacco</description>
-              </box>
-            </box>
-            <box class="item" align="end">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol &amp; tobacco</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Tobacco</description>
-              </box>
-            </box>
-            <box class="item" align="end">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol &amp; tobacco</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Tobacco</description>
-              </box>
-            </box>
-            <box class="item" align="end">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol &amp; tobacco</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Tobacco</description>
-              </box>
-            </box>
           </box>
         </vbox>
         <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
@@ -123,30 +44,6 @@
             <label value="&title.allow;" class="selector-title" />
           </box>
           <box class="box-container">
-            <box class="item" align="end">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Alcohol &amp; tobacco</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Non-profit Organization</description>
-              </box>
-            </box>
-            <box class="item">
-              <box class="icons">
-                <label value="+" />
-              </box>
-              <box class="label">
-                <description>Tobacco</description>
-              </box>
-            </box>
           </box>
         </vbox>
       </hbox>        
