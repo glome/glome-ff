@@ -60,7 +60,7 @@ var AdModal = (function() {
     //glome.LOG('target: ' + target.tagName);
     //glome.EXTRACT(target);
     
-    //glome.jQuery(target).css('border', 'solid 1px red');
+    //jQuery(target).css('border', 'solid 1px red');
     
     if (   typeof this.opts.types == 'undefined'
         || typeof this.opts.types[0] == 'undefined')
@@ -68,29 +68,29 @@ var AdModal = (function() {
       this.opts.types = ['notfound'];
     }
     
-    var stack = glome.jQuery(this.doc.getElementById('ad-stack'));
+    var stack = jQuery(this.doc.getElementById('ad-stack'));
     stack.get(0).hidden = false;
     
     // Bind to the context
     stack.get(0).modal = this.cid;
     
-    var box = glome.jQuery(this.doc.getElementById('ad-overlay'));
+    var box = jQuery(this.doc.getElementById('ad-overlay'));
     
-    glome.jQuery(target)
+    jQuery(target)
       .bind('resize', function()
       {
-        var overlay = glome.jQuery(this).find('#ad-overlay');
+        var overlay = jQuery(this).find('#ad-overlay');
         
         overlay
           .attr
           (
             {
-              width: glome.jQuery(this).width(),
-              height: glome.jQuery(this).height() - 20
+              width: jQuery(this).width(),
+              height: jQuery(this).height() - 20
             }
           );
           
-          var close_icon = glome.jQuery(this).find('#ad-close');
+          var close_icon = jQuery(this).find('#ad-close');
           
           var offset_top = Math.round((overlay.height() - overlay.find('#ad-overlay-display').height()) / 2 - 30);
           var offset_right = Math.round((overlay.width() - overlay.find('#ad-overlay-display').width()) / 2 - 30);
@@ -122,7 +122,7 @@ var AdModal = (function() {
       )
       .bind('click', function(e)
       {
-        var cid = glome.jQuery(this).parent().get(0).modal;
+        var cid = jQuery(this).parent().get(0).modal;
         
         var modal = new AdModal();
         modal.hide(cid);
@@ -132,7 +132,7 @@ var AdModal = (function() {
       });
     
     // Create a new modal panel
-    var panel = glome.jQuery('<panel />')
+    var panel = jQuery('<panel />')
       .css
       (
         {
@@ -158,7 +158,7 @@ var AdModal = (function() {
     close_icon
       .bind('click', function(e)
       {
-        var cid = glome.jQuery(this).parent().get(0).modal;
+        var cid = jQuery(this).parent().get(0).modal;
         
         var modal = new AdModal();
         modal.hide(cid);
@@ -180,11 +180,11 @@ var AdModal = (function() {
     {
       // Display content from remote source
       case 'remote':
-        var container = glome.jQuery('<box />')
+        var container = jQuery('<box />')
           .attr('id', 'ad-content-remote')
           .appendTo(box);
         
-        var iframe = glome.jQuery('<iframe />')
+        var iframe = jQuery('<iframe />')
           .attr
           (
             {
@@ -198,7 +198,7 @@ var AdModal = (function() {
       
       // Display content from local storage
       case 'local':
-        var container = glome.jQuery('<vbox />')
+        var container = jQuery('<vbox />')
           .attr('id', 'ad-content-local')
           .appendTo(box);
         
@@ -231,7 +231,7 @@ var AdModal = (function() {
     
     // Open panel as an overlapping popup
     panel.get(0).openPopup(target, 'overlap');
-    glome.jQuery(target).trigger('resize');
+    jQuery(target).trigger('resize');
   }
   
   
@@ -246,7 +246,7 @@ var AdModal = (function() {
     switch (opts.mediaType)
     {
       case 'image':
-        var image = glome.jQuery('<image />')
+        var image = jQuery('<image />')
           .attr
           (
             {
@@ -273,7 +273,7 @@ var AdModal = (function() {
       xmlns = opts.content.replace(/<(\/)?(?!html:)/g, '<$1html:');
       glome.LOG(xmlns);
       
-      var iframe = glome.jQuery('<iframe />');
+      var iframe = jQuery('<iframe />');
       iframe
         .addClass('content-iframe')
         .attr
@@ -291,11 +291,11 @@ var AdModal = (function() {
       
       /*
       var content = this.doc.createElement('box');
-      glome.jQuery('<label />')
+      jQuery('<label />')
           .attr('value', 'hubba bubba')
           .appendTo(content);
       
-      glome.jQuery(content).appendTo(container);
+      jQuery(content).appendTo(container);
       */
     }
   }

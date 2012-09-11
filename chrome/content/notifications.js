@@ -36,14 +36,14 @@ var Notification = (function()
     this.gBrowser = mainWindow.gBrowser;
     this.nb = this.gBrowser.getNotificationBox();
     
-    glome.jQuery('#glome-status').addClass('pending');
+    jQuery('#glome-status').addClass('pending');
   }
   
   Notification.prototype.handleYesClicked = function(e)
   {
     glome.LOG('Yes clicked');        
     this.n.close();
-    glome.jQuery('#glome-status').removeClass('pending');
+    jQuery('#glome-status').removeClass('pending');
     
     if (this.opts.onYes)
     {
@@ -56,7 +56,7 @@ var Notification = (function()
     glome.LOG('No clicked');
     glome.LOG('send cid to profile decline list');
     this.n.close();
-    glome.jQuery('#glome-status').removeClass('pending');
+    jQuery('#glome-status').removeClass('pending');
     
     if (this.opts.onNo)
     {
@@ -69,7 +69,7 @@ var Notification = (function()
       glome.LOG('Later clicked');
       glome.LOG('send cid to profile later list');
       this.n.close();
-      glome.jQuery('#glome-status').removeClass('pending');
+      jQuery('#glome-status').removeClass('pending');
       
       if (this.opts.onLater)
       {
