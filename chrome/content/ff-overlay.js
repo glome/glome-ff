@@ -195,19 +195,24 @@ function glomeChangeState()
  */
 function glomeGetPanelState()
 {
+  dump('1: ' + typeof glome + '\n');
   // If Glome is on, return null
   if (glome.glomePrefs.enabled)
   {
+    dump('2\n');
     return 'working';
   }
   
+  dump('3\n');
   var domain = glome.glomeGetCurrentDomain();
   
   if (!domain)
   {
+    dump('4\n');
     return 'undefined';
   }
   
+  dump('5\n');
   return glome.glomePrefs.getDomainStatus(domain).toString();
 }
 
@@ -248,17 +253,6 @@ function glomeChangeDomainState()
 }
 
 /**
- * Process the popup right before showing it
- */
-function glomeWidgetShow()
-{
-  var state = glomeGetPanelState();
-  document.getElementById('glome-switch-domain').setAttribute('domain', state);
-  
-  glomeChangeKnockingAd();
-}
-
-/**
  * Change the advertisement visible on knocker
  * 
  * @param int dt    Delta for ad display related to current
@@ -269,6 +263,8 @@ function glomeChangeKnockingAd(dt)
   {
     var dt = 0;
   }
+  
+  dump('Change knocking ad. We have ' + glome.glome_ad_stack.length + ' ads to display anyway\n');
   
   glome.pages = glome.glome_ad_stack.length;
   
@@ -308,6 +304,7 @@ function glomeChangeKnockingAd(dt)
   var current = index + 1;
   
   jQuery('#glome-ad-pager-page').attr('value', (index + 1) + '/' + glome.pages);
+  jQuery('#glome-ad-pager').attr('data-ad', ad.id);
   jQuery('#glome-ad-pager').attr('data-category', JSON.stringify(ad.adcategories));
   
   // Randomize value in this point
@@ -315,6 +312,20 @@ function glomeChangeKnockingAd(dt)
   
   document.getElementById('glome-ad-description-title').textContent = ad.title;
   jQuery('#glome-ad-description-value').attr('value', 'Up to ' + worth + ' e per order');
+}
+
+/**
+ * Process the popup right before showing it
+ */
+function glomeWidgetShow()
+{
+  dump('Widget show\n');
+  var state = glomeGetPanelState();
+  dump('--state: ' + state + '\n');
+  document.getElementById('glome-switch-domain').setAttribute('domain', state);
+  
+  glomeChangeKnockingAd();
+  dump('Widget shown\n');
 }
 
 /**
@@ -418,8 +429,14 @@ function glomeDisplayAd(ad_id)
 {
   if (!ad_id)
   {
-    let ad_id = glome.ad_id;
+    var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
   }
+  
+  if (!ad_id)
+  {
+    return false;
+  }
+  
   // Get the ad to be displayed
   var ad = glome.glomeGetAd(ad_id);
   
@@ -451,6 +468,13 @@ function glomeDisplayAd(ad_id)
       container.find('.description description').get(0).textContent = ad.description;
       
       break;
+  }
+  
+  // Set the category title
+  for (i in ad.adcategories)
+  {
+    cat_id = ad.adcategories[i];
+    jQuery('#glome-panel').find('.category-title').attr('value', glome.glome_ad_categories[cat_id].name);
   }
   
   // Redirect to the vendor page and close the ad display
@@ -647,4 +671,3 @@ function glomeHideStack()
   window.gBrowser.selectedTab.removeAttribute('glomepanel');
   document.getElementById('glome-panel').hidePopup();
 }
-

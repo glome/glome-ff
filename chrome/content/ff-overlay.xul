@@ -60,11 +60,8 @@
                 <label value="" id="glome-ad-description-value" />
               </vbox>
               <box class="buttons" pack="center">
-                <!-- @TODO: bind events to these buttons -->
-<!--               <button flex="1" popup="glome-panel" onclick="getElementById('glome-controls-window').hidePopup();">&label.see_ad;</button> -->
                 <button onclick="glomeDisplayAd();">&label.see_ad;</button>
                 <button onclick="glomeOpenCategoryView();">&label.not_now;</button>
-<!--                 <button flex="1">&label.never;</button> -->
               </box>
               <hbox class="navigation">
                 <box flex="1" class="navigators" pack="center" align="center" id="glome-ad-pager">
