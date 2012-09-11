@@ -160,8 +160,6 @@ var Glome =
   }
 };
 
-//window.addEventListener("load", function () { Glome.onLoad(); }, false);
-
 window.addEventListener("load", function()
 {
   //Glome.onLoad();  
