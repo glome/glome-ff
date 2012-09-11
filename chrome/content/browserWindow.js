@@ -104,6 +104,9 @@ function glomeInit()
       }
     }
     
+    // Create reference to this
+    window.glome = this;
+  
     // Make sure whitelisting gets displayed after at most 2 seconds
     prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
     prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
@@ -145,12 +148,6 @@ function glomeInit()
     glome.LOG("RUN FIRST ACTIONS");
     // Don't repeat first run actions if new window is opened
     glomePrefs.doneFirstRunActions = true;
-  
-    // Add Glome icon to toolbar if necessary
-    glome.createTimer(glomeInstallInToolbar, 0);
-  
-    // Show subscriptions dialog if the user doesn't have any subscriptions yet
-    //glome.createTimer(glomeShowSubscriptions, 0);
   }
 
   // Move toolbar button to a correct location in Mozilla
@@ -400,8 +397,6 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  glome.LOG('glomeUpdateTicker');
-  
   // Update locally stored ad data
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
@@ -513,7 +508,6 @@ function getCurrentLocation() /**nsIURI*/
 
 // Finds the toolbar button in the toolbar palette
 function glomeGetPaletteButton() {
-  //glome.LOG("glomeGetPaletteButton");
   var toolbox = E("navigator-toolbox");
   if (!toolbox || !("palette" in toolbox) || !toolbox.palette)
   {
@@ -533,13 +527,13 @@ function glomeGetPaletteButton() {
 
 // Check whether we installed the toolbar button already
 function glomeInstallInToolbar() {
-  //glome.LOG("glomeInstallInToolbar");
-  
-  if (!E("glome-toolbarbutton")) {
+  if (!E("glome-toolbarbutton"))
+  {
     var insertBeforeBtn = null;
     var toolbar = E("nav-bar");
 
-    if (toolbar && "insertItem" in toolbar) {
+    if (toolbar && "insertItem" in toolbar)
+    {
       var insertBefore = (insertBeforeBtn ? E(insertBeforeBtn) : null);
       if (insertBefore && insertBefore.parentNode != toolbar)
         insertBefore = null;
@@ -553,9 +547,8 @@ function glomeInstallInToolbar() {
 }
 
 // Hides the unnecessary context menu items on display
-function glomeCheckContext() {
-  //glome.LOG("glomeCheckContext");
-  
+function glomeCheckContext()
+{
   var contextMenu = E("contentAreaContextMenu") || E("messagePaneContext") || E("popup_content");
   var target = document.popupNode;
 
@@ -814,7 +807,6 @@ function glomeFillTooltip(event)
 // Handle clicks on the Adblock statusbar panel
 function glomeClickHandler(e)
 {
-  glome.LOG("glomeClickHandler e.button: "+e.button);
   if (e.button == 0)
   {
     glomeExecuteAction(glomePrefs.defaultstatusbaraction);
@@ -827,7 +819,6 @@ function glomeClickHandler(e)
 
 function glomeCommandHandler(e)
 {
-  glome.LOG("glomeCommandHandler");
   if (glomePrefs.defaulttoolbaraction == 0)
   {
     e.target.open = true;
@@ -840,7 +831,6 @@ function glomeCommandHandler(e)
 
 // Executes default action for statusbar/toolbar by its number
 function glomeExecuteAction(action) {
-  glome.LOG("glomeExecuteAction action: "+action);
   if (action == 1)
   {
     //glomeToggleSidebar();
@@ -872,7 +862,6 @@ function glomeTogglePref(pref)
 // Bring up the settings dialog for the node the context menu was referring to
 function glomeNode(data)
 {
-  glome.LOG("glomeNode");
   if (glome && data)
   {
     window.openDialog("chrome://adblockplus/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", glome.getBrowserInWindow(window).contentWindow, data);
@@ -996,8 +985,6 @@ function glomeGetTable(tablename)
 
 function glomeInitDb()
 {
-  glome.LOG('initialize database');
-  
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   
@@ -1158,19 +1145,24 @@ function glomeCategorySubscription(id, status)
 function glomeGetAd(ad_id)
 {
   // Check if the ad has already been loaded?
+  dump('Try to get ad with id ' + ad_id + '\n');
+  
   for (let i = 0; i < glome_ad_stack.length; i++)
   {
     if (glome_ad_stack[i].id == ad_id)
     {
+      dump('-- got from ad_stack\n');
       return glome_ad_stack[i];
     }
   }
+  
+  dump('-- try to get from database\n');
   
   // Initialize database connection
   let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
   let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   
-  var q = 'SELECT * FROM ads WHERE status = :status AND id = :id';
+  var q = 'SELECT * FROM ads WHERE id = :id';
   var statement = db.createStatement(q);
   statement.params.id = ad_id;
   
