@@ -34,6 +34,12 @@ window.addEventListener('DOMTitleChanged', function(e)
 
 window.addEventListener('load', function(e)
 {
+  if (typeof log == 'undefined')
+  {
+    // Connect to the Glome logging method
+    log = glome.log;
+  }
+  
   // Hide Glome icon in the addons view
   if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
   {
@@ -139,7 +145,7 @@ window.addEventListener('resize', glomeResize, false);
  */
 function glomeChangeState()
 {
-  glome.glome.LOG('Change state initiated');
+  log.debug('Change state initiated');
   
   var state = glome.glomeSwitch('enabled');
   var domain = glome.glomeGetCurrentDomain();
@@ -160,28 +166,29 @@ function glomeChangeState()
     return;
   }
   
-  var element = document.getElementById('glome-switch-domain');
-  var overlay = document.getElementById('main-window');
-  
-  glome.glome.LOG(typeof element);
+  var element = jQuery('#glome-switch-domain');
+  var overlay = jQuery('#main-window');
   
   // Remove the current domain from the disabled list
   if (state)
   {
-    element.setAttribute('domain', 'working');
-    overlay.setAttribute('state', 'active');
-    glome.glome.LOG('glome set on, hide domain switcher');
+    element.attr('domain', 'working');
+    overlay.attr('state', 'active');
+    log.debug('glome set on, hide domain switcher');
     glome.glomePrefs.enableForDomain(domain);
   }
   else
   {
-    element.setAttribute('domain', glomeGetPanelState());
-    element.hidden = false;
-    overlay.setAttribute('state', 'disabled');
-    glome.glome.LOG('glome set on, reveal domain switcher');
+    element.attr('domain', glomeGetPanelState());
+    element.get(0).hidden = false;
+    overlay.attr('state', 'disabled');
+    log.debug('glome set on, reveal domain switcher');
   }
   
-  glome.glome.LOG('Change state finished');
+  glome.glomeUpdateTicker();
+  glomeWidgetShow();
+  
+  log.debug('Change state finished');
 }
 
 /**
@@ -195,24 +202,19 @@ function glomeChangeState()
  */
 function glomeGetPanelState()
 {
-  dump('1: ' + typeof glome + '\n');
   // If Glome is on, return null
   if (glome.glomePrefs.enabled)
   {
-    dump('2\n');
     return 'working';
   }
   
-  dump('3\n');
   var domain = glome.glomeGetCurrentDomain();
   
   if (!domain)
   {
-    dump('4\n');
     return 'undefined';
   }
   
-  dump('5\n');
   return glome.glomePrefs.getDomainStatus(domain).toString();
 }
 
@@ -259,12 +261,16 @@ function glomeChangeDomainState()
  */
 function glomeChangeKnockingAd(dt)
 {
+  log.debug('glomeChangeKnockingAd');
+  
   if (!dt)
   {
     var dt = 0;
   }
   
-  dump('Change knocking ad. We have ' + glome.glome_ad_stack.length + ' ads to display anyway\n');
+  log.debug('-- with direction: ' + dt);
+  
+  log.debug('Change knocking ad. We have ' + glome.glome_ad_stack.length + ' ads to display anyway');
   
   glome.pages = glome.glome_ad_stack.length;
   
@@ -321,13 +327,22 @@ function glomeWidgetShow()
 {
   // @TODO: check from counter how many items there are and display content accordingly
   
-  dump('Widget show\n');
+  log.debug('Widget show');
   var state = glomeGetPanelState();
-  dump('--state: ' + state + '\n');
-  document.getElementById('glome-switch-domain').setAttribute('domain', state);
+  log.debug('--state: ' + state);
+  jQuery('#glome-switch-domain').attr('domain', state);
+  
+  if (state == 'working')
+  {
+    jQuery('.glome-switch').attr('checked', 'true');
+  }
+  else
+  {
+    jQuery('.glome-switch').removeAttr('checked');
+  }
   
   glomeChangeKnockingAd();
-  dump('Widget shown\n');
+  log.debug('Widget shown');
 }
 
 /**
