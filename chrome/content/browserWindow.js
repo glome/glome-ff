@@ -1057,15 +1057,23 @@ function glomeInitDb()
     // Table fields
     var table = tables[tablename];
     
+    var q = 'DROP TABLE ' + tablename;
+    log.debug(q);
+    db.executeSimpleSQL(q);
+    log.debug('-- dropped');
+    
     if (!db.tableExists(tablename))
     {
       try
       {
-        var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY);';
+        var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY)';
+        log.debug(q);
         db.executeSimpleSQL(q);
+        log.debug('-- created');
       }
       catch (e)
       {
+        log.warning('Tried to create table with query ' + q + ' but ran into trouble and caught an exception');
         return;
       }
     }
@@ -1082,10 +1090,12 @@ function glomeInitDb()
       try
       {
         var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
+        log.debug(q);
         db.executeSimpleSQL(q);
       }
       catch (e)
       {
+        log.warning('Tried to create a new column to ' + tablename + ' with query ' + q + ' but caught an exception!');
       }
     }
   }
@@ -1102,22 +1112,30 @@ function glomeInitDb()
       return;
     }
     
+    log.debug('Got the results for ad categories JSON listing');
     data = JSON.parse(e.originalTarget.response);
+    log.debug(data);
     
     // Add all of the categories to database
     for (i = 0; i < data.length; i++)
     {
       // Update categories
-      var statement = db.createStatement('UPDATE categories SET name = :name WHERE id = :id');
+      var q = 'UPDATE categories SET name = :name WHERE id = :id';
+      log.debug(q);
+      var statement = db.createStatement(q);
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
       statement.executeAsync();
+      log.debug('-- executeAsync called');
       
       // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
-      var statement = db.createStatement('INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)');
+      var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
+      log.debug(q);
+      var statement = db.createStatement(q);
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
       statement.executeAsync();
+      log.debug('-- executeAsync called');
       
       // @TODO: This needs a check to delete the removed categories as well
     }
@@ -1125,8 +1143,11 @@ function glomeInitDb()
   
   if (glome_is_online)
   {
-    glome.request.open('GET', 'http://api.glome.me/adcategories.json', true);
+    var url = 'http://api.glome.me/adcategories.json';
+    log.info('Opening connection now to ' + url);
+    glome.request.open('GET', url, true);
     glome.request.send();
+    log.info('-- opened');
   }
   log.info('glomeInitDb ends'); 
 }
