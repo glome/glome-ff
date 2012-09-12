@@ -319,6 +319,8 @@ function glomeChangeKnockingAd(dt)
  */
 function glomeWidgetShow()
 {
+  // @TODO: check from counter how many items there are and display content accordingly
+  
   dump('Widget show\n');
   var state = glomeGetPanelState();
   dump('--state: ' + state + '\n');
