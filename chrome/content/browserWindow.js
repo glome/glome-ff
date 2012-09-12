@@ -28,6 +28,10 @@ const GLOME_AD_STATUS_CLICKED = 2;
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
+// Update locally stored ad data
+let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
+let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+
 try
 {
   glome = Components.classes["@glome.me/glome-ext;1"].createInstance().wrappedJSObject;
@@ -76,6 +80,43 @@ let eventHandlers = [
   // ["glome-frame-menuitem", "command", function() { glomeNode(frameData); }]
 ];
 
+var log =
+{
+  debug: function(input)
+  {
+    this.output(input, 5);
+  },
+  info: function(input)
+  {
+    this.output(input, 4);
+  },
+  warning: function(input)
+  {
+    this.output(input, 3);
+  },
+  error: function(input)
+  {
+    this.output(input, 2);
+  },
+  output: function(input, level)
+  {
+    if (!level)
+    {
+      level = 5;
+    }
+    
+    var type = String(typeof input);
+    if (type.match(/(object|array)/))
+    {
+      glomeExtract(input);
+    }
+    else
+    {
+      dump(input + '\n');
+    }
+  }
+}
+
 function E(id)
 {
   return document.getElementById(id);
@@ -83,7 +124,7 @@ function E(id)
 
 function glomeInit()
 {
-  glome.LOG("glomeInit");
+  debug.info("glomeInit");
   
   // Process preferences
   window.glomeDetachedSidebar = null;
@@ -145,7 +186,7 @@ function glomeInit()
   // First run actions
   if (glome && !("doneFirstRunActions" in glomePrefs) && glome.versionComparator.compare(glomePrefs.lastVersion, "0.0") <= 0)
   {
-    glome.LOG("RUN FIRST ACTIONS");
+    debug.info("RUN FIRST ACTIONS");
     // Don't repeat first run actions if new window is opened
     glomePrefs.doneFirstRunActions = true;
   }
@@ -202,7 +243,6 @@ function glomeInit()
   glome.connection.sendTest();
   
   // Run startup stuff
-  glomeInitDb();
   glomeGetCategories();
   glomeFetchAds();
   
@@ -211,7 +251,14 @@ function glomeInit()
   (
     function()
     {
+      var date = new Date();
+      var ts = date.getTime();
+      log.debug('glomeTimedUpdater called as interval');
+      
       glomeTimedUpdater();
+      
+      var date = new Date();
+      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
     10 * 1000
   );
@@ -222,7 +269,14 @@ function glomeInit()
   (
     function()
     {
+      var date = new Date();
+      var ts = date.getTime();
+      log.debug('glomeFetchAds called as interval');
+      
       glomeFetchAds();
+      
+      var date = new Date();
+      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
     60 * 1000
   );
@@ -232,12 +286,19 @@ function glomeInit()
   (
     function()
     {
-        glomeGetCategories();
+      var date = new Date();
+      var ts = date.getTime();
+      log.debug('glomeGetCategories called as interval');
+      
+      glomeGetCategories();
+      
+      var date = new Date();
+      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
     60 * 1000
   );
   
-  glome.LOG("glomeInit done");
+  debug.info("glomeInit done");
 };
 
 function glomeInitPage(e)
@@ -268,7 +329,7 @@ function glomeGetCurrentDomain()
 
 function glomeUnload()
 {
-  //glome.LOG("glomeUnload");
+  //debug.info("glomeUnload");
   glomePrefs.removeListener(glomeTimedUpdater);
   glome.getBrowserInWindow(window).removeEventListener("select", glomeTimedUpdater, false); 
   prefReloadTimer.cancel();
@@ -397,10 +458,6 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  // Update locally stored ad data
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-  
   q = 'SELECT * FROM ads WHERE status = 0';
   let statement = db.createStatement(q);
   
@@ -409,6 +466,7 @@ function glomeUpdateTicker()
     {
       handleResult: function(results)
       {
+        log.debug('-- got to handle the results of glomeUpdateTicker');
         let ads_table = glomeGetTable('ads');
         glome_ad_stack = new Array();
         let date = new Date();
@@ -874,7 +932,7 @@ function glomeABPHideElements()
   {
     var abpURL = Components.classes["@adblockplus.org/abp/public;1"].getService(Components.interfaces.nsIURI);
     var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
-    dump('ABP subscription count: ' + AdblockPlus.subscriptionCount + '\n');
+    log.debug('ABP subscription count: ' + AdblockPlus.subscriptionCount);
   }
   else
   {
@@ -985,9 +1043,7 @@ function glomeGetTable(tablename)
 
 function glomeInitDb()
 {
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-  
+  log.info('glomeInitDb starts'); 
   // Initialize database
   var tables =
   {
@@ -1048,10 +1104,6 @@ function glomeInitDb()
     
     data = JSON.parse(e.originalTarget.response);
     
-    // Initialize database connection
-    let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-    let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-    
     // Add all of the categories to database
     for (i = 0; i < data.length; i++)
     {
@@ -1076,6 +1128,7 @@ function glomeInitDb()
     glome.request.open('GET', 'http://api.glome.me/adcategories.json', true);
     glome.request.send();
   }
+  log.info('glomeInitDb ends'); 
 }
 
 /**
@@ -1086,9 +1139,7 @@ function glomeInitDb()
  */
 function glomeSetAdStatus(ad_id, status)
 {
-  // Initialize database connection
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
+  log.debug('glomeSetAdStatus starts'); 
   
   var q = 'UPDATE ads SET status = :status WHERE id = :id';
   var statement = db.createStatement(q);
@@ -1104,6 +1155,7 @@ function glomeSetAdStatus(ad_id, status)
   
   // Update ticker
   glomeUpdateTicker();
+  log.debug('glomeSetAdStatus ends');
 }
 
 /**
@@ -1114,11 +1166,9 @@ function glomeSetAdStatus(ad_id, status)
  */
 function glomeCategorySubscription(id, status)
 {
-  // Initialize database connection
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-  
+  log.debug('glomeCategorySubscription starts'); 
   var q = 'UPDATE categories SET subscribed = :status WHERE id = :id';
+  log.debug(q);
   var statement = db.createStatement(q);
   statement.params.id = id;
   statement.params.status = (status) ? 1 : 0;
@@ -1129,11 +1179,13 @@ function glomeCategorySubscription(id, status)
     {
       handleCompletion: function(reason)
       {
+        log.debug('-- got to complete the query of glomeCategorySubscriptionlog.debug');
         glomeGetCategories();
         glomeUpdateTicker();
       }
     }
   );
+  log.debug('glomeCategorySubscription ends');
 }
 
 /**
@@ -1145,22 +1197,16 @@ function glomeCategorySubscription(id, status)
 function glomeGetAd(ad_id)
 {
   // Check if the ad has already been loaded?
-  dump('Try to get ad with id ' + ad_id + '\n');
+  log.debug('glomeGetAd starts');
   
   for (let i = 0; i < glome_ad_stack.length; i++)
   {
     if (glome_ad_stack[i].id == ad_id)
     {
-      dump('-- got from ad_stack\n');
+      log.debug('-- got from ad_stack');
       return glome_ad_stack[i];
     }
   }
-  
-  dump('-- try to get from database\n');
-  
-  // Initialize database connection
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   
   var q = 'SELECT * FROM ads WHERE id = :id';
   var statement = db.createStatement(q);
@@ -1183,6 +1229,7 @@ function glomeGetAd(ad_id)
     }
   }
   
+  log.debug('glomeGetAd ends'); 
   if (typeof ad.id == 'undefined')
   {
     return false;
@@ -1193,10 +1240,8 @@ function glomeGetAd(ad_id)
 
 function glomeGetCategories()
 {
-  // Get subscribed categories from database
-  let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-  let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
   let q = 'SELECT id, name FROM categories WHERE subscribed = :subscribed';
+  log.debug(q);
   
   var statement = db.createStatement(q);
   statement.params.subscribed = 1;
@@ -1206,6 +1251,8 @@ function glomeGetCategories()
     {
       handleResult: function(results)
       {
+        log.debug('-- got to the results of query in glomeGetCategories');
+        
         // Old stack
         var stack = {}
         for (k in glome_ad_categories)
@@ -1238,6 +1285,8 @@ function glomeGetCategories()
       },
       handleCompletion: function()
       {
+        // Get a fresh list of ads
+        glomeUpdateTicker();
       }
     }
   );      
@@ -1262,10 +1311,6 @@ function glomeFetchAds()
     }
     
     data = JSON.parse(e.originalTarget.response);
-    
-    // Update locally stored ad data
-    let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-    let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
     
     for (let i = 0; i < data.length; i++)
     {
@@ -1321,10 +1366,6 @@ function glomeFetchAds()
           rval: statement.params,
           handleError: function(error)
           {
-            // Update locally stored ad data
-            let file = FileUtils.getFile("ProfD", ["glome.sqlite"]);
-            let db = Services.storage.openDatabase(file); // Will also create the file if it does not exist
-            
             q = 'UPDATE ads SET ';
             
             var first = true;
@@ -1368,5 +1409,7 @@ function glomeFetchAds()
   }
 }
 
+glomeInitDb();
 glomeInit();
 glome.initialized = true;
+
