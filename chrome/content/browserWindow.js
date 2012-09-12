@@ -59,27 +59,6 @@ glome.initialized = false;
  * event and the actual event handler are listed.
  * @type Array
  */
-let eventHandlers = [
-  ["glome-tooltip", "popupshowing", glomeFillTooltip],
-  // ["glome-status-popup", "popupshowing", glomeFillPopup],
-  // ["glome-toolbar-popup", "popupshowing", glomeFillPopup],
-  ["glome-command-settings", "command", function() { glome.openSettingsDialog(); }],
-  // ["glome-command-sidebar", "command", glomeToggleSidebar],
-  // ["glome-command-togglesitewhitelist", "command", function() { toggleFilter(siteWhitelist); }],
-  // ["glome-command-togglepagewhitelist", "command", function() { toggleFilter(pageWhitelist); }],
-  // ["glome-command-toggleobjtabs", "command", function() { glomeTogglePref("frameobjects"); }],
-  // ["glome-command-togglecollapse", "command", function() { glomeTogglePref("fastcollapse"); }],
-  // ["glome-command-toggleshowintoolbar", "command", function() { glomeTogglePref("showintoolbar"); }],
-  // ["glome-command-toggleshowinstatusbar", "command", function() { glomeTogglePref("showinstatusbar"); }],
-  // ["glome-command-enable", "command", function() { glomeTogglePref("enabled"); }]//,
-  ["glome-status", "click", glomeClickHandler]//,
-  // ["glome-toolbarbutton", "command", function(event) { if (event.eventPhase == event.AT_TARGET) glomeCommandHandler(event); }],
-  // ["glome-toolbarbutton", "click", function(event) { if (event.eventPhase == event.AT_TARGET && event.button == 1) glomeTogglePref("enabled"); }],
-  // ["glome-image-menuitem", "command", function() { glomeNode(backgroundData || nodeData); }],
-  // ["glome-object-menuitem", "command", function() { glomeNode(nodeData); }],
-  // ["glome-frame-menuitem", "command", function() { glomeNode(frameData); }]
-];
-
 var log =
 {
   debug: function(input)
@@ -124,26 +103,19 @@ function E(id)
 
 function glomeInit()
 {
-  debug.info("glomeInit");
+  log.info("glomeInit");
+  log.debug('-- start with the database');
+  glomeInitDb();
+  log.debug('-- database initialized');
   
   // Process preferences
   window.glomeDetachedSidebar = null;
-  glomeTimedUpdater();
   
   if (glome)
   {
+    log.debug('Glome is defined, register unload event');
     // Register event listeners
     window.addEventListener("unload", glomeUnload, false);
-    
-    for each (let [id, event, handler] in eventHandlers)
-    {
-      let element = E(id);
-      
-      if (element)
-      {
-        element.addEventListener(event, handler, false);
-      }
-    }
     
     // Create reference to this
     window.glome = this;
@@ -151,6 +123,7 @@ function glomeInit()
     // Make sure whitelisting gets displayed after at most 2 seconds
     prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
     prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
+    log.debug('Preferences loaded');
     
      // Make sure we always configure keys but don't let them break anything
     try
@@ -158,6 +131,7 @@ function glomeInit()
       // Configure keys
       for (var key in glomePrefs)
       {
+        log.debug('Set Glome preferences for ' + key);
         if (key.match(/(.*)_key$/))
         {
           glomeConfigureKey(RegExp.$1, glomePrefs[key]);
@@ -245,6 +219,7 @@ function glomeInit()
   // Run startup stuff
   glomeGetCategories();
   glomeFetchAds();
+  glomeTimedUpdater();
   
   // Set timed updater
   window.setInterval
@@ -300,6 +275,130 @@ function glomeInit()
   
   debug.info("glomeInit done");
 };
+
+/**
+ * Glome database initialization scripts
+ */
+function glomeInitDb()
+{
+  log.info('glomeInitDb starts'); 
+  // Initialize database
+  var tables =
+  {
+    categories: glomeGetTable('categories'),
+    ads: glomeGetTable('ads'),
+  }
+  
+  // Try to create and update tables
+  for (tablename in tables)
+  {
+    // Table fields
+    var table = tables[tablename];
+    
+    var q = 'DROP TABLE ' + tablename;
+    log.debug(q);
+    //db.executeSimpleSQL(q);
+    log.debug('-- dropped');
+    
+    if (!db.tableExists(tablename))
+    {
+      try
+      {
+        var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY)';
+        log.debug(q);
+        db.executeSimpleSQL(q);
+        log.debug('-- created');
+      }
+      catch (e)
+      {
+        log.warning('Tried to create table with query ' + q + ' but ran into trouble and caught an exception');
+        return;
+      }
+    }
+    
+    // Add columns to the table
+    for (i in table)
+    {
+      // Skip ID as it is always created with the table
+      if (i == 'id')
+      {
+        continue;
+      }
+      
+      try
+      {
+        var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
+        log.debug(q);
+        db.executeSimpleSQL(q);
+      }
+      catch (e)
+      {
+        log.warning('Tried to create a new column to ' + tablename + ' with query ' + q + ' but caught an exception!');
+      }
+    }
+  }
+  
+  log.info('Database initialized, prepare to fetch data from server');
+  
+  // @TODO: Verify that it is possible to make a connection
+  
+  // Update category data
+  glome.request = new XMLHttpRequest();
+  glome.request.timeout = 5000;
+  glome.request.onreadystatechange = function(e)
+  {
+    if (e.originalTarget.readyState !== 4)
+    {
+      return;
+    }
+    
+    log.debug('Got the results for ad categories JSON listing');
+    data = JSON.parse(e.originalTarget.response);
+    log.debug(data);
+    
+    // Add all of the categories to database
+    for (i = 0; i < data.length; i++)
+    {
+      // Update categories
+      var q = 'UPDATE categories SET name = :name WHERE id = :id';
+      log.debug(q);
+      var statement = db.createStatement(q);
+      statement.params.id = data[i].id;
+      statement.params.name = data[i].name;
+      statement.executeAsync();
+      log.debug('-- executeAsync called');
+      
+      // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
+      var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
+      log.debug(q);
+      var statement = db.createStatement(q);
+      statement.params.id = data[i].id;
+      statement.params.name = data[i].name;
+      statement.executeAsync();
+      log.debug('-- executeAsync called');
+      
+      // @TODO: This needs a check to delete the removed categories as well
+    }
+    
+    log.debug('-- updating ad categories finished');
+  }
+  
+  log.debug('Created onreadystatechange');
+  
+  if (glome_is_online)
+  {
+    var url = 'http://api.glome.me/adcategories.json';
+    log.info('Opening connection now to ' + url);
+    glome.request.open('GET', url, true);
+    glome.request.send();
+    log.info('-- opened');
+  }
+  else
+  {
+    log.info('Glome is not online, do not fetch categories');
+  }
+  log.info('glomeInitDb ends'); 
+}
 
 function glomeInitPage(e)
 {
@@ -1041,117 +1140,6 @@ function glomeGetTable(tablename)
   return tables[tablename];
 }
 
-function glomeInitDb()
-{
-  log.info('glomeInitDb starts'); 
-  // Initialize database
-  var tables =
-  {
-    categories: glomeGetTable('categories'),
-    ads: glomeGetTable('ads'),
-  }
-  
-  // Try to create and update tables
-  for (tablename in tables)
-  {
-    // Table fields
-    var table = tables[tablename];
-    
-    var q = 'DROP TABLE ' + tablename;
-    log.debug(q);
-    db.executeSimpleSQL(q);
-    log.debug('-- dropped');
-    
-    if (!db.tableExists(tablename))
-    {
-      try
-      {
-        var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY)';
-        log.debug(q);
-        db.executeSimpleSQL(q);
-        log.debug('-- created');
-      }
-      catch (e)
-      {
-        log.warning('Tried to create table with query ' + q + ' but ran into trouble and caught an exception');
-        return;
-      }
-    }
-    
-    // Add columns to the table
-    for (i in table)
-    {
-      // Skip ID as it is always created with the table
-      if (i == 'id')
-      {
-        continue;
-      }
-      
-      try
-      {
-        var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
-        log.debug(q);
-        db.executeSimpleSQL(q);
-      }
-      catch (e)
-      {
-        log.warning('Tried to create a new column to ' + tablename + ' with query ' + q + ' but caught an exception!');
-      }
-    }
-  }
-  
-  // @TODO: Verify that it is possible to make a connection
-  
-  // Update category data
-  glome.request = new XMLHttpRequest();
-  glome.request.timeout = 5000;
-  glome.request.onreadystatechange = function(e)
-  {
-    if (e.originalTarget.readyState !== 4)
-    {
-      return;
-    }
-    
-    log.debug('Got the results for ad categories JSON listing');
-    data = JSON.parse(e.originalTarget.response);
-    log.debug(data);
-    
-    // Add all of the categories to database
-    for (i = 0; i < data.length; i++)
-    {
-      // Update categories
-      var q = 'UPDATE categories SET name = :name WHERE id = :id';
-      log.debug(q);
-      var statement = db.createStatement(q);
-      statement.params.id = data[i].id;
-      statement.params.name = data[i].name;
-      statement.executeAsync();
-      log.debug('-- executeAsync called');
-      
-      // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
-      var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-      log.debug(q);
-      var statement = db.createStatement(q);
-      statement.params.id = data[i].id;
-      statement.params.name = data[i].name;
-      statement.executeAsync();
-      log.debug('-- executeAsync called');
-      
-      // @TODO: This needs a check to delete the removed categories as well
-    }
-  }
-  
-  if (glome_is_online)
-  {
-    var url = 'http://api.glome.me/adcategories.json';
-    log.info('Opening connection now to ' + url);
-    glome.request.open('GET', url, true);
-    glome.request.send();
-    log.info('-- opened');
-  }
-  log.info('glomeInitDb ends'); 
-}
-
 /**
  * Set ad status to
  * 
@@ -1430,7 +1418,6 @@ function glomeFetchAds()
   }
 }
 
-glomeInitDb();
 glomeInit();
 glome.initialized = true;
 
