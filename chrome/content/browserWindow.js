@@ -4,6 +4,7 @@ var request = null;
 var glome_is_online = true;
 var glome_ad_stack = new Array();;
 var glome_ad_categories = {};
+var xhr = null;
 
 var page = 0;
 var pages = 0;
@@ -55,7 +56,7 @@ var glomeAbpHideImageManager;
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 5;
+log.level = 3;
 
 function E(id)
 {
@@ -304,18 +305,27 @@ function glomeInitDb()
   // @TODO: Verify that it is possible to make a connection
   
   // Update category data
-  glome.request = new XMLHttpRequest();
-  glome.request.timeout = 5000;
-  glome.request.onreadystatechange = function(e)
+  xhr_categories = new XMLHttpRequest();
+  xhr_categories.timeout = 10000;
+  xhr_categories.onreadystatechange = function(e)
   {
-    if (e.originalTarget.readyState !== 4)
+    if (e.originalTarget.readyState < 4)
     {
       return;
     }
     
     log.debug('Got the results for ad categories JSON listing');
-    data = JSON.parse(e.originalTarget.response);
-    log.debug(data);
+    
+    try
+    {
+      data = JSON.parse(e.originalTarget.response);
+      log.debug(data);
+    }
+    catch (e)
+    {
+      log.error('Caught an exception when trying to parse category data as JSON');
+      return;
+    }
     
     // Add all of the categories to database
     for (i = 0; i < data.length; i++)
@@ -327,16 +337,26 @@ function glomeInitDb()
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
       statement.executeAsync();
-      log.debug('-- executeAsync called');
       
       // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
       var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-      log.debug(q);
+      log.error(q);
       var statement = db.createStatement(q);
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
-      statement.executeAsync();
-      log.debug('-- executeAsync called');
+      statement.executeAsync
+      (
+        {
+          rval: statement.params,
+          handleError: function(error)
+          {
+            log.error('Tried to update category, but failed');
+            log.error(error);
+            log.error('Original values:');
+            log.error(this.rval);
+          }
+        }
+      );
       
       // @TODO: This needs a check to delete the removed categories as well
     }
@@ -349,16 +369,16 @@ function glomeInitDb()
   if (glome_is_online)
   {
     var url = 'http://api.glome.me/adcategories.json';
-    log.info('Opening connection now to ' + url);
-    glome.request.open('GET', url, true);
-    glome.request.send();
-    log.info('-- opened');
+    log.debug('Opening connection now to ' + url);
+    xhr_categories.open('GET', url, true);
+    xhr_categories.send();
+    log.debug('-- opened');
   }
   else
   {
-    log.info('Glome is not online, do not fetch categories');
+    log.debug('Glome is not online, do not fetch categories');
   }
-  log.info('glomeInitDb ends'); 
+  log.debug('glomeInitDb ends'); 
 }
 
 function glomeInitPage(e)
@@ -956,6 +976,9 @@ function glomeABPHideElements()
       filter
     ];
     
+    log.debug('Add filter');
+    log.debug(filter);
+    
     glome.abp.addPatterns(filter);
     
     glome.abp.elemhide.add(filter);
@@ -1085,6 +1108,7 @@ function glomeCategorySubscription(id, status)
   log.debug('glomeCategorySubscription starts'); 
   var q = 'UPDATE categories SET subscribed = :status WHERE id = :id';
   log.debug(q);
+  
   var statement = db.createStatement(q);
   statement.params.id = id;
   statement.params.status = (status) ? 1 : 0;
@@ -1157,7 +1181,7 @@ function glomeGetAd(ad_id)
 function glomeGetCategories()
 {
   let q = 'SELECT id, name FROM categories WHERE subscribed = :subscribed';
-  log.debug(q);
+  log.warn(q);
   
   var statement = db.createStatement(q);
   statement.params.subscribed = 1;
@@ -1167,7 +1191,7 @@ function glomeGetCategories()
     {
       handleResult: function(results)
       {
-        log.debug('-- got to the results of query in glomeGetCategories');
+        log.warn('-- got to the results of query in glomeGetCategories');
         
         // Old stack
         var stack = {}
@@ -1211,15 +1235,15 @@ function glomeGetCategories()
 function glomeFetchAds()
 {
   // Abort the previous request if it is still pending
-  if (typeof glome.request != 'undefined')
+  if (typeof xhr != 'undefined')
   {
-    glome.request.abort();
+    xhr.abort();
   }
 
   // Get the ads from Glome API
-  glome.request = new XMLHttpRequest();
-  glome.request.timeout = 5000;
-  glome.request.onreadystatechange = function(e)
+  xhr = new XMLHttpRequest();
+  xhr.timeout = 5000;
+  xhr.onreadystatechange = function(e)
   {
     if (e.originalTarget.readyState < 4)
     {
@@ -1328,8 +1352,8 @@ function glomeFetchAds()
     
   if (glome_is_online)
   {
-    glome.request.open('GET', 'http://api.glome.me/ads.json', true);
-    glome.request.send();
+    xhr.open('GET', 'http://api.glome.me/ads.json', true);
+    xhr.send();
   }
 }
 
