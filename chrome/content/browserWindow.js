@@ -54,47 +54,8 @@ var glomeAbpHideImageManager;
 
 glome.initialized = false;
 
-/**
- * List of event handers to be registered. For each event handler the element ID,
- * event and the actual event handler are listed.
- * @type Array
- */
-var log =
-{
-  debug: function(input)
-  {
-    this.output(input, 5);
-  },
-  info: function(input)
-  {
-    this.output(input, 4);
-  },
-  warning: function(input)
-  {
-    this.output(input, 3);
-  },
-  error: function(input)
-  {
-    this.output(input, 2);
-  },
-  output: function(input, level)
-  {
-    if (!level)
-    {
-      level = 5;
-    }
-    
-    var type = String(typeof input);
-    if (type.match(/(object|array)/))
-    {
-      glomeExtract(input);
-    }
-    else
-    {
-      dump(input + '\n');
-    }
-  }
-}
+log = new glome.log();
+log.level = 5;
 
 function E(id)
 {
@@ -1027,6 +988,7 @@ function glomeNode(data)
 
 function glomeABPHideElements()
 {
+  log.info('glomeABPHideElements starts');
   if ("@adblockplus.org/abp/public;1" in Components.classes)
   {
     var abpURL = Components.classes["@adblockplus.org/abp/public;1"].getService(Components.interfaces.nsIURI);
@@ -1420,4 +1382,3 @@ function glomeFetchAds()
 
 glomeInit();
 glome.initialized = true;
-
