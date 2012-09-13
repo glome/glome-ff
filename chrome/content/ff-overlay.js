@@ -531,11 +531,6 @@ function glomeDisplayAd(ad_id)
   //glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_VIEWED);
 }
 
-function glomeExtract(target)
-{
-  return glome.glomeExtract(target);
-}
-
 function glomeGotoAd(ad_id)
 {
   // Create a new browser tab

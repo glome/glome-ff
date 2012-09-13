@@ -285,12 +285,14 @@
   </toolbarpalette>
 
   <!-- Firefox Tools menu -->
+<!--
   <menupopup id="menu_ToolsPopup">
     <menuitem id="glome-menuitem" insertafter="javascriptConsole"
       label="&menuitem.label;..." accesskey="&menuitem.accesskey;"
       key="glome-key-settings" command="glome-command-settings">
     </menuitem>    
   </menupopup>
+-->
 
   <!-- Firefox View menu -->
   <menupopup id="menu_viewPopup">

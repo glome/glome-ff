@@ -395,58 +395,6 @@ function glomeUnload()
   prefReloadTimer.cancel();
 }
 
-function glomeExtract(object, levels, indent)
-{
-  if (!indent)
-  {
-    dump('--- DUMP starts: ---\n');
-    indent = String('');
-  }
-  
-  if (!levels)
-  {
-    levels = 2;
-  }
-  
-  for (i in object)
-  {
-    dump(indent + i + ' (' + typeof object[i] + ')');
-    
-    switch (typeof object[i])
-    {
-      case 'object':
-        // Prevent infinite chains
-        if (object == object[i])
-        {
-          break;
-        }
-        
-        dump('\n');
-        
-        if (indent.length < (levels - 1) * 2)
-        {
-          glomeExtract(object[i], levels, indent + '  ');
-        }
-        
-        break;
-      
-      case 'function':
-        dump('\n');
-        break;
-        // Do nothing
-      
-      default:
-        dump(': ' + object[i] + '\n');
-    }
-  }
-  
-  if (   !indent
-      || indent == '')
-  {
-    dump('--- DUMP ends ---\n');
-  }
-}
-
 /**
  * Switch Glome on and off
  * 
@@ -1000,11 +948,8 @@ function glomeABPHideElements()
     // *ad-container*
     var filter = new glome.abp.BlockingFilter('ad-container');
     filter.elemhideRegExp = '.*ad-container*.';
-    //glomeExtract(filter);
     
     var selected_tab = window.gBrowser.getBrowserForTab(window.gBrowser.selectedTab);
-    //glomeExtract(selected_tab.contentDocument, 1);
-    //glomeExtract(glome.abp);
     
     var filters =
     [
@@ -1282,16 +1227,20 @@ function glomeFetchAds()
     }
     
     data = JSON.parse(e.originalTarget.response);
+    log.debug('Got data:');
+    log.debug(data);
     
     for (let i = 0; i < data.length; i++)
     {
+      var ad = data[i];
+      
       // Get keys
       if (typeof keys == 'undefined')
       {
         var keys = new Array();
         var keys_with_colon = new Array();
         
-        for (key in data[i])
+        for (key in ad)
         {
           keys.push(key);
           keys_with_colon.push(':' + key);
@@ -1302,33 +1251,36 @@ function glomeFetchAds()
       }
       
       // Store the ads locally
-      q = 'INSERT INTO ads (' + keys.toString() + ') VALUES(' + keys_with_colon.toString() + ')';
-      let statement = db.createStatement(q);
-      
-      for (key in data[i])
-      {
-        // Per key rules
-        switch (key)
-        {
-          case 'adcategories':
-            selection = new Array();
-            
-            for (k in data[i][key])
-            {
-              selection.push(data[i][key][k].id);
-            }
-            
-            // Store as JSON
-            statement.params[key] = JSON.stringify(selection);
-            break;
-          
-          default:
-            statement.params[key] = data[i][key];
-        }
-      }
+      q = 'INSERT INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
+      log.debug(q);
+      var statement = db.createStatement(q);
       
       // Set status to zero for new ads
       statement.params.status = 0;
+      
+      for (key in ad)
+      {
+        var value = ad[key];
+        
+        // Per type rules
+        switch (key)
+        {
+          case 'adcategories':
+            var selection = new Array();
+            
+            for (k in value)
+            {
+              selection.push(value[k].id);
+            }
+            
+            // Store as JSON string
+            value = JSON.stringify(selection);
+            break;
+          
+          default:
+        }
+        statement.params[key] = value;
+      }
       
       // Check if updateable on error, since probably the primary keyed ID already exists
       statement.executeAsync
@@ -1361,6 +1313,7 @@ function glomeFetchAds()
             }
             
             q += ' WHERE id = ' + this.rval.id;
+            log.debug(q);
             
             
             let statement = db.createStatement(q);
