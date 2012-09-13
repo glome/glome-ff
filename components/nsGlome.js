@@ -158,6 +158,7 @@ const glome = {
   log: function()
   {
     this.level = 5;
+    
     this.debug = function(input)
     {
       this.output(input, 5);
@@ -171,6 +172,12 @@ const glome = {
     this.warning = function(input)
     {
       this.output(input, 3);
+    }
+    
+    // Shorthand for this.warning
+    this.warn = function(input)
+    {
+      this.warning(input);
     }
     
     this.error = function(input)
