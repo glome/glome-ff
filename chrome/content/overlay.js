@@ -163,11 +163,17 @@ var Glome =
 window.addEventListener("load", function()
 {
   //Glome.onLoad();  
-  let sandbox = new Components.utils.Sandbox(window);
-  sandbox.window = window;
-  sandbox.document = document;
-  Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-            .getService(Components.interfaces.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://glome/content/browserWindow.js", sandbox);
-  
+  if (typeof window.glome == 'undefined')
+  {
+    let sandbox = new Components.utils.Sandbox(window);
+    sandbox.window = window;
+    sandbox.document = document;
+    Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+              .getService(Components.interfaces.mozIJSSubScriptLoader)
+              .loadSubScript("chrome://glome/content/browserWindow.js", sandbox);
+  }
+  else
+  {
+    glome = window.glome;
+  }
 }, false);
