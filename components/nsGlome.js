@@ -193,11 +193,63 @@ const glome = {
       var type = String(typeof input);
       if (type.match(/(object|array)/))
       {
-        glomeExtract(input);
+        this.extract(input);
       }
       else
       {
         dump(input + '\n');
+      }
+    }
+    
+    this.extract = function(object, levels, indent)
+    {
+      if (!indent)
+      {
+        dump('--- DUMP starts: ---\n');
+        indent = String('');
+      }
+      
+      if (!levels)
+      {
+        levels = 2;
+      }
+      
+      for (i in object)
+      {
+        dump(indent + i + ' (' + typeof object[i] + ')');
+        
+        switch (typeof object[i])
+        {
+          case 'object':
+            // Prevent infinite chains
+            if (object == object[i])
+            {
+              break;
+            }
+            
+            dump('\n');
+            
+            if (indent.length < (levels - 1) * 2)
+            {
+              this.extract(object[i], levels, indent + '  ');
+            }
+            
+            break;
+          
+          case 'function':
+            dump('\n');
+            break;
+            // Do nothing
+          
+          default:
+            dump(': ' + object[i] + '\n');
+        }
+      }
+      
+      if (   !indent
+          || indent == '')
+      {
+        dump('--- DUMP ends ---\n');
       }
     }
   },
