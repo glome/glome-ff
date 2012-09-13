@@ -1,6 +1,13 @@
+@import url('chrome://glome/skin/overlay.css');
+
 #category-glome > .category-icon
 {
   list-style-image: url("chrome://glome/skin/icons/glome-32x32.png");
+}
+
+#glome-dashboard
+{
+  height: 100%;
 }
 
 #glome-dashboard-container
@@ -180,3 +187,9 @@
   }
 }
 
+#glome-dashboard-switch
+{
+  padding: 100px 0;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+}

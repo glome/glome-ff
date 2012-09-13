@@ -31,22 +31,29 @@
           </vbox>
         ]]>
       </template>
-      <hbox id="glome-dashboard-container" width="100%" class="glome-selector-container">
-        <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
-          <box class="overflow-hidden">
-            <label value="&title.block;" class="selector-title" />
-          </box>
-          <box class="box-container">
-          </box>
-        </vbox>
-        <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
-          <box class="overflow-hidden" pack="end">
-            <label value="&title.allow;" class="selector-title" />
-          </box>
-          <box class="box-container">
-          </box>
-        </vbox>
-      </hbox>        
+      <vbox id="glome-dashboard">
+        <box id="glome-dashboard-switch">
+          <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+            <label control="glome_power_switch"></label>
+          </checkbox>
+        </box>
+        <hbox id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
+          <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
+            <box class="overflow-hidden">
+              <label value="&title.block;" class="selector-title" />
+            </box>
+            <box class="box-container">
+            </box>
+          </vbox>
+          <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
+            <box class="overflow-hidden" pack="end">
+              <label value="&title.allow;" class="selector-title" />
+            </box>
+            <box class="box-container">
+            </box>
+          </vbox>
+        </hbox>
+      </vbox>
     </deck>
   </deck>
 </overlay>

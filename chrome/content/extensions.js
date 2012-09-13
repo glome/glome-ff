@@ -4,6 +4,12 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
+// Database connection
+let db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["glome.sqlite"])); // Will also create the file if it does not exist
+let q = 'UPDATE categories SET subscribed = :subscribed WHERE id = :id';
+
+var log = null;
+
 var gGlomeDashboardView =
 {
   node: null,
@@ -73,8 +79,8 @@ var gGlomeDashboardView =
 
   show: function(aParam, aRequest, aState, aIsRefresh)
   {
-    glome.LOG('Show dashboard');
-    dump('Initialize view\n');
+    log.debug('Show dashboard');
+    log.debug('Initialize view');
     return;
     console.log('gGlomeDashboardView::show',aState);
     gViewController.updateCommands();
@@ -113,7 +119,7 @@ var gGlomeDashboardView =
   
   canRefresh: function()
   {
-    glome.log('canRefresh');
+    log.debug('canRefresh');
     if (this._browser.currentURI &&
         this._browser.currentURI.spec == this._browser.homePage)
     {
@@ -185,7 +191,7 @@ var gGlomeDashboardView =
 
   onSecurityChange: function(aWebProgress, aRequest, aState)
   {
-    glome.log('onSecurityChange');
+    log.debug('onSecurityChange');
     return;
     
     // Don't care about security if the page is not https
@@ -203,7 +209,7 @@ var gGlomeDashboardView =
 
   onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
   {
-    glome.log('onStateChange');
+    log.debug('onStateChange');
     
     // Only care about the network events
     if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_IS_NETWORK)))
@@ -269,8 +275,8 @@ var GlomeDashboard =
   onLoad: function(event)
   {
     // initialization code
-    LOG('GLOME - initialize dashboard');
-    dump('Initialize GlomeDashboard::onLoad\n');
+    log.debug('GLOME - initialize dashboard');
+    log.debug('Initialize GlomeDashboard::onLoad');
 
     if (event.target instanceof XMLStylesheetProcessingInstruction)
     {
@@ -278,27 +284,22 @@ var GlomeDashboard =
       return;
     }
     
-    document.removeEventListener("load", GlomeDashboard.onLoad, true);
+    document.removeEventListener('load', GlomeDashboard.onLoad, true);
 
     this.initialized = true;
 
     this.node = document.getElementById("categories");
-    LOG('categories node');
-    LOG(this.node);
-    
     this.viewPort = document.getElementById("view-port");
     
     //this.bindToCategory();
     gViewController.viewObjects["glome"] = gGlomeDashboardView;
     //gViewController.viewObjects["glome"].initialize();
     // console.log('gViewController.viewObjects',gViewController.viewObjects);
-    
-    LOG(glome.glome_ad_categories);
   },
   
   bindToCategory: function(event)
   {
-    LOG('bindToCategory');
+    log.debug('bindToCategory');
     var self = this;
     
     this.node.addEventListener("select", function()
@@ -330,44 +331,35 @@ var GlomeDashboard =
 
 function initialize(event)
 {
-  LOG('GLOME - initialize extensions');
+  log.debug('GLOME - initialize extensions');
   // XXXbz this listener gets _all_ load events for all nodes in the
   // document... but relies on not being called "too early".
   // if (event.target instanceof XMLStylesheetProcessingInstruction) {
   //   return;
   // }
-  //document.removeEventListener("load", initialize, true);
+  //document.removeEventListener('load', initialize, true);
   
-  // LOG('document');
-  // LOG(document);
+  // log.debug('document');
+  // log.debug(document);
   dump(document);
   var node = document.getElementById("categories");
-  LOG('categories node');
-  LOG(node);
+  log.debug('categories node');
+  log.debug(node);
 }
 
-//document.addEventListener("load", initialize, false);
-window.addEventListener("load", function (event)
+//document.addEventListener('load', initialize, false);
+window.addEventListener('load', function (event)
 {
+  // Connect to the Glome logging method
+  
+  log = new window.glome.glome.log();
   //Glome.onLoad();  
   GlomeDashboard.onLoad(event);
 }, true);
 
-function LOG(text)
-{
-  if (typeof console != undefined)
-  {
-    console.log(text + ' (' + typeof text + ')');
-  }
-  else
-  {
-    Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService).logStringMessage(text);
-  }
-}
-
 function glomeInitConfigView()
 {
-  dump('initialize configuration view\n');
+  log.debug('initialize configuration view');
   // Update locally stored ad data
   let db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["glome.sqlite"])); // Will also create the file if it does not exist
   let q = 'SELECT * FROM categories';
@@ -411,7 +403,7 @@ function glomeInitConfigView()
           }
           while (tmp.match(/::([a-z0-9_]+)/i));
           
-          dump(tmp + '\n');
+          log.debug(tmp);
           
           if (   typeof category.subscribed != 'undefined'
               && category.subscribed)
@@ -442,10 +434,6 @@ function glomeInitConfigView()
               var subscribed = 0;
             }
             
-            // Update database
-            let db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["glome.sqlite"])); // Will also create the file if it does not exist
-            let q = 'UPDATE categories SET subscribed = :subscribed WHERE id = :id';
-            
             let statement = db.createStatement(q);
             statement.params.subscribed = subscribed;
             statement.params.id = Number(item.attr('data-id'));
@@ -455,4 +443,21 @@ function glomeInitConfigView()
       }
     }
   );
+}
+
+function glomeChangeState()
+{
+  log.debug('Previous state: ' + glome.glomePrefs.enabled);
+  var state = glome.glomeSwitch('enabled');
+  log.debug('New state: ' + glome.glomePrefs.enabled);
+  
+  // Set the checkbox status
+  if (!glome.glomePrefs.enabled)
+  {
+    jQuery('.glome-switch').removeAttr('checked');
+  }
+  else
+  {
+    jQuery('.glome-switch').attr('checked', 'true');
+  }
 }
