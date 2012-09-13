@@ -155,6 +155,52 @@ const glome = {
     
     dump(message);
   },
+  log: function()
+  {
+    this.level = 5;
+    this.debug = function(input)
+    {
+      this.output(input, 5);
+    }
+    
+    this.info = function(input)
+    {
+      this.output(input, 4);
+    }
+    
+    this.warning = function(input)
+    {
+      this.output(input, 3);
+    }
+    
+    this.error = function(input)
+    {
+      this.output(input, 2);
+    }
+    
+    this.output = function(input, level)
+    {
+      if (!level)
+      {
+        level = 5;
+      }
+      
+      if (level > this.level)
+      {
+        return;
+      }
+      
+      var type = String(typeof input);
+      if (type.match(/(object|array)/))
+      {
+        glomeExtract(input);
+      }
+      else
+      {
+        dump(input + '\n');
+      }
+    }
+  },
   formatStackTrace: function(exception)
   {
     var trace = '';
