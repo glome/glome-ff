@@ -34,10 +34,13 @@ window.addEventListener('DOMTitleChanged', function(e)
 
 window.addEventListener('load', function(e)
 {
+  jQuery('#glome-controls').insertAfter(jQuery('#browser'));
+  
   if (typeof log == 'undefined')
   {
     // Connect to the Glome logging method
-    log = glome.log;
+    log = new glome.glome.log();
+    log.level = 0;
   }
   
   // Hide Glome icon in the addons view

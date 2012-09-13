@@ -18,7 +18,7 @@
   
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
-    <stack id="glome-controls" height="0" insertbefore="document">
+    <stack id="glome-controls" height="0" insertafter="browser">
       <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomeWidgetShow();">
         <vbox flex="0" pack="center">
           <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomeWidgetHide();" />
