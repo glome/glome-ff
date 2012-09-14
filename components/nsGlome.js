@@ -197,6 +197,20 @@ const glome = {
       this.output(input, 2);
     }
     
+    this.line = function(char)
+    {
+      if (!char)
+      {
+        char = '=';
+      }
+      
+      for (var i = 0; i < 60; i++)
+      {
+        dump(char);
+      }
+      dump('\n');
+    }
+    
     this.output = function(input, level)
     {
       if (!level)
