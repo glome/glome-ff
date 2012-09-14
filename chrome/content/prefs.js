@@ -9,8 +9,7 @@ var gObjtabClass = ""
 for (let i = 0; i < 20; i++)
   gObjtabClass += String.fromCharCode("a".charCodeAt(0) + Math.random() * 26);
 
-var prefService = Components.classes["@mozilla.org/preferences-service;1"]
-                            .getService(Components.interfaces.nsIPrefService);
+var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 
 var ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream", "init");
 
@@ -23,6 +22,7 @@ var prefs =
   branch: prefService.getBranch(prefRoot),
   prefList: [],
   listeners: [],
+  log: new glome.log(),
   
   /**
    * Disable Glome for the requested domain
@@ -189,7 +189,7 @@ var prefs =
       catch(e)
       {}
     }
-
+    
     // Initial prefs loading
     this.reload();
 
@@ -248,7 +248,9 @@ var prefs =
     this.disableObserver = true;
   
     for each (var pref in this.prefList)
+    {
       this.savePref(pref);
+    }
 
     this.disableObserver = false;
 

@@ -1,7 +1,7 @@
 pref('extensions.glome.currentVersion', '0.0');
 pref('extensions.glome.enabled', true);
-pref('extensions.glome.sitesDisabled', 'www.google.com');
-pref('extensions.glome.gid', '');
+pref('extensions.glome.sitesDisabled', '');
+pref('extensions.glome.glomeid', '');
 
 pref('extensions.glome.showintoolbar', true);
 pref('extensions.glome.showinstatusbar', true);
