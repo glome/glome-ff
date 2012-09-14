@@ -155,9 +155,21 @@ const glome = {
     
     dump(message);
   },
-  log: function()
+  log: function(level)
   {
-    this.level = 5;
+    if (level)
+    {
+      this.level = Math.round(Number(level));
+      
+      if (this.level <= 0)
+      {
+        this.level = 0;
+      }
+    }
+    else
+    {
+      this.level = 5;
+    }
     
     this.debug = function(input)
     {
