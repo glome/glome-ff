@@ -59,7 +59,7 @@ var glomeAbpHideImageManager;
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 5;
+log.level = 3;
 
 function E(id)
 {
@@ -1017,9 +1017,11 @@ function glomeNode(data)
 
 function glomeABPHideElements()
 {
-  log.info('glomeABPHideElements starts');
+  return;
+  
   if ("@adblockplus.org/abp/public;1" in Components.classes)
   {
+    log.error('AdBlockPlus IS in Components.classes');
     var abpURL = Components.classes["@adblockplus.org/abp/public;1"].getService(Components.interfaces.nsIURI);
     var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
     log.debug('ABP subscription count: ' + AdblockPlus.subscriptionCount);
@@ -1027,8 +1029,7 @@ function glomeABPHideElements()
   else
   {
     // *ad-container*
-    var filter = new glome.abp.BlockingFilter('ad-container');
-    filter.elemhideRegExp = '.*ad-container*.';
+    var filter = new glome.abp.BlockingFilter('ad-container', '.*ad-container.*');
     
     var selected_tab = window.gBrowser.getBrowserForTab(window.gBrowser.selectedTab);
     
@@ -1037,14 +1038,16 @@ function glomeABPHideElements()
       filter
     ];
     
-    log.debug('Add filter');
-    log.debug(filter);
-    
-    glome.abp.addPatterns(filter);
     
     glome.abp.elemhide.add(filter);
     glome.abp.elemhide.apply();
+    
+    var matcher = new Matcher();
+    matcher.add(filter);
+/*
     glome.abp.policy.processNode(window, selected_tab.contentDocument);
+    glome.abp.synchronizer.init();
+*/
     
   }
 }

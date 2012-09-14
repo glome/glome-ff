@@ -18,6 +18,8 @@ window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
  */
 window.addEventListener('DOMContentLoaded', function(e)
 {
+  glomeAdStateChange();
+  
   // Initialize page
   glome.glomeInitPage(e);
 }, false);
@@ -40,8 +42,10 @@ window.addEventListener('load', function(e)
   {
     // Connect to the Glome logging method
     log = new glome.glome.log();
-    log.level = 0;
+    log.level = 3;
   }
+  
+  glomeAdStateChange();
   
   // Hide Glome icon in the addons view
   if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
@@ -96,6 +100,7 @@ window.addEventListener('TabSelect', function(e)
   
   // Hide the Glome popup
   glomeWidgetHide();
+  glomeAdStateChange();
   
 /*
   var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
@@ -158,6 +163,8 @@ function glomeChangeState()
   {
     jQuery('.glome-switch').removeAttr('checked');
     glomeHideStack();
+    
+    content.document.glomeblock = null;
   }
   else
   {
@@ -190,6 +197,7 @@ function glomeChangeState()
   
   glome.glomeUpdateTicker();
   glomeWidgetShow();
+  glomeAdStateChange();
   
   log.debug('Change state finished');
 }
@@ -255,6 +263,7 @@ function glomeChangeDomainState()
   
   // Update with new status
   element.setAttribute('domain', glome.glomePrefs.getDomainStatus(domain));
+  glomeAdStateChange();
 }
 
 /**
@@ -685,4 +694,153 @@ function glomeHideStack()
 {
   window.gBrowser.selectedTab.removeAttribute('glomepanel');
   document.getElementById('glome-panel').hidePopup();
+}
+
+function glomeAdStateChange()
+{
+  log.line();
+  
+  // Display ads if Glome is off or disabled for this domain
+  var domain = glome.glomeGetCurrentDomain();
+  var status = glome.glomePrefs.getDomainStatus(domain);
+  log.error('glomeAdStateChange');
+  log.error('enabled: ' + glome.glomePrefs.enabled);
+  log.error('-- typeof: ' + typeof glome.glomePrefs.enabled);
+  log.error('domain: ' + domain);
+  log.error('status: ' + status);
+  
+  if (   glome.glomePrefs.enabled === false
+      || glome.glomePrefs.getDomainStatus(domain) === 'on')
+  {
+    glomeRevealAds();
+  }
+  else
+  {
+    glomeHideAds();
+  }
+}
+
+function glomeRevealAds()
+{
+  log.error('glomeRevealAds');
+  jQuery(content.document).find('[data-glomeblock]')
+    .removeAttr('hidden')
+    .removeAttr('data-glomeblock');
+}
+
+function glomeHideAds()
+{
+  log.error('glomeHideAds');
+  var date = new Date();
+  
+  // Prevent this from being run more often than every 10 seconds
+  if (   typeof content.document.glomeblock != 'undefined'
+      && content.document.glomeblock > date.getTime() - 10 * 1000)
+  {
+    //log.debug('-- too fast, too soon');
+    return;
+  }
+  
+  content.document.glomeblock = date.getTime();
+  var elements = jQuery(content.document).find('div').not('[data-glomeblock]');
+  
+  //var elements = jQuery(selected_tab.contentDocument).find('body, div, img, object, embed');
+  log.debug('Found ' + elements.size() + ' elements');
+  
+  var filters = new Array();
+  filters.push('ad-container');
+  filters.push('Adtech');
+  filters.push('banner');
+  filters.push('advert');
+  
+  for (i = 0; i < elements.size(); i++)
+  {
+    var element = elements.eq(i);
+    
+    if (!element.attr('id'))
+    {
+      continue;
+    }
+    
+    // Parent element has already been blocked
+    if (element.attr('data-glomeblock') == 'true')
+    {
+      log.debug('-- already blocked');
+      continue;
+    }
+    
+    var values = new Array();
+    var removable = false;
+    
+    log.debug('type: ' + element.get(0).tagName);
+    
+    switch (element.get(0).tagName.toLowerCase())
+    {
+      case 'img':
+        values.push(element.attr('src'));
+        break;
+      
+      case 'object':
+      case 'embed':
+        values.push(element.attr('src'));
+        values.push(element.find('param[name="movie"]').attr('value'));
+        //removable = true;
+        break;
+      
+      case 'div':
+      case 'body':
+        values.push(element.attr('id'));
+        values.push(element.css('background-image'));
+        values.push(element.css('list-style-image'));
+        break;
+    }
+    
+    // Remove empty values
+    for (n = 0; n < values.length; n++)
+    {
+      if (!values[n])
+      {
+        values.splice(n, 1);
+      }
+    }
+    
+    if (!values.length)
+    {
+      continue;
+    }
+    
+    for (n = 0; n < filters.length; n++)
+    {
+      log.debug('Create a filter for ' + filters[n]);
+      var filter = new RegExp(filters[n]);
+      var match = false;
+      
+      for (k = 0; k < values.length; k++)
+      {
+        var value = values[k];
+        
+        if (value.match(filter))
+        {
+          match = true;
+          
+          if (removable)
+          {
+            element.remove();
+          }
+          else
+          {
+            element.attr('data-glomeblock', 'true');
+            element.attr('hidden', 'true');
+            element.css('display', 'none !important');
+          }
+        }
+      }
+      
+      // Already filtered out, no need to continue
+      if (match)
+      {
+        continue;
+      }
+    }
+  }
 }

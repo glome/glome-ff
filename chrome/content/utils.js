@@ -253,7 +253,7 @@ glome.createTimer = createTimer;
 var lineBreak = null;
 function getLineBreak()
 {
-  glome.LOG("getLineBreak");
+  //glome.LOG("getLineBreak");
   if (lineBreak == null) {
     // HACKHACK: Gecko doesn't expose NS_LINEBREAK, try to determine
     // plattform's line breaks by reading prefs.js
@@ -288,7 +288,7 @@ glome.getLineBreak = getLineBreak;
 // Removes unnecessary whitespaces from filter
 function normalizeFilter(text)
 {
-  //glome.LOG("normalizeFilter");
+  glome.LOG("normalizeFilter");
   if (!text)
   {
     return text;
