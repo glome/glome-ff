@@ -4,7 +4,10 @@ var request = null;
 var glome_is_online = true;
 var glome_ad_stack = new Array();;
 var glome_ad_categories = {};
+var glome_id = null;
 var xhr = null;
+var xhr_ads = null;
+var xhr_categories = null;
 
 var page = 0;
 var pages = 0;
@@ -56,7 +59,7 @@ var glomeAbpHideImageManager;
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 3;
+log.level = 5;
 
 function E(id)
 {
@@ -179,6 +182,7 @@ function glomeInit()
   glome.connection.sendTest();
   
   // Run startup stuff
+  glomeGetUserId();
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
@@ -238,6 +242,74 @@ function glomeInit()
   debug.info("glomeInit done");
 };
 
+function glomeGetUserId()
+{
+  if (   glomePrefs
+      && glomePrefs.glomeid)
+  {
+    log.debug('Loading Glome ID');
+    glomeid = glomePrefs.glomeid;
+    log.info('GlomeID: ' + glomeid);
+    return;
+  }
+  
+  // Create Glome ID if not available yet
+  var r = new XMLHttpRequest();
+  r.timeout = 10000;
+  r.onreadystatechange = function(e)
+  {
+    if (e.originalTarget.readyState < 4)
+    {
+      return;
+    }
+    
+    switch (e.status)
+    {
+      case 422:
+        log.error('This Glome ID exists already');
+        return;
+      
+      case 200:
+      case 201:
+        log.debug('Glome ID created');
+        break;
+      
+      default:
+        log.error('Unidentified return code: ' + e.status);
+    }
+    
+    try
+    {
+      data = JSON.parse(e.originalTarget.response);
+      log.debug(data);
+    }
+    catch (e)
+    {
+      log.error('Caught an exception when trying to parse category data as JSON');
+      return;
+    }
+    
+    // Store the ID to preferences
+    glomePrefs.glomeid = data.glomeid;
+    glomePrefs.save();
+    log.debug('Glome ID is now ' + glomePrefs.glomeid);
+  }
+  
+  if (glome_is_online)
+  {
+    var date = new Date();
+    
+    var url = 'http://api.glome.me/users.json';
+    log.debug('Opening connection now to ' + url);
+    r.open('POST', url, true);
+    r.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    r.send('user[glomeid]=' + date.getTime());
+    log.debug('-- opened');
+  }
+  
+
+}
+
 /**
  * Glome database initialization scripts
  */
@@ -257,10 +329,12 @@ function glomeInitDb()
     // Table fields
     var table = tables[tablename];
     
+    /*
     var q = 'DROP TABLE ' + tablename;
     log.debug(q);
-    //db.executeSimpleSQL(q);
+    db.executeSimpleSQL(q);
     log.debug('-- dropped');
+    */
     
     if (!db.tableExists(tablename))
     {
@@ -319,7 +393,6 @@ function glomeInitDb()
     try
     {
       data = JSON.parse(e.originalTarget.response);
-      log.debug(data);
     }
     catch (e)
     {
@@ -340,23 +413,11 @@ function glomeInitDb()
       
       // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
       var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-      log.error(q);
+      log.debug(q);
       var statement = db.createStatement(q);
       statement.params.id = data[i].id;
       statement.params.name = data[i].name;
-      statement.executeAsync
-      (
-        {
-          rval: statement.params,
-          handleError: function(error)
-          {
-            log.error('Tried to update category, but failed');
-            log.error(error);
-            log.error('Original values:');
-            log.error(this.rval);
-          }
-        }
-      );
+      statement.executeAsync();
       
       // @TODO: This needs a check to delete the removed categories as well
     }
@@ -1181,7 +1242,7 @@ function glomeGetAd(ad_id)
 function glomeGetCategories()
 {
   let q = 'SELECT id, name FROM categories WHERE subscribed = :subscribed';
-  log.warn(q);
+  log.debug(q);
   
   var statement = db.createStatement(q);
   statement.params.subscribed = 1;
@@ -1191,7 +1252,7 @@ function glomeGetCategories()
     {
       handleResult: function(results)
       {
-        log.warn('-- got to the results of query in glomeGetCategories');
+        log.debug('-- got to the results of query in glomeGetCategories');
         
         // Old stack
         var stack = {}
@@ -1235,15 +1296,16 @@ function glomeGetCategories()
 function glomeFetchAds()
 {
   // Abort the previous request if it is still pending
-  if (typeof xhr != 'undefined')
+  if (   typeof xhr_ads != 'undefined'
+      && xhr_ads)
   {
-    xhr.abort();
+    xhr_ads.abort();
   }
 
   // Get the ads from Glome API
-  xhr = new XMLHttpRequest();
-  xhr.timeout = 5000;
-  xhr.onreadystatechange = function(e)
+  xhr_ads = new XMLHttpRequest();
+  xhr_ads.timeout = 5000;
+  xhr_ads.onreadystatechange = function(e)
   {
     if (e.originalTarget.readyState < 4)
     {
@@ -1251,8 +1313,6 @@ function glomeFetchAds()
     }
     
     data = JSON.parse(e.originalTarget.response);
-    log.debug('Got data:');
-    log.debug(data);
     
     for (let i = 0; i < data.length; i++)
     {
@@ -1352,8 +1412,8 @@ function glomeFetchAds()
     
   if (glome_is_online)
   {
-    xhr.open('GET', 'http://api.glome.me/ads.json', true);
-    xhr.send();
+    xhr_ads.open('GET', 'http://api.glome.me/ads.json', true);
+    xhr_ads.send();
   }
 }
 
