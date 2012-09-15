@@ -1,5 +1,10 @@
 @import url('chrome://glome/skin/overlay.css');
 
+#glome-view
+{
+  background-image: url('chrome://glome/skin/glome-pattern.jpg');
+}
+
 #category-glome > .category-icon
 {
   list-style-image: url("chrome://glome/skin/icons/glome-32x32.png");
@@ -189,7 +194,56 @@
 
 #glome-dashboard-switch
 {
-  padding: 100px 0;
-  -moz-box-pack: center;
-  -moz-box-align: center;
+  padding: 50px 0;
+  -moz-box-pack: justify;
+  -moz-box-align: justify;
 }
+
+#glome-dashboard tabbox,
+#glome-dashboard tabs,
+#glome-dashboard tab,
+#glome-dashboard tabpanels,
+#glome-dashboard tabpanel
+{
+  -moz-appearance: none !important;
+}
+
+#glome-dashboard-deck tabs,
+#glome-dashboard-deck tab
+{
+  width: 100%;
+}
+
+#glome-dashboard-deck tabs
+{
+  -moz-box-pack: justify;
+  -moz-box-orient: horizontal;
+}
+
+#glome-dashboard-deck tab
+{
+  color: #d8d8d6;
+  border-bottom: solid 3px;
+  padding-bottom: 6px;
+  -moz-box-flex: 1;
+}
+
+#glome-dashboard-deck tab + tab
+{
+  margin-left: 3px;
+}
+
+#glome-dashboard-deck tab[selected]
+{
+  background-image: url('chrome://glome/skin/navigation/tiny-arrow-up-black.png');
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  color: black;
+}
+
+#glome-dashboard-deck tabs,
+#glome-dashboard-deck tab
+{
+  -moz-box-orient: horizontal;
+}
+

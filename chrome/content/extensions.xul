@@ -32,27 +32,42 @@
         ]]>
       </template>
       <vbox id="glome-dashboard">
-        <box id="glome-dashboard-switch">
+        <box id="glome-dashboard-switch" pack="center" align="center">
           <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
             <label control="glome_power_switch"></label>
           </checkbox>
         </box>
-        <hbox id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
-          <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
-            <box class="overflow-hidden">
-              <label value="&title.block;" class="selector-title" />
-            </box>
-            <box class="box-container">
-            </box>
-          </vbox>
-          <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
-            <box class="overflow-hidden" pack="end">
-              <label value="&title.allow;" class="selector-title" />
-            </box>
-            <box class="box-container">
-            </box>
-          </vbox>
-        </hbox>
+        <tabbox id="glome-dashboard-deck" selectedPanel="glome-dashboard-container" flex="1">
+          <tabs>
+            <tab><label value="My Rules" /></tab>
+            <tab><label value="My Web" /></tab>
+            <tab><label value="My Wallet" /></tab>
+          </tabs>
+          <tabpanels flex="1">
+            <tabpanel id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
+              <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
+                <box class="overflow-hidden">
+                  <label value="&title.block;" class="selector-title" />
+                </box>
+                <box class="box-container">
+                </box>
+              </vbox>
+              <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
+                <box class="overflow-hidden" pack="end">
+                  <label value="&title.allow;" class="selector-title" />
+                </box>
+                <box class="box-container">
+                </box>
+              </vbox>
+            </tabpanel>
+            <tabpanel id="glome-dashboard-myweb">
+              <description>My web content comes here</description>
+            </tabpanel>
+            <tabpanel id="glome-dashboard-myrewards">
+              <description>My rewards content comes here</description>
+            </tabpanel>
+          </tabpanels>
+        </tabbox>
       </vbox>
     </deck>
   </deck>
