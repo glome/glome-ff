@@ -524,8 +524,23 @@ function glomeDisplayAd(ad_id)
       // Set ad status to uninterested
       glome.glomeSetAdStatus(glome.ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
       
-      // Hide the ad displayer
-      glomeHideStack();
+      var cat_id = null;
+      
+      // Display the category view
+      for (i = 0; i < glome.glome_ad_stack; i++)
+      {
+        if (glome.glome_ad_stack[i].id == glome.ad_id)
+        {
+          for (var k = 0; k < glome.glome_ad_stack[i].adcategories.length; k++)
+          {
+            cat_id = glome.glome_ad_stack[i].adcategories[k];
+            break;
+          }
+          break;
+        }
+      }
+      
+      glomeOpenCategoryView(cat_id);
       
       // Update ticker to match the new view count
       glome.glomeUpdateTicker();
@@ -722,6 +737,8 @@ function glomeAdStateChange()
 
 function glomeRevealAds()
 {
+  return;
+  
   log.error('glomeRevealAds');
   jQuery(content.document).find('[data-glomeblock]')
     .removeAttr('hidden')
@@ -730,6 +747,8 @@ function glomeRevealAds()
 
 function glomeHideAds()
 {
+  return;
+  
   log.error('glomeHideAds');
   var date = new Date();
   
