@@ -713,16 +713,14 @@ function glomeHideStack()
 
 function glomeAdStateChange()
 {
-  log.line();
-  
   // Display ads if Glome is off or disabled for this domain
   var domain = glome.glomeGetCurrentDomain();
   var status = glome.glomePrefs.getDomainStatus(domain);
-  log.error('glomeAdStateChange');
-  log.error('enabled: ' + glome.glomePrefs.enabled);
-  log.error('-- typeof: ' + typeof glome.glomePrefs.enabled);
-  log.error('domain: ' + domain);
-  log.error('status: ' + status);
+  log.debug('glomeAdStateChange');
+  log.debug('enabled: ' + glome.glomePrefs.enabled);
+  log.debug('-- typeof: ' + typeof glome.glomePrefs.enabled);
+  log.debug('domain: ' + domain);
+  log.debug('status: ' + status);
   
   if (   glome.glomePrefs.enabled === false
       || glome.glomePrefs.getDomainStatus(domain) === 'on')
@@ -739,7 +737,7 @@ function glomeRevealAds()
 {
   return;
   
-  log.error('glomeRevealAds');
+  log.debug('glomeRevealAds');
   jQuery(content.document).find('[data-glomeblock]')
     .removeAttr('hidden')
     .removeAttr('data-glomeblock');
@@ -749,7 +747,7 @@ function glomeHideAds()
 {
   return;
   
-  log.error('glomeHideAds');
+  log.debug('glomeHideAds');
   var date = new Date();
   
   // Prevent this from being run more often than every 10 seconds
