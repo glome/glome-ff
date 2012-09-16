@@ -287,6 +287,8 @@ function glomeGetUserId()
     catch (e)
     {
       log.error('Caught an exception when trying to parse category data as JSON');
+      log.debug('Original data:');
+      log.debug(data);
       return;
     }
     
@@ -398,6 +400,8 @@ function glomeInitDb()
     catch (e)
     {
       log.error('Caught an exception when trying to parse category data as JSON');
+      log.debug('Original data:');
+      log.debug(e.originalTarget.response);
       return;
     }
     
