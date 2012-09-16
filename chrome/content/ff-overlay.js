@@ -290,12 +290,10 @@ function glomeChangeKnockingAd(dt)
   if (!glome.pages)
   {
     jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden', true);
-    jQuery('#glome-controls-wrapper').find('.active.category').removeAttr('hidden');
   }
   else
   {
     jQuery('#glome-controls-wrapper').find('.active.single').removeAttr('hidden');
-    jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden', true);
   }
   
   if (!glome.page)
@@ -351,7 +349,6 @@ function glomeWidgetShow()
     for (i in glome.glome_ad_categories_count)
     {
       var count = glome.glome_ad_categories_count[i];
-      log.error('-- check category id: ' + i + ' which has ' + count + ' items (' + typeof count + ')');
       if (max < count)
       {
         if (typeof glome.glome_ad_categories[i] == 'undefined')
@@ -367,6 +364,7 @@ function glomeWidgetShow()
     
     if (category)
     {
+      jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden', 'true');
       jQuery('#glome-controls-wrapper').find('.active.category').removeAttr('hidden');
       jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
       
@@ -420,12 +418,17 @@ function glomeWidgetShow()
         });
       
       jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
+      return;
+    }
+    else
+    {
+      jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden', 'true');
     }
   }
   else
   {
     jQuery('#glome-controls-wrapper').find('.active.single').removeAttr('hidden');
-    jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden');
+    jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden', 'true');
   }
   
   log.debug('Widget show');
