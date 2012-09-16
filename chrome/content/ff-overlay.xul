@@ -82,21 +82,9 @@
                 <spacer flex="1" />
               </box>
               <box pack="end" flex="0">
-                <popupset>
-                  <menupopup id="glome-personals" position="before_end">
-                    <description>Lorem ipsum</description>
-                  </menupopup>
-                </popupset>
-                <popupset>
-                  <menupopup id="glome-config" position="before_end">
-                    <description>Lorem ipsum</description>
-                  </menupopup>
-                </popupset>
-                <box>
-                  <button popup="glome-config" class="arrow icon" width="20">
-                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
-                  </button>
-                </box>
+                <button onclick="glome.glomeFocus();" class="arrow icon" width="20">
+                  <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                </button>
               </box>
             </hbox>
           </vbox>

@@ -27,7 +27,7 @@ window.addEventListener('DOMContentLoaded', function(e)
 window.addEventListener('DOMTitleChanged', function(e)
 {
   // Hide Glome icon in the addons view
-  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config|glome)/))
   {
     jQuery('#glome-controls').attr('hidden', 'true');
     return;
@@ -48,7 +48,7 @@ window.addEventListener('load', function(e)
   glomeAdStateChange();
   
   // Hide Glome icon in the addons view
-  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config)/))
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config|glome)/))
   {
     jQuery('#glome-controls').attr('hidden', 'true');
     return;
@@ -67,8 +67,8 @@ window.addEventListener('load', function(e)
  */
 window.addEventListener('TabSelect', function(e)
 {
-  // Hide Glome icon in the addons view
-  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href == 'about:addons')
+  // Hide Glome icon in some of the views
+  if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config|glome)/))
   {
     jQuery('#glome-controls').attr('hidden', 'true');
     return;
