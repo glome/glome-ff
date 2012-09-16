@@ -2,7 +2,7 @@ var glome = null;
 var last_updated = null;
 var request = null;
 var glome_is_online = true;
-var glome_ad_stack = new Array();;
+var glome_ad_stack = new Array();
 var glome_ad_categories = {};
 var glome_id = null;
 var xhr = null;
@@ -186,6 +186,7 @@ function glomeInit()
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
+  glomeGetAdsForCategory(18);
   
   // Set timed updater
   window.setInterval
@@ -1242,6 +1243,74 @@ function glomeGetAd(ad_id)
   return ad;
 }
 
+/**
+ * Get ads for a category
+ */
+function glomeGetAdsForCategory(id)
+{
+  // Get items for a category
+  var id = Number(id);
+  
+  var q = "SELECT * FROM ads WHERE adcategories LIKE '%" + id + "%' AND expires >= :datetime AND expired = 0";
+  log.debug(q);
+  var statement = db.createStatement(q);
+  
+  var date = new Date();
+  statement.params.datetime = ISODateString(date);
+  
+  var ads = new Array();
+  while (statement.executeStep())
+  {
+    var ad = {};
+    var found = false;
+    
+    for (i in glomeGetTable('ads'))
+    {
+      if (typeof statement.row[i] == 'undefined')
+      {
+        ad[i] = null;
+        continue;
+      }
+      
+      var value = null;
+      
+      switch (i)
+      {
+        case 'adcategories':
+          var value = JSON.parse(statement.row[i]);
+          
+          for (k = 0; k < value.length; k++)
+          {
+            if (value[k] == id)
+            {
+              found = true;
+              break;
+            }
+          }
+          
+          var value = statement.row[i];
+          break;
+        
+        default:
+          var value = statement.row[i];
+      }
+      
+      ad[i] = value;
+    }
+    
+    //found = true;
+    if (found)
+    {
+      ads.push(ad);
+    }
+  }
+  
+  return ads;
+}
+
+/**
+ * Get the list of categories
+ */
 function glomeGetCategories()
 {
   let q = 'SELECT id, name FROM categories WHERE subscribed = :subscribed';
@@ -1478,3 +1547,12 @@ function glomeFocus()
 glomeInit();
 glome.initialized = true;
 
+function ISODateString(d)
+{
+ function pad(n)
+ {
+   return n < 10 ? '0' + n : n;
+ }
+ 
+ return d.getUTCFullYear() + '-' + pad(d.getUTCMonth()+1)+'-' + pad(d.getUTCDate())+'T' + pad(d.getUTCHours())+':' + pad(d.getUTCMinutes())+':' + pad(d.getUTCSeconds())+'Z';
+}

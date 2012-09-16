@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', function(e)
   
   // Initialize page
   glome.glomeInitPage(e);
+  
 }, false);
 
 window.addEventListener('DOMTitleChanged', function(e)
@@ -46,7 +47,6 @@ window.addEventListener('load', function(e)
   }
   
   glomeAdStateChange();
-  
   // Hide Glome icon in the addons view
   if (window.top.getBrowser().selectedBrowser.contentWindow.location.href.match(/about:(addons|config|glome)/))
   {
@@ -59,6 +59,7 @@ window.addEventListener('load', function(e)
   }
   
   jQuery('#glome-controls-icon-wrapper').removeAttr('hidden');
+  
 }, false);
 
 /**
@@ -417,15 +418,7 @@ function glomeOpenCategoryView(cat_id)
   jQuery('#glome-panel').find('.category-title').attr('value', glome.glome_ad_categories[cat_id].name);
   
   // Get the count
-  var count = 0;
-  
-  for (let i = 0; i < glome.glome_ad_stack.length; i++)
-  {
-    if (jQuery.inArray(cat_id, glome.glome_ad_stack[i].adcategories) >= 0)
-    {
-      count++;
-    }
-  }
+  var count = glome.glomeGetAdsForCategory(cat_id).length;
   
   jQuery('#glome-overlay-category').attr('data-count', count);
   jQuery('#glome-overlay-category').attr('data-id', cat_id);
@@ -595,35 +588,21 @@ jQuery.fn.populate_category_list = function(id)
   // Set the view mode to single item
   jQuery('#glome-panel').attr('view', 'list');
   
-  // Get the category name
-  
   var container = jQuery('#glome-overlay-categories-ads-list');
   var template = container.find('template').text();
   
   // Remove the old content
   container.find('> *').not('template').remove();
   
-  for (var i = 0; i < glome.glome_ad_stack.length; i++)
+  // Get items for a category
+  var ads = glome.glomeGetAdsForCategory(id);
+  
+  for (var i = 0; i < ads.length; i++)
   {
-    found = false;
-    for (var k = 0; k < glome.glome_ad_stack[i].adcategories.length; k++)
-    {
-      if (glome.glome_ad_stack[i].adcategories[k] == id)
-      {
-        found = true;
-      }
-    }
-    
-    // Skip if not in the requested category
-    if (!found)
-    {
-      continue;
-    }
-    
     // Copy the template
     var tmp = template;
     
-    var ad = glome.glome_ad_stack[i];
+    var ad = ads[i];
     
     // Replace with ad values
     while (regs = tmp.match(/::([a-z0-9_]+)/i))
