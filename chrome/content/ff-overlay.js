@@ -338,7 +338,11 @@ function glomeChangeKnockingAd(dt)
  */
 function glomeWidgetShow()
 {
-  // @TODO: check from counter how many items there are and display content accordingly
+  // Check from counter how many items there are and display content accordingly
+  if (glome.glome_ad_stack.length == 0)
+  {
+    
+  }
   
   log.debug('Widget show');
   var state = glomeGetPanelState();
@@ -418,7 +422,7 @@ function glomeOpenCategoryView(cat_id)
   jQuery('#glome-panel').find('.category-title').attr('value', glome.glome_ad_categories[cat_id].name);
   
   // Get the count
-  var count = glome.glomeGetAdsForCategory(cat_id).length;
+  var count = glome.glome_ad_categories_count[cat_id];
   
   jQuery('#glome-overlay-category').attr('data-count', count);
   jQuery('#glome-overlay-category').attr('data-id', cat_id);
@@ -630,12 +634,12 @@ jQuery.fn.populate_category_list = function(id)
       // Closing the last one, hide panel
       if (!jQuery(this).parents('.list-item').siblings('.list-item').size())
       {
-        glomeHideStack();
+        //glomeHideStack();
       }
       
       var item = jQuery(this).parents('.list-item');
       var ad_id = Number(item.attr('data-id'));
-      glomeGotoAd(ad_id);
+      glomeDisplayAd(ad_id);
       item.remove();
     });
   

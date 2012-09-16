@@ -4,6 +4,7 @@ var request = null;
 var glome_is_online = true;
 var glome_ad_stack = new Array();
 var glome_ad_categories = {};
+var glome_ad_categories_count = {};
 var glome_id = null;
 var xhr = null;
 var xhr_ads = null;
@@ -186,7 +187,6 @@ function glomeInit()
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
-  glomeGetAdsForCategory(18);
   
   // Set timed updater
   window.setInterval
@@ -552,8 +552,17 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  q = 'SELECT * FROM ads WHERE status = 0';
+  q = 'SELECT * FROM ads WHERE status = 0 AND expired = 0 AND expires >= :datetime';
+  log.line();
+  log.error(q);
+  log.debug(q);
+  
   let statement = db.createStatement(q);
+  
+  var date = new Date();
+  log.error('-- datetime: ' + ISODateString(date));
+  log.line();
+  statement.params.datetime = ISODateString(date);
   
   statement.executeAsync
   (
@@ -565,6 +574,9 @@ function glomeUpdateTicker()
         glome_ad_stack = new Array();
         let date = new Date();
         let now = date.getTime();
+        
+        // Reset category count
+        glome_ad_categories_count = {}
         
         for (let row = results.getNextRow(); row; row = results.getNextRow())
         {
@@ -606,6 +618,18 @@ function glomeUpdateTicker()
           {
             let cat_id = item.adcategories[n];
             
+            if (!cat_id)
+            {
+              continue;
+            }
+            
+            if (typeof glome_ad_categories_count[cat_id] == 'undefined')
+            {
+              glome_ad_categories_count[cat_id] = 0;
+            }
+            
+            glome_ad_categories_count[cat_id]++;
+            
             for (k in glome_ad_categories)
             {
               if (cat_id == k)
@@ -613,11 +637,6 @@ function glomeUpdateTicker()
                 found = true;
                 break;
               }
-            }
-            
-            if (found)
-            {
-              break;
             }
           }
           
@@ -630,6 +649,11 @@ function glomeUpdateTicker()
           // Populate ad stack
           let id = item[id];
           glome_ad_stack.push(item);
+          
+          log.line();
+          log.error('glome_ad_categories_count');
+          log.error(glome_ad_categories_count);
+          log.line();
         }
       },
       handleCompletion: function(reason)
