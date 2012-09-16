@@ -96,6 +96,39 @@
   width: 220px;
 }
 
+#glome-controls-wrapper .active.category
+{
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  color: #444550;
+}
+
+#glome-controls-wrapper .active.category description
+{
+  white-space: normal;
+  font-size: 20px;
+  text-align: center;
+  width: 200px;
+}
+
+#glome-controls-wrapper .active.category .link
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-18x18.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding-left: 24px;
+  padding-top: 2px;
+  height: 18px;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+#glome-controls-wrapper .active.category .link:hover
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-blue-18x18.png');
+  color: #008afe;
+}
+
 #glome-controls-window .glome-profit
 {
   margin: 0 -10px 0 0;

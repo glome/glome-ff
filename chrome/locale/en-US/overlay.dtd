@@ -59,3 +59,5 @@
 <!ENTITY glome_will_not_spam_you_with_ads_you_dont_want "Glome will not spam you with ads you don't want.">
 <!ENTITY label.no_more_offers_for "No more offers for">
 <!ENTITY remember_that_you_can_always_change_your_mind "(Remember that you can always change your mind.)">
+<!ENTITY label.s_great_offers_in_category_c "-s great offers in category -c">
+<!ENTITY button.see_them        "See them">

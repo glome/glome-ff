@@ -552,16 +552,12 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  q = 'SELECT * FROM ads WHERE status = 0 AND expired = 0 AND expires >= :datetime';
-  log.line();
-  log.error(q);
+  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
   log.debug(q);
   
   let statement = db.createStatement(q);
   
   var date = new Date();
-  log.error('-- datetime: ' + ISODateString(date));
-  log.line();
   statement.params.datetime = ISODateString(date);
   
   statement.executeAsync
@@ -580,7 +576,7 @@ function glomeUpdateTicker()
         
         for (let row = results.getNextRow(); row; row = results.getNextRow())
         {
-          let item = {};
+          var item = {};
           
           for (i in ads_table)
           {
@@ -595,28 +591,14 @@ function glomeUpdateTicker()
             }
           }
           
-          // Skip if the item has expired
-          if (item.expired)
-          {
-            continue;
-          }
-          
           //dump('id: ' + item.id + ', expired: ' + item.expired + ', expires: ' + item.expires + '\n');
-          
-          let date = new Date(item.expires);
-          //dump('-- as timestamp: ' + date.getTime() + '\n');
-          
-          if (date.getTime() < now)
-          {
-            continue;
-          }
           
           var found = false;
           
           // Check if the item belongs to a category with subscription
           for (let n = 0; n < item.adcategories; n++)
           {
-            let cat_id = item.adcategories[n];
+            var cat_id = item.adcategories[n];
             
             if (!cat_id)
             {
@@ -646,14 +628,11 @@ function glomeUpdateTicker()
             continue;
           }
           
-          // Populate ad stack
-          let id = item[id];
-          glome_ad_stack.push(item);
-          
-          log.line();
-          log.error('glome_ad_categories_count');
-          log.error(glome_ad_categories_count);
-          log.line();
+          // Status check
+          if (item.status == 0)
+          {
+            glome_ad_stack.push(item);
+          }
         }
       },
       handleCompletion: function(reason)

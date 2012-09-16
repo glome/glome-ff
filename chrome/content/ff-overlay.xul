@@ -54,7 +54,11 @@
                 </box>
               </vbox>
             </vbox>
-            <vbox class="active">
+            <vbox class="active category" data-catid="">
+              <label value="&label.s_great_offers_in_category_c;" class="label" />
+              <label value="&button.see_them;" class="link" />
+            </vbox>
+            <vbox class="active single">
               <vbox class="glome-ad-description">
                 <description class="large" id="glome-ad-description-title"></description>
                 <label value="" id="glome-ad-description-value" />

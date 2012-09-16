@@ -289,11 +289,13 @@ function glomeChangeKnockingAd(dt)
   
   if (!glome.pages)
   {
-    jQuery('#glome-controls-wrapper').find('.active').attr('hidden', true);
+    jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden', true);
+    jQuery('#glome-controls-wrapper').find('.active.category').removeAttr('hidden');
   }
   else
   {
-    jQuery('#glome-controls-wrapper').find('.active').removeAttr('hidden');
+    jQuery('#glome-controls-wrapper').find('.active.single').removeAttr('hidden');
+    jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden', true);
   }
   
   if (!glome.page)
@@ -341,7 +343,89 @@ function glomeWidgetShow()
   // Check from counter how many items there are and display content accordingly
   if (glome.glome_ad_stack.length == 0)
   {
+    jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden');
+    var max = 0;
+    var selected = null;
+    var category = null;
     
+    for (i in glome.glome_ad_categories_count)
+    {
+      var count = glome.glome_ad_categories_count[i];
+      log.error('-- check category id: ' + i + ' which has ' + count + ' items (' + typeof count + ')');
+      if (max < count)
+      {
+        if (typeof glome.glome_ad_categories[i] == 'undefined')
+        {
+          continue;
+        }
+        
+        max = count;
+        selected = i;
+        category = glome.glome_ad_categories[i];
+      }
+    }
+    
+    if (category)
+    {
+      jQuery('#glome-controls-wrapper').find('.active.category').removeAttr('hidden');
+      jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
+      
+      var label = jQuery('#glome-controls-wrapper').find('.active.category').find('.label');
+      var action = jQuery('#glome-controls-wrapper').find('.active.category').find('.link');
+      
+      label.attr('hidden', 'true');
+      label.next('description').remove();
+      
+      if (!label.attr('data-text'))
+      {
+        label.attr('data-text', label.attr('value'));
+      }
+      
+      if (!action.attr('data-text'))
+      {
+        action.attr('data-text', action.attr('value'));
+      }
+      
+      // Reformat with variable
+      var text = label.attr('data-text');
+      text = text.replace(/\-s/, max);
+      text = text.replace(/\-c/, category.name);
+      
+      jQuery('<description />')
+        .text(text)
+        .insertAfter(label);
+      
+      action
+        .unbind('click')
+        .bind('click', function()
+        {
+          var cat_id = Number(jQuery(this).parents('[data-catid]').attr('data-catid'));
+          log.error('Category id: ' + cat_id);
+          
+          if (!cat_id)
+          {
+            return;
+          }
+          
+          document.getElementById('glome-controls-window').hidePopup();
+          var stack = jQuery('#glome-panel');
+          stack.attr('view', 'category');
+          
+          stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
+          window.gBrowser.selectedTab.setAttribute('glomepanel', 'visible');
+          
+          // Populate with ads of the category
+          jQuery('#glome-overlay-categories-list')
+            .populate_category_list(cat_id);
+        });
+      
+      jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
+    }
+  }
+  else
+  {
+    jQuery('#glome-controls-wrapper').find('.active.single').removeAttr('hidden');
+    jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden');
   }
   
   log.debug('Widget show');
@@ -407,7 +491,7 @@ function glomeOpenCategoryView(cat_id)
       window.gBrowser.selectedTab.removeAttribute('glomepanel');
     });
   
-  // @TODO: calculate the length according to the category. Requires changes in Glome data API
+  // Calculate the length according to the category
   var label = stack.find('.show-all-s');
   let text = label.attr('data-original');
   
@@ -554,6 +638,8 @@ function glomeDisplayAd(ad_id)
 
 function glomeGotoAd(ad_id)
 {
+  glomeWidgetHide();
+  
   // Create a new browser tab
   for (let i = 0; i < glome.glome_ad_stack.length; i++)
   {
