@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://glome/skin/extensions.css" type="text/css"?>
+<!DOCTYPE overlay [
+  <!ENTITY % overlayDTD SYSTEM "chrome://glome/locale/overlay.dtd">
+  %overlayDTD;
+  <!ENTITY % settingsDTD SYSTEM "chrome://glome/locale/settings.dtd">
+  %settingsDTD;
+]>
+
+<overlay id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery-xul.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/tools.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/overlay.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/notification.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/aboutGlome.js"/>
+  
+  <!-- glome view -->
+  <template id="glome-category-template" hidden="true">
+    <![CDATA[
+      <vbox class="item" align="end" data-id="::id" data-subscribed="::subscribed">
+        <hbox class="icons" pack="end">
+          <button class="toggle"></button>
+        </hbox>
+        <box class="label">
+          <description>::name</description>
+        </box>
+      </vbox>
+    ]]>
+  </template>
+  <vbox id="glome-dashboard">
+    <box id="glome-dashboard-switch" pack="center" align="center">
+      <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+        <label control="glome_power_switch"></label>
+      </checkbox>
+    </box>
+    <tabbox id="glome-dashboard-deck" selectedPanel="glome-dashboard-container" flex="1">
+      <tabs>
+        <tab><label value="My Rules" /></tab>
+        <tab><label value="My Web" /></tab>
+        <tab><label value="My Wallet" /></tab>
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
+          <vbox id="glome-selector-disabled" class="glome-selector disabled" width="50%">
+            <box class="overflow-hidden">
+              <label value="&title.block;" class="selector-title" />
+            </box>
+            <box class="box-container">
+            </box>
+          </vbox>
+          <vbox id="glome-selector-enabled" class="glome-selector enabled" width="50%">
+            <box class="overflow-hidden" pack="end">
+              <label value="&title.allow;" class="selector-title" />
+            </box>
+            <box class="box-container">
+            </box>
+          </vbox>
+        </tabpanel>
+        <tabpanel id="glome-dashboard-myweb">
+          <description>My web content comes here</description>
+        </tabpanel>
+        <tabpanel id="glome-dashboard-myrewards">
+          <description>My rewards content comes here</description>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </vbox>
+</overlay>

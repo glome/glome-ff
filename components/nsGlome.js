@@ -14,6 +14,13 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const loader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
   .getService(Ci.mozIJSSubScriptLoader);
+  
+function NSGetModule(compMgr, fileSpec)
+  XPCOMUtils.generateModule([Aboutglome]);
+
+
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 
 // const locales = [
 //   "{{LOCALE}}",

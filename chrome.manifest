@@ -15,3 +15,6 @@ style about:addons chrome://glome/skin/extensions.css
 # XPCOM
 component {7B55BE07-94CB-4B4C-8118-D65069F5E509} components/nsGlome.js
 contract @glome.me/glome-ext;1 {7B55BE07-94CB-4B4C-8118-D65069F5E509}
+
+component {f9d69ff0-ffed-11e1-a21f-0800200c9a66} components/aboutGlome.js
+contract @mozilla.org/network/protocol/about;1?what=glome {f9d69ff0-ffed-11e1-a21f-0800200c9a66}
