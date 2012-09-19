@@ -132,6 +132,12 @@
   font-size: 12px;
 }
 
+#glome-ad-description-value
+{
+  font-weight: normal !important;
+  text-transform: none !important;
+}
+
 #glome-controls-window .glome-ad-summary
 {
   width: 50px;

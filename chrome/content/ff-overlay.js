@@ -264,6 +264,8 @@ var glomeOverlay =
       jQuery('#glome-ad-pager').attr('data-ad', selected.id);
       jQuery('#glome-ad-pager').attr('data-category', JSON.stringify(selected.adcategories));
       document.getElementById('glome-ad-description-title').textContent = selected.title;
+      
+      //jQuery('#glome-ad-description-value').get(0).textContent = 'Up to ' + worth + ' e per order';
     }
     else
     {
@@ -277,13 +279,11 @@ var glomeOverlay =
       jQuery('#glome-ad-pager').attr('data-ad', null);
       jQuery('#glome-ad-pager').attr('data-category', selected.id);
       document.getElementById('glome-ad-description-title').textContent = selected.name;
-      jQuery('#glome-ad-description-value').attr('value', text);
+      jQuery('#glome-ad-description-value').get(0).textContent = text;
     }
     
     // Randomize value in this point
     //var worth = Math.round(Math.random() * 10000) / 100;
-    
-    //jQuery('#glome-ad-description-value').attr('value', 'Up to ' + worth + ' e per order');
   },
   
   /**
@@ -295,89 +295,6 @@ var glomeOverlay =
     if (glome.glome_ad_stack.length == 0)
     {
       glomeOverlay.knockType = 'category';
-/*
-      jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden');
-      var max = 0;
-      var selected = null;
-      var category = null;
-      
-      for (i in glome.glome_ad_categories_count)
-      {
-        var count = glome.glome_ad_categories_count[i];
-        if (max < count)
-        {
-          if (typeof glome.glome_ad_categories[i] == 'undefined')
-          {
-            continue;
-          }
-          
-          max = count;
-          selected = i;
-          category = glome.glome_ad_categories[i];
-        }
-      }
-      
-      if (category)
-      {
-        jQuery('#glome-controls-wrapper').find('.active.single').attr('hidden', 'true');
-        jQuery('#glome-controls-wrapper').find('.active.category').removeAttr('hidden');
-        jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
-        
-        var action = jQuery('#glome-controls-wrapper').find('.active.category').find('.link');
-        
-        label.attr('hidden', 'true');
-        label.next('description').remove();
-        
-        if (!label.attr('data-text'))
-        {
-          label.attr('data-text', label.attr('value'));
-        }
-        
-        if (!action.attr('data-text'))
-        {
-          action.attr('data-text', action.attr('value'));
-        }
-        
-        // Reformat with variable
-        var text = jQuery('#glome-controls-wrapper').find('.active').find('.label.category').attr('value');
-        text = text.replace(/\-s/, max);
-        text = text.replace(/\-c/, category.name);
-        
-        jQuery('<description />')
-          .text(text)
-          .insertAfter(label);
-        
-        action
-          .unbind('click')
-          .bind('click', function()
-          {
-            var cat_id = Number(jQuery(this).parents('[data-catid]').attr('data-catid'));
-            glomeOverlay.log.error('Category id: ' + cat_id);
-            
-            if (!cat_id)
-            {
-              return;
-            }
-            
-            document.getElementById('glome-controls-window').hidePopup();
-            var stack = jQuery('#glome-panel');
-            stack.attr('view', 'category');
-            
-            stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
-            window.gBrowser.selectedTab.setAttribute('glomepanel', 'visible');
-            
-            // Populate with ads of the category
-            glomeOverlay.ListCategoryAds(cat_id);
-          });
-        
-        jQuery('#glome-controls-wrapper').find('.active.category').attr('data-catid', selected);
-        return;
-      }
-      else
-      {
-        jQuery('#glome-controls-wrapper').find('.active.category').attr('hidden', 'true');
-      }
-*/
     }
     else
     {
@@ -799,13 +716,13 @@ var glomeOverlay =
    */
   ListCategoryAds: function(id)
   {
-    glomeOverlay.log.error(glomeOverlay);
-    glomeOverlay.log.error('selected category: ' + id);
+    glomeOverlay.log.debug(glomeOverlay);
+    glomeOverlay.log.debug('selected category: ' + id);
     
     if (!id)
     {
       id = glomeOverlay.category;
-      glomeOverlay.log.error('-- now: ' + id);
+      glomeOverlay.log.debug('-- now: ' + id);
     }
     
     // Set the view mode to single item
