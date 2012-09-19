@@ -583,7 +583,13 @@ function glomeUpdateTicker()
             switch (i)
             {
               case 'adcategories':
-                item[i] = JSON.parse(row.getResultByName(i));
+                categories = JSON.parse(row.getResultByName(i));
+                item.adcategories = new Array();
+                
+                for (i in categories)
+                {
+                  item.adcategories.push(categories[i]);
+                }
                 break;
               
               default:
@@ -596,7 +602,7 @@ function glomeUpdateTicker()
           var found = false;
           
           // Check if the item belongs to a category with subscription
-          for (let n = 0; n < item.adcategories; n++)
+          for (n in item.adcategories)
           {
             var cat_id = item.adcategories[n];
             
@@ -1326,6 +1332,9 @@ function glomeGetCategories()
   var statement = db.createStatement(q);
   statement.params.subscribed = 1;
   
+  // Reset category data
+  glome_ad_categories = {}
+  
   statement.executeAsync
   (
     {
@@ -1342,7 +1351,7 @@ function glomeGetCategories()
         
         for (let row = results.getNextRow(); row; row = results.getNextRow())
         {
-          let id = row.getResultByName('id');
+          var id = row.getResultByName('id');
           stack[id] = true;
           
           glome_ad_categories[id] =
@@ -1350,17 +1359,6 @@ function glomeGetCategories()
             id: row.getResultByName('id'),
             name: row.getResultByName('name'),
           }
-        }
-        
-        // Delete the unsubscribed
-        for (k in stack)
-        {
-          if (stack[k])
-          {
-            continue;
-          }
-          
-          delete glome_ad_categories[k];
         }
       },
       handleCompletion: function()
