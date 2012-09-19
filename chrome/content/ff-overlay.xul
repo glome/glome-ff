@@ -19,16 +19,16 @@
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
     <stack id="glome-controls" height="0" insertafter="browser">
-      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomeWidgetShow();">
+      <panel id="glome-controls-window" level="parent" align="right" hidden="false" position="before_end" pack="end" onpopupshowing="glomeOverlay.WidgetShow();">
         <vbox flex="0" pack="center">
-          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomeWidgetHide();" />
+          <image src="chrome://glome/skin/icons/icon-close-10x10.png" width="10" height="10" align="right" class="close-panel" onclick="glomeOverlay.WidgetHide();" />
         </vbox>
         <hbox>
           <vbox id="glome-controls-wrapper">
             <vbox id="glome-switch-domain" domain="null">
               <vbox align="center">
                 <label value="&label.turn_glome_off;" class="label" />
-                <hbox pack="center" align="center" class="action" onclick="glomeChangeDomainState();">
+                <hbox pack="center" align="center" class="action" onclick="glomeOverlay.ChangeDomainState();">
                   <label class="on" />
                   <label class="off" />
                   <label class="button" value="&label.just_for_this_site;" />
@@ -54,31 +54,29 @@
                 </box>
               </vbox>
             </vbox>
-            <vbox class="active category" data-catid="">
-              <label value="&label.s_great_offers_in_category_c;" class="label" />
-              <label value="&button.see_them;" class="link" />
-            </vbox>
-            <vbox class="active single">
+            <vbox id="glome-ad-display" class="active">
               <vbox class="glome-ad-description">
+                <label value="&label.s_great_offers_in_category_c;" class="category label" hidden="true" />
                 <description class="large" id="glome-ad-description-title"></description>
                 <label value="" id="glome-ad-description-value" />
               </vbox>
               <box class="buttons" pack="center">
-                <button onclick="glomeDisplayAd();">&label.see_ad;</button>
-                <button onclick="glomeOpenCategoryView();">&label.not_now;</button>
+                <button onclick="glomeOverlay.DisplayAd();" class="ad">&label.see_ad;</button>
+                <button onclick="glomeOverlay.OpenCategoryView();" class="ad">&label.not_now;</button>
+                <button onclick="glomeOverlay.ListCategoryAds();" class="category">&label.see_them;</button>
               </box>
               <hbox class="navigation">
                 <box flex="1" class="navigators" pack="center" align="center" id="glome-ad-pager">
-                  <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" onclick="glomeChangeKnockingAd(-1);" />
+                  <image src="chrome://glome/skin/navigation/ball-arrow-left-18x18.png" alt="‹" onclick="glomeOverlay.ChangeKnockingItem(-1);" />
                   <label value="" class="pager" id="glome-ad-pager-page" />
-                  <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeChangeKnockingAd(1);" />
+                  <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeOverlay.ChangeKnockingItem(1);" />
                 </box>
               </hbox>
             </vbox>
             <hbox class="actions">
               <box flex="1">
                 <box>
-                  <checkbox class="glome-switch small" id="glome_power_switch" oncommand="glomeChangeState();">
+                  <checkbox class="glome-switch small" id="glome_power_switch" oncommand="glomeOverlay.ChangeState();">
                     <!-- note to self: attribute "control" is vital for a checkbox to work -->
                     <label control="glome_power_switch"></label>
                   </checkbox>
@@ -86,7 +84,7 @@
                 <spacer flex="1" />
               </box>
               <box pack="end" flex="0">
-                <button onclick="glomeHideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
                   <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
                 </button>
               </box>
@@ -134,7 +132,7 @@
               <label value="---" class="category-title" />
               <spacer flex="1" />
               <box>
-                <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="glomeHideStack();" />
+                <image src="chrome://glome/skin/icons/icon-close-10x10.png" id="ad-close" width="10" height="10" class="close-panel" onclick="glomeOverlay.HideStack();" />
               </box>
             </hbox>
             <!-- end common headers -->
@@ -193,13 +191,13 @@
               </vbox>
               <hbox pack="center" align="center" class="footer">
                 <box pack="center" align="center" class="glome-switch-wrapper">
-                  <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+                  <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();" checked="true">
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
                 <separator flex="1" />
                 <box pack="end" flex="0">
-                  <button onclick="glomeHideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
                     <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
                   </button>
                 </box>
@@ -230,13 +228,13 @@
               </vbox>
               <hbox class="footer">
                 <box pack="center" align="center" class="glome-switch-wrapper">
-                  <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
+                  <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();" checked="true">
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
                 <separator flex="1" />
                 <box pack="end" flex="0">
-                  <button onclick="glomeHideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
                     <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
                   </button>
                 </box>
@@ -279,7 +277,7 @@
   <toolbarpalette id="BrowserToolbarPalette">
     <toolbarbutton id="glome-toolbarbutton" type="menu-button" insertbefore="print-button"
         class="chromeclass-toolbar-additional"
-        oncontextmenu="glomeCheckToolbarContext(event)"
+        oncontextmenu="glomeOverlay.CheckToolbarContext(event)"
         disabled="true" label="&toolbarbutton.label;"
         tooltip="glome-tooltip" context="glome-status-popup">
       <menupopup id="glome-toolbar-popup"/>

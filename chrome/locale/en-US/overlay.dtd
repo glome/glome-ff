@@ -31,6 +31,7 @@
 
 <!ENTITY view.blockableItems.label  "Adblock Plus: Blockable Items">
 
+<!ENTITY label.see_them         "See them">
 <!ENTITY label.see_all          "See all">
 <!ENTITY label.show_all         "Show all">
 <!ENTITY label.show_all_s_offers  "Show all s offers">
@@ -60,4 +61,3 @@
 <!ENTITY label.no_more_offers_for "No more offers for">
 <!ENTITY remember_that_you_can_always_change_your_mind "(Remember that you can always change your mind.)">
 <!ENTITY label.s_great_offers_in_category_c "-s great offers in category -c">
-<!ENTITY button.see_them        "See them">
