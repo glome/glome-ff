@@ -16,5 +16,8 @@ style about:addons chrome://glome/skin/extensions.css
 component {7B55BE07-94CB-4B4C-8118-D65069F5E509} components/nsGlome.js
 contract @glome.me/glome-ext;1 {7B55BE07-94CB-4B4C-8118-D65069F5E509}
 
+component {5cc26918-9daa-4124-a742-29a1dba85fbd} components/aboutMe.js
+contract @mozilla.org/network/protocol/about;1?what=me {5cc26918-9daa-4124-a742-29a1dba85fbd}
+
 component {f9d69ff0-ffed-11e1-a21f-0800200c9a66} components/aboutGlome.js
 contract @mozilla.org/network/protocol/about;1?what=glome {f9d69ff0-ffed-11e1-a21f-0800200c9a66}

@@ -320,6 +320,33 @@ var glomeOverlay =
   },
   
   /**
+   * Shows the overlayed panel for ads, categories and such
+   */
+  PanelShow: function(mode)
+  {
+    document.getElementById('glome-controls-window').hidePopup();
+    
+    var stack = jQuery('#glome-panel');
+    stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
+    
+    if (mode)
+    {
+      stack.attr('view', mode);
+    }
+    window.gBrowser.selectedTab.setAttribute('glomepanel', jQuery('#glome-panel').attr('view'));
+    
+    glomeOverlay.Resize();
+  },
+  
+  /**
+   * Hides the overlayed panel for ads, categories and such
+   */
+  PanelHide: function()
+  {
+    document.getElementById('glome-panel').hidePopup();
+  },
+  
+  /**
    * Hide the popup
    */
   WidgetHide: function()
@@ -327,6 +354,11 @@ var glomeOverlay =
     document.getElementById('glome-controls-window').hidePopup();
   },
   
+  /**
+   * Open category view to switch category on/off
+   * 
+   * @param int cat_id    Category ID
+   */
   OpenCategoryView: function(cat_id)
   {
     document.getElementById('glome-controls-window').hidePopup();
@@ -351,11 +383,7 @@ var glomeOverlay =
       return;
     }
     
-    var stack = jQuery('#glome-panel');
-    stack.attr('view', 'category');
-    
-    stack.get(0).openPopup(document.getElementById('browser'), null, 0, 0);
-    window.gBrowser.selectedTab.setAttribute('glomepanel', 'visible');
+    glomeOverlay.PanelShow('category');
     
     jQuery('#glome-overlay-category')
       .find('button.no')
@@ -412,6 +440,11 @@ var glomeOverlay =
       });
   },
   
+  /**
+   * Display ad
+   * 
+   * @param int ad_id    Ad id
+   */
   DisplayAd: function(ad_id)
   {
     if (!ad_id)
@@ -509,13 +542,17 @@ var glomeOverlay =
         return false;
       });
     
-    document.getElementById('glome-panel').openPopup(document.getElementById('browser'), null, 0, 0);
-    document.getElementById('glome-controls-window').hidePopup();
+    glomeOverlay.PanelShow();
       
     // Set ad as displayed
     //glome.glomeSetAdStatus(glomeOverlay.ad_id, glome.GLOME_AD_STATUS_VIEWED);
   },
   
+  /**
+   * Go to the link provided by ad
+   * 
+   * @param int ad_id    Ad id
+   */
   GotoAd: function(ad_id)
   {
     glomeOverlay.WidgetHide();
@@ -539,28 +576,18 @@ var glomeOverlay =
     }
   },
   
-  /*
-  <box id="glome-overlay-categories-list-template" class="list-item template">
-    <box class="thumbnail">
-      <description></description>
-    </box>
-    <vbox flex="1">
-      <label class="h2" value="" />
-      <label value="Up to 13 per order." />
-    </vbox>
-    <vbox class="buttons">
-      <button>See ad</button>
-      <button>Not now</button>
-    </vbox>
-  </box>
-  */
-  
+  /**
+   * Hide Glome mini stack
+   */
   HideStack: function()
   {
     window.gBrowser.selectedTab.removeAttribute('glomepanel');
-    document.getElementById('glome-panel').hidePopup();
+    glomeOverlay.PanelHide();
   },
   
+  /**
+   * Change advertisement state
+   */
   AdStateChange: function()
   {
     // Display ads if Glome is off or disabled for this domain
@@ -583,6 +610,9 @@ var glomeOverlay =
     }
   },
   
+  /**
+   * Reveal content ads
+   */
   RevealAds: function()
   {
     return;
@@ -593,6 +623,9 @@ var glomeOverlay =
       .removeAttr('data-glomeblock');
   },
   
+  /**
+   * Hide content ads
+   */
   HideAds: function()
   {
     return;
@@ -830,20 +863,6 @@ var glomeOverlay =
   
 }
 
-/*
-Glome.onFirefoxLoad = function(event) {
-  document.getElementById("contentAreaContextMenu")
-          .addEventListener("popupshowing", function (e){ Glome.showFirefoxContextMenu(e); }, false);
-};
-
-Glome.showFirefoxContextMenu = function(event) {
-  // show or hide the menuitem based on what the context menu is on
-  document.getElementById("context-glome").hidden = false;//gContextMenu.onImage;
-};
-
-window.addEventListener("load", function () { Glome.onFirefoxLoad(); }, false);
-*/
-
 /* !Event listeners */
 
 /* !Window DOMContentLoaded event */
@@ -878,6 +897,7 @@ window.addEventListener('DOMTitleChanged', function(e)
 window.addEventListener('load', function(e)
 {
   jQuery('#glome-controls').insertAfter(jQuery('#browser'));
+  jQuery('#glome-panel').insertBefore(jQuery('#tab-view-deck'));
   
   if (typeof glomeOverlay.log == 'undefined')
   {
@@ -973,6 +993,5 @@ window.addEventListener('TabSelect', function(e)
 
 }, false);
 
-/* !Window resize */
+/* !Window resize event */
 window.addEventListener('resize', glomeOverlay.Resize, false);
-
