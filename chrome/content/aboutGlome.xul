@@ -7,7 +7,7 @@
   %settingsDTD;
 ]>
 
-<overlay id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<window id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery-xul.js" />
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/tools.js" />
@@ -58,12 +58,15 @@
           </vbox>
         </tabpanel>
         <tabpanel id="glome-dashboard-myweb">
-          <description>My web content comes here</description>
+          <iframe src="about:me" flex="1" />
         </tabpanel>
+<!--
+          <description>My web content comes here</description>
+-->
         <tabpanel id="glome-dashboard-myrewards">
           <description>My rewards content comes here</description>
         </tabpanel>
       </tabpanels>
     </tabbox>
   </vbox>
-</overlay>
+</window>
