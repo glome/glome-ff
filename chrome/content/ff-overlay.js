@@ -451,8 +451,11 @@ var glomeOverlay =
         );
   */
         
-        container.find('label.header').attr('value', ad.title);
-        container.find('.description description').get(0).textContent = ad.description;
+        glomeOverlay.log.line();
+        glomeOverlay.log.error(ad);
+        glomeOverlay.log.line();
+        container.find('.description .h1').get(0).textContent = ad.title;
+        container.find('.description description.description').get(0).textContent = ad.description;
         
         break;
     }

@@ -142,8 +142,8 @@
               <box id="glome-overlay-single-image"></box>
               <hbox class="inner" flex="1">
                 <vbox class="description">
-                  <label value="Ad label comes here" class="header h1 content" />
-                  <description class="content">Ad description text comes here</description>
+                  <description class="header h1 content">Ad title comes here</description>
+                  <description class="content description">Ad description text comes here</description>
                 </vbox>
                 <vbox flex="1" />
                 <vbox class="actions" pack="center" align="end">
@@ -181,10 +181,10 @@
                   </button>
                   <button orient="vertical" class="no">
                     <label value="&label.not_now;" class="h1" />
-                    <box pack="center">
+                    <vbox align="center">
                       <label value="&label.no_more_offers_for;" />
                       <label value="---" class="no-margin-left category-title" />
-                    </box>
+                    </vbox>
                   </button>
                 </hbox>
                 <label value="&remember_that_you_can_always_change_your_mind;" class="with-space" />
@@ -215,7 +215,7 @@
                         <description>::title</description>
                       </box>
                       <vbox flex="1">
-                        <label class="h2" value="::title" />
+                        <description class="h2">::title</description>
                         <label value="Up to 13 per order." />
                       </vbox>
                       <vbox class="buttons">

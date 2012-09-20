@@ -469,7 +469,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.40);
   padding: 10px;
   width: 200px;
-  height: 120px;
+  height: 140px;
   -moz-appearance: none;
   -moz-box-pack: center;
   -moz-box-align: center;
@@ -578,6 +578,7 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 #glome-overlay-single .inner .content.h1
 {
   font-size: 200%;
+  min-height: 30px;
   text-transform: uppercase;
 }
 
@@ -749,14 +750,14 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   clear: both;
 }
 
-label.h1
+.h1
 {
   margin-bottom: 1em;
   font-size: 200%;
   font-weight: bold;
 }
 
-label.h2
+.h2
 {
   font-size: 20px;
   font-weight: bold;
