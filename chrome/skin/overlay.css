@@ -245,7 +245,8 @@
   -moz-box-orient: horizontal;
 }
 
-#glome-overlay-category-ads .buttons
+#glome-overlay-category-ads .buttons,
+#glome-overlay-categories .buttons
 {
   margin: 0 0 0 5px;
   -moz-box-orient: vertical;
@@ -254,7 +255,8 @@
 }
 
 #glome-controls-window .buttons button,
-#glome-overlay-category-ads .buttons button
+#glome-overlay-category-ads .buttons button,
+#glome-overlay-categories .buttons button
 {
   background: -moz-linear-gradient(#fbf8f8, #dedbdb);
   margin: 0 1px;
@@ -271,7 +273,8 @@
 }
 
 #glome-controls-window .buttons button:hover,
-#glome-overlay-category-ads .buttons button:hover
+#glome-overlay-category-ads .buttons button:hover,
+#glome-overlay-categories .buttons button:hover
 {
   background-image: -moz-linear-gradient(#0094fe, #007df7);
   box-shadow: 1px 0 1px rgba(0, 0, 0, 0.5);
@@ -385,8 +388,10 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #glome-panel
 {
-  -moz-appearance: none;
   background-color: rgba(0, 0, 0, 0.8);
+  -moz-appearance: none;
+  -moz-box-align: center;
+  -moz-box-pack: center;
 }
 
 #glome-panel .glome-overlay-content
@@ -410,15 +415,24 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   display: block;  
 }
 
+#glome-panel[view=categories] #glome-overlay-categories
+{
+  display: block;  
+}
+
 #glome-panel[view=list] #glome-overlay-category-ads
 {
   display: block;  
 }
 
-#glome-overlay
+#glome-panel[view=list] #glome-overlay-category-ads
 {
-  -moz-box-align: center;
-  -moz-box-pack: center;
+  display: block;  
+}
+
+#glome-panel .h2
+{
+  text-transform: capitalize;
 }
 
 #glome-overlay-display
@@ -433,9 +447,33 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   -moz-box-orient: vertical;
 }
 
+#glome-overlay-display .header
+{
+  height: 18px;
+}
+
 #glome-overlay-display .header > *
 {
   margin-top: -5px;
+}
+
+#glome-overlay-display .header .see-all
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-left-18x18.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-color: none;
+  padding: 0 1em 0 24px;
+  -moz-appearance: none;
+  border-style: none solid none none;
+  border-width: 1px;
+  border-color: black;
+  display: none;
+}
+
+#glome-panel[view=list] #glome-overlay-display .header .see-all
+{
+  display: block;
 }
 
 #glome-overlay-single-image
@@ -534,7 +572,8 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   width: 200px;
 }
 
-#glome-overlay-categories-ads-list
+#glome-overlay-category-ads-list,
+#glome-overlay-categories-list
 {
   overflow-y: auto;
 }
@@ -550,7 +589,8 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   box-shadow: 3px -3px rgba(0, 0, 0, 0.8);
 }
 
-#glome-overlay-single .inner > .actions .action
+#glome-overlay-single .actions .action,
+##glome-overlay-categories .inner > .actions .action
 {
   background-image: url('chrome://glome/skin/navigation/ball-arrow-right-36x36.png');
   background-repeat: no-repeat;
@@ -565,7 +605,8 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   opacity: 0.2;
 }
 
-#glome-overlay-single .inner > .actions .action:hover
+#glome-overlay-single .actions .action:hover,
+##glome-overlay-categories .inner > .actions .action:hover
 {
   background-image: url('chrome://glome/skin/navigation/ball-arrow-right-blue-36x36.png');
   background-position: right top;
@@ -575,7 +616,8 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   color: #008bff;
 }
 
-#glome-overlay-single .inner .content.h1
+#glome-overlay-single .inner .content.h1,
+##glome-overlay-categories .inner .content.h1
 {
   font-size: 200%;
   min-height: 30px;
@@ -605,7 +647,8 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   font-weight: bold;
 }
 
-#glome-overlay-category-ads .list-item
+#glome-overlay-category-ads .list-item,
+#glome-overlay-categories .list-item
 {
   -moz-box-align: center;
   -moz-box-orient: horizontal;
@@ -613,9 +656,16 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   margin: 0 10px;
 }
 
-#glome-overlay-category-ads .list-item + .list-item
+#glome-overlay-category-ads .list-item + .list-item,
+#glome-overlay-categories .list-item + .list-item
 {
   border-top: solid 1px #b8b8b8;
+}
+
+#glome-overlay-categories .list-item .count
+{
+  text-align: right;
+  padding-right: 1em;
 }
 
 #glome-overlay-category-ads .list-item .thumbnail
@@ -977,4 +1027,9 @@ checkbox.glome-switch[checked] label:before
 .template
 {
   display: none !important;
+}
+
+.hoverable:hover
+{
+  color: #008afd;
 }

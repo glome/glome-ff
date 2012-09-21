@@ -72,6 +72,9 @@
                   <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeOverlay.ChangeKnockingItem(1);" />
                 </box>
               </hbox>
+              <box pack="center" align="center" class="show-all">
+                <label value="&button.all_brands_and_deals;" onclick="glomeOverlay.ShowAllCategories();" />
+              </box>
             </vbox>
             <hbox class="actions">
               <box flex="1">
@@ -122,12 +125,13 @@
       </popup>
     </popupset>
     
-    <panel id="glome-panel" level="parent" noautohide="true" insertbefore="appcontent" width="100%" height="100%" pack="center" align="center" view="category">
-      <stack id="glome-overlay-wrapper">
+    <panel id="glome-panel" level="parent" noautohide="true" view="category" align="center" pack="center">
+      <stack id="glome-overlay-wrapper" align="center" pack="center">
         <box id="glome-overlay">
           <box id="glome-overlay-display">
             <!-- common headers -->
             <hbox align="center" class="header">
+              <label value="&button.all_brands_and_deals;" onclick="glomeOverlay.ShowAllCategories();" class="see-all hoverable" />
               <label value="Category:" />
               <label value="---" class="category-title" />
               <spacer flex="1" />
@@ -142,8 +146,8 @@
               <box id="glome-overlay-single-image"></box>
               <hbox class="inner" flex="1">
                 <vbox class="description">
-                  <description class="header h1 content">Ad title comes here</description>
-                  <description class="content description">Ad description text comes here</description>
+                  <description class="header h1 content"></description>
+                  <description class="content description"></description>
                 </vbox>
                 <vbox flex="1" />
                 <vbox class="actions" pack="center" align="end">
@@ -165,7 +169,7 @@
             
             <!-- display an ad category -->
             <vbox id="glome-overlay-category" class="glome-overlay-content">
-              <vbox id="glome-overlay-categories-list" class="inner" pack="center" align="center">
+              <vbox id="glome-overlay-category-list" class="inner" pack="center" align="center">
                 <box pack="center" align="center" class="header-line">
                   <label value="&label.interested_in;" class="h1" />
                   <label data-type="category-title" value="---" class="h1 no-margins category-title" />
@@ -207,7 +211,7 @@
             
             <!-- display all ads in a category -->
             <vbox id="glome-overlay-category-ads" class="glome-overlay-content">
-              <vbox id="glome-overlay-categories-ads-list" class="inner">
+              <vbox id="glome-overlay-category-ads-list" class="inner">
                 <template>
                   <![CDATA[
                     <box class="list-item" data-id="::id">
@@ -215,7 +219,7 @@
                         <description>::title</description>
                       </box>
                       <vbox flex="1">
-                        <description class="h2">::title</description>
+                        <description class="h2 hoverable">::title</description>
                         <label value="Up to 13 per order." />
                       </vbox>
                       <vbox class="buttons">
@@ -241,6 +245,41 @@
               </hbox>
             </vbox>
             <!-- end displaying all ads in a category -->
+            
+            <!-- display all categories -->
+            <vbox id="glome-overlay-categories" class="glome-overlay-content">
+              <vbox id="glome-overlay-categories-list" class="inner">
+                <template>
+                  <![CDATA[
+                    <box class="list-item" data-id="::id">
+                      <vbox flex="10">
+                        <description class="h2 hoverable">::name</description>
+                      </vbox>
+                      <vbox class="count" flex="1">
+                        <description>::count offerings</description>
+                      </vbox>
+                      <vbox class="buttons">
+                        <button class="action yes">See them</button>
+                      </vbox>
+                    </box>
+                  ]]>
+                </template>
+              </vbox>
+              <hbox class="footer">
+                <box pack="center" align="center" class="glome-switch-wrapper">
+                  <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();" checked="true">
+                    <label control="glome_power_switch"></label>
+                  </checkbox>
+                </box>
+                <separator flex="1" />
+                <box pack="end" flex="0">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                  </button>
+                </box>
+              </hbox>
+            </vbox>
+            <!-- end displaying all categories -->
           </box>
         </box>
       </stack>

@@ -1326,7 +1326,7 @@ function glomeGetAdsForCategory(id)
  */
 function glomeGetCategories()
 {
-  let q = 'SELECT id, name FROM categories WHERE subscribed = :subscribed';
+  let q = 'SELECT * FROM categories WHERE subscribed = :subscribed';
   log.debug(q);
   
   var statement = db.createStatement(q);
@@ -1342,6 +1342,8 @@ function glomeGetCategories()
       {
         log.debug('-- got to the results of query in glomeGetCategories');
         
+        var cat = glomeGetTable('categories');
+        
         // Old stack
         var stack = {}
         for (k in glome_ad_categories)
@@ -1354,10 +1356,11 @@ function glomeGetCategories()
           var id = row.getResultByName('id');
           stack[id] = true;
           
-          glome_ad_categories[id] =
+          glome_ad_categories[id] = {};
+          
+          for (i in cat)
           {
-            id: row.getResultByName('id'),
-            name: row.getResultByName('name'),
+            glome_ad_categories[id][i] = row.getResultByName(i);
           }
         }
       },
