@@ -62,7 +62,7 @@
               </vbox>
               <box class="buttons" pack="center">
                 <button onclick="glomeOverlay.DisplayAd();" class="ad">&label.see_ad;</button>
-                <button onclick="glomeOverlay.OpenCategoryView();" class="ad">&label.not_now;</button>
+                <button onclick="glomeOverlay.AdNotNow();" class="ad">&label.not_now;</button>
                 <button onclick="glomeOverlay.ListCategoryAds();" class="category">&label.see_them;</button>
               </box>
               <hbox class="navigation">

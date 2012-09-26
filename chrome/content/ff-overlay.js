@@ -508,6 +508,49 @@ var glomeOverlay =
   },
   
   /**
+   * Don't display ad. Opens category view and posts an action point to Glome API server
+   * 
+   * @param int ad_id
+   */
+  AdNotNow: function(ad_id)
+  {
+    if (!ad_id)
+    {
+      ad_id = this.currentAd;
+    }
+    
+    if (!ad_id)
+    {
+      var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
+    }
+    
+    glomeOverlay.OpenCategoryView();
+    
+    var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/notnow.json');
+    this.log.debug('Do not display ad request sent to ' + url);
+    
+    jQuery.ajax
+    (
+      {
+        url: url,
+        type: 'POST',
+        data:
+        {
+          user:
+          {
+            glomeid: glome.glomePrefs.glomeid
+          }
+        },
+        dataType: 'json',
+        success: function(data)
+        {
+          // Probably nothing needs to be done
+        }
+      }
+    );
+  },
+  
+  /**
    * Display ad
    * 
    * @param int ad_id    Ad id
@@ -528,6 +571,29 @@ var glomeOverlay =
     {
       return false;
     }
+    
+    var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/getit.json');
+    this.log.debug('Display ad request sent to ' + url);
+    
+    jQuery.ajax
+    (
+      {
+        url: url,
+        type: 'POST',
+        data:
+        {
+          user:
+          {
+            glomeid: glome.glomePrefs.glomeid
+          }
+        },
+        dataType: 'json',
+        success: function(data)
+        {
+          // Probably nothing needs to be done
+        }
+      }
+    );
     
     this.currentAd = ad_id;
     
@@ -601,7 +667,8 @@ var glomeOverlay =
         
         var cat_id = null;
         
-        glomeOverlay.OpenCategoryView(cat_id);
+        // Bind not now event
+        glomeOverlay.AdNotNow(glomeOverlay.currentAd);
         
         // Update ticker to match the new view count
         glome.glomeUpdateTicker();
@@ -622,11 +689,14 @@ var glomeOverlay =
    */
   GotoAd: function(ad_id)
   {
-    var ad = glome.glomeGetAd(ad_id);
+    // var ad = glome.glomeGetAd(ad_id);
     this.PanelHide();
     
+    var url = glome.glomePrefs.getUrl('/ads/' + ad_id + '/click/' + glome.glomePrefs.glomeid);
+    this.log.debug('Send user to ' + url);
+    
     window.gBrowser.selectedTab.setAttribute('glomepanel', jQuery('#glome-panel').attr('view'));
-    window.gBrowser.selectedTab = window.gBrowser.addTab(ad.action);
+    window.gBrowser.selectedTab = window.gBrowser.addTab(url);
     
     // Set ad status to clicked
     glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_CLICKED);
