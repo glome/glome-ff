@@ -204,6 +204,26 @@ var prefs =
     //filterStorage.loadFromDisk();
     //policy.init();
   },
+  get: function(pref)
+  {
+    return this[pref];
+  },
+  
+  /**
+   * Get URL with API server prepended if the URL is not with protocol or
+   * if it isn't protocol relative
+   */
+  getUrl: function(url)
+  {
+    // Check if the URL has protocol or is protocol relative
+    if (url.match(/^([a-z]+:)?\/\//i))
+    {
+      return url;
+    }
+    
+    // Otherwise add domain with protocol
+    return this['api.server'].replace(/\/$/, '') + '/' + url.replace(/^\//, '');
+  },
 
   // Loads a pref and stores it as a property of the object
   loadPref: function(pref)

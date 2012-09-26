@@ -2,9 +2,14 @@ pref('extensions.glome.currentVersion', '0.0');
 pref('extensions.glome.enabled', true);
 pref('extensions.glome.sitesDisabled', '');
 pref('extensions.glome.glomeid', '');
+pref('extensions.glome.token', '');
 
 pref('extensions.glome.showintoolbar', true);
 pref('extensions.glome.showinstatusbar', true);
+pref('extensions.glome.api.server', 'http://api.glome.me');
+pref('extensions.glome.api.users', '/users.json');
+pref('extensions.glome.api.ads', '/ads.json');
+pref('extensions.glome.api.adcategories', '/adcategories.json');
 
 pref('extensions.glome@glome.me.description', 'chrome://glome/locale/global.properties');
 
