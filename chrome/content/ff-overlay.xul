@@ -216,11 +216,11 @@
                   <![CDATA[
                     <box class="list-item" data-id="::id">
                       <box class="thumbnail">
-                        <description>::title</description>
+                        <image src="::logo" />
                       </box>
                       <vbox flex="1">
                         <description class="h2 hoverable">::title</description>
-                        <label value="Up to 13 per order." />
+                        <label value="::bonus" />
                       </vbox>
                       <vbox class="buttons">
                         <button class="action yes">See ad</button>
