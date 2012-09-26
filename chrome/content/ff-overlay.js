@@ -382,11 +382,8 @@ var glomeOverlay =
    */
   OpenCategoryView: function(cat_id)
   {
-    this.log.line();
-    this.log.debug('1');
     if(!cat_id)
     {
-      this.log.debug('1a');
       cat_id = glomeOverlay.category;
     }
     
@@ -396,21 +393,19 @@ var glomeOverlay =
       for (i in stored)
       {
         cat_id = stored[i];
-        this.log.debug('1b');
         break;
       }
     }
     
     if (!cat_id)
     {
-      this.log.debug('1c');
       return;
     }
     
-    this.log.debug('2');
     glomeOverlay.SetCategoryTitle(glome.glome_ad_categories[cat_id].name);
     glomeOverlay.PanelShow('category');
-    this.log.debug('3');
+    
+    var stack = jQuery('#glome-panel');
     
     jQuery('#glome-overlay-category')
       .find('button.no')
@@ -423,7 +418,6 @@ var glomeOverlay =
         glomeOverlay.PanelHide();
         window.gBrowser.selectedTab.removeAttribute('glomepanel');
       });
-    this.log.debug('4');
     // Calculate the length according to the category
     var label = stack.find('.show-all-s');
     var text = label.attr('data-original');
@@ -433,13 +427,9 @@ var glomeOverlay =
       text = label.attr('value');
       label.attr('data-original', text);
     }
-    this.log.debug('5');
     
     // Get the count
     var count = glome.glome_ad_categories_count[cat_id];
-    this.log.level = 5;
-    this.log.debug('Got ' + count + ' ads in this category');
-    this.log.debug('6');
     
     jQuery('#glome-overlay-category').attr('data-count', count);
     jQuery('#glome-overlay-category').attr('data-id', cat_id);
