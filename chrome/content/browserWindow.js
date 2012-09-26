@@ -21,6 +21,7 @@ last_updated = date.getTime();
 
 // Initialize XMLHttpRequest class
 const { XMLHttpRequest } = Components.classes['@mozilla.org/appshell/appShellService;1'].getService(Components.interfaces.nsIAppShellService).hiddenDOMWindow;
+//var Request = require('request').Request;
 
 // Set constants
 const GLOME_AD_STATUS_UNINTERESTED = -2;
@@ -109,7 +110,7 @@ function glomeInit()
       
     }
   }
-
+  
   // Install context menu handler
   var contextMenu = E("contentAreaContextMenu") || E("messagePaneContext") || E("popup_content");
   if (contextMenu)
@@ -254,63 +255,41 @@ function glomeGetUserId()
     return;
   }
   
+/*
+  Request
+  (
+    {
+      url: glomePrefs.get('api.server') + glomePrefs.get('api.users'),
+      content: 
+    }
+  );
+*/
+  
   // Create Glome ID if not available yet
-  var r = new XMLHttpRequest();
-  r.timeout = 10000;
-  r.onreadystatechange = function(e)
-  {
-    if (e.originalTarget.readyState < 4)
+  var date = new Date();
+  window.jQuery.ajax
+  (
     {
-      return;
+      url: glomePrefs.getUrl('api.users'),
+      data:
+      {
+        user:
+        {
+          glomeid: date.getTime(),
+        },
+      },
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded',
+      success: function(data)
+      {
+        glomePrefs.glomeid = data.glomeid;
+        glomePrefs.token = data.token;
+        glomePrefs.save();
+        log.debug('Glome ID is now ' + glomePrefs.glomeid);
+      },
     }
-    
-    switch (e.status)
-    {
-      case 422:
-        log.error('This Glome ID exists already');
-        return;
-      
-      case 200:
-      case 201:
-        log.debug('Glome ID created');
-        break;
-      
-      default:
-        log.error('Unidentified return code: ' + e.status);
-    }
-    
-    try
-    {
-      data = JSON.parse(e.originalTarget.response);
-      log.debug(data);
-    }
-    catch (e)
-    {
-      log.error('Caught an exception when trying to parse category data as JSON');
-      log.debug('Original data:');
-      log.debug(data);
-      return;
-    }
-    
-    // Store the ID to preferences
-    glomePrefs.glomeid = data.glomeid;
-    glomePrefs.save();
-    log.debug('Glome ID is now ' + glomePrefs.glomeid);
-  }
-  
-  if (glome_is_online)
-  {
-    var date = new Date();
-    
-    var url = 'http://api.glome.me/users.json';
-    log.debug('Opening connection now to ' + url);
-    r.open('POST', url, true);
-    r.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    r.send('user[glomeid]=' + date.getTime());
-    log.debug('-- opened');
-  }
-  
-
+  );
 }
 
 /**
@@ -380,70 +359,42 @@ function glomeInitDb()
   log.info('Database initialized, prepare to fetch data from server');
   
   // @TODO: Verify that it is possible to make a connection
-  
   // Update category data
-  xhr_categories = new XMLHttpRequest();
-  xhr_categories.timeout = 10000;
-  xhr_categories.onreadystatechange = function(e)
-  {
-    if (e.originalTarget.readyState < 4)
+  window.jQuery.ajax
+  (
     {
-      return;
+      url: glomePrefs.getUrl(glomePrefs.get('api.adcategories')),
+      type: 'GET',
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded',
+      success: function(data)
+      {
+        // Add all of the categories to database
+        for (let i = 0; i < data.length; i++)
+        {
+          // Update categories
+          var q = 'UPDATE categories SET name = :name WHERE id = :id';
+          log.debug(q);
+          var statement = db.createStatement(q);
+          statement.params.id = data[i].id;
+          statement.params.name = data[i].name;
+          statement.executeAsync();
+          
+          // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
+          var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
+          log.debug(q);
+          var statement = db.createStatement(q);
+          statement.params.id = data[i].id;
+          statement.params.name = data[i].name;
+          statement.executeAsync();
+          
+          // @TODO: This needs a check to delete the removed categories as well
+        }
+        
+        log.debug('-- updating ad categories finished');
+      },
     }
-    
-    log.debug('Got the results for ad categories JSON listing');
-    
-    try
-    {
-      data = JSON.parse(e.originalTarget.response);
-    }
-    catch (e)
-    {
-      log.error('Caught an exception when trying to parse category data as JSON');
-      log.debug('Original data:');
-      log.debug(e.originalTarget.response);
-      return;
-    }
-    
-    // Add all of the categories to database
-    for (i = 0; i < data.length; i++)
-    {
-      // Update categories
-      var q = 'UPDATE categories SET name = :name WHERE id = :id';
-      log.debug(q);
-      var statement = db.createStatement(q);
-      statement.params.id = data[i].id;
-      statement.params.name = data[i].name;
-      statement.executeAsync();
-      
-      // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
-      var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-      log.debug(q);
-      var statement = db.createStatement(q);
-      statement.params.id = data[i].id;
-      statement.params.name = data[i].name;
-      statement.executeAsync();
-      
-      // @TODO: This needs a check to delete the removed categories as well
-    }
-    
-    log.debug('-- updating ad categories finished');
-  }
-  
-  log.debug('Created onreadystatechange');
-  
-  if (glome_is_online)
-  {
-    var url = 'http://api.glome.me/adcategories.json';
-    log.debug('Opening connection now to ' + url);
-    xhr_categories.open('GET', url, true);
-    xhr_categories.send();
-    log.debug('-- opened');
-  }
-  else
-  {
-    log.debug('Glome is not online, do not fetch categories');
-  }
+  );
   log.debug('glomeInitDb ends'); 
 }
 
@@ -886,85 +837,6 @@ function glomeFillTooltip(event)
   }
 }
 
-// Fills the context menu on the status bar
-// function glomeFillPopup(event) {
-//   let popup = event.target;
-// 
-//   // Not at-target call, ignore
-//   if (popup.getAttribute("id").indexOf("options") >= 0)
-//     return;
-// 
-//   // Need to do it this way to prevent a Gecko bug from striking
-//   var elements = {};
-//   var list = popup.getElementsByTagName("menuitem");
-//   for (var i = 0; i < list.length; i++)
-//     if (list[i].id && /\-(\w+)$/.test(list[i].id))
-//       elements[RegExp.$1] = list[i];
-// 
-//   var sidebarOpen = abpIsSidebarOpen();
-//   elements.opensidebar.hidden = sidebarOpen;
-//   elements.closesidebar.hidden = !sidebarOpen;
-// 
-//   var whitelistItemSite = elements.whitelistsite;
-//   var whitelistItemPage = elements.whitelistpage;
-//   whitelistItemSite.hidden = whitelistItemPage.hidden = true;
-// 
-//   var whitelistSeparator = whitelistItemPage.nextSibling;
-//   while (whitelistSeparator.nodeType != whitelistSeparator.ELEMENT_NODE)
-//     whitelistSeparator = whitelistSeparator.nextSibling;
-// 
-//   let location = getCurrentLocation();
-//   if (location && abp.policy.isBlockableScheme(location))
-//   {
-//     let host = null;
-//     try
-//     {
-//       host = location.host;
-//     } catch (e) {}
-// 
-//     if (host)
-//     {
-//       let ending = "|";
-//       if (location instanceof Components.interfaces.nsIURL && location.ref)
-//         location.ref = "";
-//       if (location instanceof Components.interfaces.nsIURL && location.query)
-//       {
-//         location.query = "";
-//         ending = "?";
-//       }
-// 
-//       siteWhitelist = abp.Filter.fromText("@@|" + location.prePath + "/");
-//       whitelistItemSite.setAttribute("checked", isUserDefinedFilter(siteWhitelist));
-//       whitelistItemSite.setAttribute("label", whitelistItemSite.getAttribute("labeltempl").replace(/--/, host));
-//       whitelistItemSite.hidden = false;
-// 
-//       pageWhitelist = abp.Filter.fromText("@@|" + location.spec + ending);
-//       whitelistItemPage.setAttribute("checked", isUserDefinedFilter(pageWhitelist));
-//       whitelistItemPage.hidden = false;
-//     }
-//     else
-//     {
-//       siteWhitelist = abp.Filter.fromText("@@|" + location.spec + "|");
-//       whitelistItemSite.setAttribute("checked", isUserDefinedFilter(siteWhitelist));
-//       whitelistItemSite.setAttribute("label", whitelistItemSite.getAttribute("labeltempl").replace(/--/, location.spec.replace(/^mailto:/, "")));
-//       whitelistItemSite.hidden = false;
-//     }
-//   }
-//   whitelistSeparator.hidden = whitelistItemSite.hidden && whitelistItemPage.hidden;
-// 
-//   elements.enabled.setAttribute("checked", abpPrefs.enabled);
-//   elements.frameobjects.setAttribute("checked", abpPrefs.frameobjects);
-//   elements.slowcollapse.setAttribute("checked", !abpPrefs.fastcollapse);
-//   elements.showintoolbar.setAttribute("checked", abpPrefs.showintoolbar);
-//   elements.showinstatusbar.setAttribute("checked", abpPrefs.showinstatusbar);
-// 
-//   var defAction = (popup.tagName == "menupopup" || document.popupNode.id == "abp-toolbarbutton" ? abpPrefs.defaulttoolbaraction : abpPrefs.defaultstatusbaraction);
-//   elements.opensidebar.setAttribute("default", defAction == 1);
-//   elements.closesidebar.setAttribute("default", defAction == 1);
-//   elements.settings.setAttribute("default", defAction == 2);
-//   elements.enabled.setAttribute("default", defAction == 3);
-// }
-
 // Handle clicks on the Adblock statusbar panel
 function glomeClickHandler(e)
 {
@@ -1126,17 +998,18 @@ function glomeGetTable(tablename)
       adtype: 'TEXT',
       content: 'TEXT',
       action: 'TEXT',
-      expires: 'TEXT',
       adcategories: 'TEXT',
       description: 'TEXT',
       notice: 'TEXT',
       width: 'INTEGER',
       height: 'INTEGER',
-      expired: 'INTEGER',
       expires: 'TEXT',
+      expired: 'INTEGER',
       created_at: 'TEXT',
       updated_at: 'TEXT',
       status: 'INTEGER', // View status. 
+      bonus: 'TEXT',
+      logo: 'TEXT',
     }
   }
   
@@ -1375,126 +1248,120 @@ function glomeGetCategories()
 
 function glomeFetchAds()
 {
-  // Abort the previous request if it is still pending
-  if (   typeof xhr_ads != 'undefined'
-      && xhr_ads)
+  // @TODO: Verify that it is possible to make a connection
+  // Update category data
+  if (xhr_ads)
   {
     xhr_ads.abort();
+    xhr_ads = null;
   }
-
-  // Get the ads from Glome API
-  xhr_ads = new XMLHttpRequest();
-  xhr_ads.timeout = 5000;
-  xhr_ads.onreadystatechange = function(e)
-  {
-    if (e.originalTarget.readyState < 4)
+  
+  var xhr_ads = window.jQuery.ajax
+  (
     {
-      return;
-    }
-    
-    data = JSON.parse(e.originalTarget.response);
-    
-    for (let i = 0; i < data.length; i++)
-    {
-      var ad = data[i];
-      
-      // Get keys
-      if (typeof keys == 'undefined')
+      url: glomePrefs.getUrl(glomePrefs.get('api.ads')),
+      type: 'GET',
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded',
+      success: function(data)
       {
-        var keys = new Array();
-        var keys_with_colon = new Array();
-        
-        for (key in ad)
+        for (let i = 0; i < data.length; i++)
         {
-          keys.push(key);
-          keys_with_colon.push(':' + key);
-        }
-        
-        keys.push('status');
-        keys_with_colon.push(':status');
-      }
-      
-      // Store the ads locally
-      q = 'INSERT INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
-      log.debug(q);
-      var statement = db.createStatement(q);
-      
-      // Set status to zero for new ads
-      statement.params.status = 0;
-      
-      for (key in ad)
-      {
-        var value = ad[key];
-        
-        // Per type rules
-        switch (key)
-        {
-          case 'adcategories':
-            var selection = new Array();
-            
-            for (k in value)
-            {
-              selection.push(value[k].id);
-            }
-            
-            // Store as JSON string
-            value = JSON.stringify(selection);
-            break;
+          var ad = data[i];
           
-          default:
-        }
-        statement.params[key] = value;
-      }
-      
-      // Check if updateable on error, since probably the primary keyed ID already exists
-      statement.executeAsync
-      (
-        {
-          rval: statement.params,
-          handleError: function(error)
+          // Get keys
+          if (typeof keys == 'undefined')
           {
-            q = 'UPDATE ads SET ';
+            var keys = new Array();
+            var keys_with_colon = new Array();
             
-            var first = true;
-            
-            for (key in this.rval)
+            for (key in ad)
             {
-              if (key == 'id')
-              {
-                continue;
-              }
-              
-              if (first)
-              {
-                first = false;
-              }
-              else
-              {
-                q += ', ';
-              }
-              
-              q += key + ' = :' + key;
+              keys.push(key);
+              keys_with_colon.push(':' + key);
             }
             
-            q += ' WHERE id = ' + this.rval.id;
-            log.debug(q);
-            
-            
-            let statement = db.createStatement(q);
-            statement.params = this.rval;
-            
-            statement.executeAsync();
+            keys.push('status');
+            keys_with_colon.push(':status');
           }
+          
+          // Store the ads locally
+          q = 'INSERT INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
+          log.debug(q);
+          var statement = db.createStatement(q);
+          
+          // Set status to zero for new ads
+          statement.params.status = 0;
+          
+          for (key in ad)
+          {
+            var value = ad[key];
+            
+            // Per type rules
+            switch (key)
+            {
+              case 'adcategories':
+                var selection = new Array();
+                
+                for (k in value)
+                {
+                  selection.push(value[k].id);
+                }
+                
+                // Store as JSON string
+                value = JSON.stringify(selection);
+                break;
+              
+              default:
+            }
+            statement.params[key] = value;
+          }
+          
+          // Check if updateable on error, since probably the primary keyed ID already exists
+          statement.executeAsync
+          (
+            {
+              rval: statement.params,
+              handleError: function(error)
+              {
+                q = 'UPDATE ads SET ';
+                
+                var first = true;
+                
+                for (key in this.rval)
+                {
+                  if (key == 'id')
+                  {
+                    continue;
+                  }
+                  
+                  if (first)
+                  {
+                    first = false;
+                  }
+                  else
+                  {
+                    q += ', ';
+                  }
+                  
+                  q += key + ' = :' + key;
+                }
+                
+                q += ' WHERE id = ' + this.rval.id;
+                log.debug(q);
+                
+                
+                let statement = db.createStatement(q);
+                statement.params = this.rval;
+                
+                statement.executeAsync();
+              }
+            }
+          );
         }
-      );
+      },
     }
-  }
-    
-  if (glome_is_online)
-  {
-    xhr_ads.open('GET', 'http://api.glome.me/ads.json', true);
-    xhr_ads.send();
-  }
+  );
 }
 
 /**
