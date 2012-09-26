@@ -215,7 +215,7 @@
                 <template>
                   <![CDATA[
                     <box class="list-item" data-id="::id">
-                      <box class="thumbnail">
+                      <box class="thumbnail" pack="center" align="center">
                         <image src="::logo" />
                       </box>
                       <vbox flex="1">

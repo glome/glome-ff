@@ -932,7 +932,7 @@ var glomeOverlay =
     }
     
     // Set actions
-    container.find('.h2, .action.yes')
+    container.find('.h2, .action.yes, .thumbnail image')
       .bind('click', function()
       {
         // Closing the last one, hide panel
