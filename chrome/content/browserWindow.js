@@ -255,16 +255,6 @@ function glomeGetUserId()
     return;
   }
   
-/*
-  Request
-  (
-    {
-      url: glomePrefs.get('api.server') + glomePrefs.get('api.users'),
-      content: 
-    }
-  );
-*/
-  
   // Create Glome ID if not available yet
   var date = new Date();
   window.jQuery.ajax
