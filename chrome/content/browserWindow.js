@@ -260,7 +260,7 @@ function glomeGetUserId()
   window.jQuery.ajax
   (
     {
-      url: glomePrefs.getUrl('api.users'),
+      url: glomePrefs.getUrl(glomePrefs.get('api.users')),
       data:
       {
         user:
