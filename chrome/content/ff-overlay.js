@@ -269,7 +269,7 @@ var glomeOverlay =
 
     if (glomeOverlay.knockType == 'ad')
     {
-      glomeOverlay.ad_id = selected.id;
+      this.currentAd = selected.id;
       jQuery('#glome-ad-pager').attr('data-ad', selected.id);
       jQuery('#glome-ad-pager').attr('data-category', JSON.stringify(selected.adcategories));
       document.getElementById('glome-ad-description-title').textContent = selected.title;
@@ -557,14 +557,17 @@ var glomeOverlay =
    */
   DisplayAd: function(ad_id)
   {
+    this.log.debug('DisplayAd: ' + ad_id);
     if (!ad_id)
     {
+      this.log.debug('-- use current ad: ' + this.currentAd);
       ad_id = this.currentAd;
     }
 
     if (!ad_id)
     {
       var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
+      this.log.debug('-- use pager ad: ' + this.currentAd);
     }
 
     if (!ad_id)
@@ -681,7 +684,7 @@ var glomeOverlay =
     glomeOverlay.PanelShow();
 
     // Set ad as displayed
-    //glome.glomeSetAdStatus(glomeOverlay.ad_id, glome.GLOME_AD_STATUS_VIEWED);
+    //glome.glomeSetAdStatus(this.currentAd, glome.GLOME_AD_STATUS_VIEWED);
   },
 
   /**
