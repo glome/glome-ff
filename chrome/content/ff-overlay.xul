@@ -15,7 +15,7 @@
   <script type="application/x-javascript;version=1.8" src="overlay.js" />
   <script type="application/x-javascript;version=1.8" src="notification.js" />
   <script type="application/x-javascript;version=1.8" src="ff-overlay.js" />
-  
+
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
     <stack id="glome-controls" height="0" insertafter="browser">
@@ -124,7 +124,7 @@
         <menuitem id="glome-status-enabled" label="&enable.label;" accesskey="&enable.accesskey;" type="checkbox" key="glome-key-enable" command="glome-command-enable"/>
       </popup>
     </popupset>
-    
+
     <panel id="glome-panel" level="parent" noautohide="true" view="category" align="center" pack="center">
       <stack id="glome-overlay-wrapper" align="center" pack="center">
         <box id="glome-overlay">
@@ -140,7 +140,7 @@
               </box>
             </hbox>
             <!-- end common headers -->
-            
+
             <!-- display a single ad -->
             <vbox id="glome-overlay-single" class="glome-overlay-content">
               <box id="glome-overlay-single-image"></box>
@@ -158,15 +158,12 @@
               </hbox>
               <hbox id="glome-overlay-cashback" class="footer">
                 <separator flex="1" />
-                <label value="Up to" />
-                <label value="13" class="amount" />
-                <label value="$" class="currency" />
-                <label value="per order" />
+                <description class="bonus"></description>
                 <separator flex="1" />
               </hbox>
             </vbox>
             <!-- end displaying a single ad -->
-            
+
             <!-- display an ad category -->
             <vbox id="glome-overlay-category" class="glome-overlay-content">
               <vbox id="glome-overlay-category-list" class="inner" pack="center" align="center">
@@ -208,7 +205,7 @@
               </hbox>
             </vbox>
             <!-- end displaying an ad category -->
-            
+
             <!-- display all ads in a category -->
             <vbox id="glome-overlay-category-ads" class="glome-overlay-content">
               <vbox id="glome-overlay-category-ads-list" class="inner">
@@ -245,7 +242,7 @@
               </hbox>
             </vbox>
             <!-- end displaying all ads in a category -->
-            
+
             <!-- display all categories -->
             <vbox id="glome-overlay-categories" class="glome-overlay-content">
               <vbox id="glome-overlay-categories-list" class="inner">
@@ -310,7 +307,7 @@
       </stack>
 -->
     </statusbarpanel>
-  </statusbar> 
+  </statusbar>
 
   <!-- Firefox toolbar -->
   <toolbarpalette id="BrowserToolbarPalette">
@@ -329,7 +326,7 @@
     <menuitem id="glome-menuitem" insertafter="javascriptConsole"
       label="&menuitem.label;..." accesskey="&menuitem.accesskey;"
       key="glome-key-settings" command="glome-command-settings">
-    </menuitem>    
+    </menuitem>
   </menupopup>
 -->
 
@@ -346,5 +343,5 @@
     <menuitem id="glome-object-menuitem" label="&context.object.label;..."/>
     <menuitem id="glome-frame-menuitem" label="&context.frame.label;..."/>
   </popup>
-  
+
 </overlay>
