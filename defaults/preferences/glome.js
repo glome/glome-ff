@@ -19,8 +19,11 @@ pref('extensions.glome.api.updatecategories', 3600);
 
 pref('extensions.glome@glome.me.description', 'chrome://glome/locale/global.properties');
 
-// For description of these values see http://glome.abp.org/en/preferences
+// Glome AdBlockPlus integration
 pref('extensions.glome.abp.enabled', true);
+pref('extensions.glome.abp.subscription', 'http://glome.me/glome.txt');
+
+// Legacy
 pref('extensions.glome.abp.frameobjects', true);
 pref('extensions.glome.abp.fastcollapse', false);
 pref('extensions.glome.abp.showintoolbar', true);
