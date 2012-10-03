@@ -203,7 +203,7 @@ function glomeInit()
       var date = new Date();
       log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
-    glome.glomePrefs.get('gui.updateticker') * 1000
+    glomePrefs.get('gui.updateticker') * 1000
   );
 
   // Set a long delay for ad retrieval. When debugging this should be minutes and
@@ -221,7 +221,7 @@ function glomeInit()
       var date = new Date();
       log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
-    glome.glomePrefs.get('api.updateads') * 1000
+    glomePrefs.get('api.updateads') * 1000
   );
 
   // Refresh every now and then the list of categories
@@ -238,7 +238,7 @@ function glomeInit()
       var date = new Date();
       log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
     },
-    glome.glomePrefs.get('api.updatecategories') * 1000
+    glomePrefs.get('api.updatecategories') * 1000
   );
 
   debug.info("glomeInit done");
