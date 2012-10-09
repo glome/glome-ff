@@ -572,6 +572,25 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   width: 200px;
 }
 
+#glome-overlay-single .inner > .actions .action
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-36x36.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  font-size: 24px;
+  padding-top: 2px;
+  padding-right: 46px;
+  height: 36px;
+  line-height: 32px;
+  -moz-box-align: center;
+}
+
+#glome-overlay-single .inner > .actions .action:hover
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-36x36.png');
+  color: #008bff;
+}
+
 #glome-overlay-category-ads-list,
 #glome-overlay-categories-list
 {
