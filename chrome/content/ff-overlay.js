@@ -649,7 +649,16 @@ var glomeOverlay =
       }
       break;
     }
-
+    
+    if (!glome.glomePrefs.get('glomeid'))
+    {
+      container.find('.action').attr('hidden', 'true');
+    }
+    else
+    {
+      container.find('.action').removeAttr('hidden');
+    }
+    
     // Redirect to the vendor page and close the ad display
     container.find('.action.yes')
       .attr('action', ad.action)
