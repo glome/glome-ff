@@ -61,7 +61,7 @@ var glomeAbpHideImageManager;
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 3;
+log.level = 5;
 
 function E(id)
 {
@@ -526,7 +526,6 @@ function glomeUpdateTicker()
               case 'adcategories':
                 categories = JSON.parse(row.getResultByName(i));
                 item.adcategories = new Array();
-
                 for (i in categories)
                 {
                   item.adcategories.push(categories[i]);
@@ -998,8 +997,8 @@ function glomeGetTable(tablename)
     ads:
     {
       id: 'INTEGER',
-      program: 'INTEGER',
-      element: 'INTEGER',
+      program_id: 'INTEGER',
+      element_id: 'INTEGER',
       language: 'TEXT',
       title: 'TEXT',
       adtype: 'TEXT',
