@@ -572,6 +572,25 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   width: 200px;
 }
 
+#glome-overlay-single .inner > .actions .action
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-36x36.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  font-size: 24px;
+  padding-top: 2px;
+  padding-right: 46px;
+  height: 36px;
+  line-height: 32px;
+  -moz-box-align: center;
+}
+
+#glome-overlay-single .inner > .actions .action:hover
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-36x36.png');
+  color: #008bff;
+}
+
 #glome-overlay-category-ads-list,
 #glome-overlay-categories-list
 {
@@ -629,13 +648,13 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   background-image: -moz-linear-gradient(bottom, #e6e6e6 0%, #ffffff 100%);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.27), 0 -1px 0 rgba(0, 0, 0, 0.1);
   border-radius: 0 0 4px 4px;
-  -moz-box-pack: center;
   color: #0082f0;
   height: 42px;
   font-size: 18px;
-  vertical-align: middle;
   padding-left: 10px;
   padding-right: 10px;
+  -moz-box-pack: center;
+  -moz-box-align: center;
 }
 
 #glome-overlay-display .footer label
@@ -766,6 +785,27 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 #glome-overlay-footer .separators > * + *
 {
   padding-left: 1em;
+}
+
+#glome-ad-display .show-all
+{
+  padding-top: 10px;
+}
+
+#glome-ad-display .show-all label
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-18x18.png');
+  background-position: left center;
+  background-repeat: no-repeat;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 23px;
+  font-size: 14px;
+}
+
+#glome-ad-display .show-all label:hover
+{
+  background-image: url('chrome://glome/skin/navigation/ball-arrow-right-blue-18x18.png');
 }
 
 #ad-close
