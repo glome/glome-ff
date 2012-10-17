@@ -86,11 +86,6 @@
                 </box>
                 <spacer flex="1" />
               </box>
-              <box pack="end" flex="0">
-                <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
-                  <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
-                </button>
-              </box>
             </hbox>
           </vbox>
         </hbox>
@@ -196,12 +191,6 @@
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
-                <separator flex="1" />
-                <box pack="end" flex="0">
-                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
-                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
-                  </button>
-                </box>
               </hbox>
             </vbox>
             <!-- end displaying an ad category -->
@@ -233,12 +222,6 @@
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
-                <separator flex="1" />
-                <box pack="end" flex="0">
-                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
-                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
-                  </button>
-                </box>
               </hbox>
             </vbox>
             <!-- end displaying all ads in a category -->
@@ -268,12 +251,6 @@
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
-                <separator flex="1" />
-                <box pack="end" flex="0">
-                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
-                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
-                  </button>
-                </box>
               </hbox>
             </vbox>
             <!-- end displaying all categories -->
@@ -297,28 +274,6 @@
     </commandset>
 -->
   </window>
-
-  <!-- Status bar -->
-  <statusbar id="status-bar">
-    <statusbarpanel id="glome-status" mousethrough="never" insertbefore="resizerBottomRight" disabled="true" context="glome-status-popup">
-<!--
-      <stack>
-        <image tooltip="glome-tooltip" src="chrome://glome/skin/icons/statusbar-icon-inactive.png" id="glome-status-bar-icon" />
-      </stack>
--->
-    </statusbarpanel>
-  </statusbar>
-
-  <!-- Firefox toolbar -->
-  <toolbarpalette id="BrowserToolbarPalette">
-    <toolbarbutton id="glome-toolbarbutton" type="menu-button" insertbefore="print-button"
-        class="chromeclass-toolbar-additional"
-        oncontextmenu="glomeOverlay.CheckToolbarContext(event)"
-        disabled="true" label="&toolbarbutton.label;"
-        tooltip="glome-tooltip" context="glome-status-popup">
-      <menupopup id="glome-toolbar-popup"/>
-    </toolbarbutton>
-  </toolbarpalette>
 
   <!-- Firefox Tools menu -->
 <!--
