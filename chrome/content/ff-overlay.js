@@ -969,7 +969,7 @@ var glomeOverlay =
     container.find('> *').not('template').remove();
 
     // Get items for a category
-    var ads = glome.glomeGetAds(id);
+    var ads = glome.glomeGetAdsForCategory(id);
 
     for (var i = 0; i < ads.length; i++)
     {
