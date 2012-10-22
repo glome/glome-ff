@@ -496,6 +496,9 @@ function glomeUpdateTicker()
   // reuse the global array
   glome_ad_stack = [];
 
+  // Reset category count
+  glome_ad_categories_count = []
+
   q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
   //log.debug(q);
 
@@ -512,9 +515,6 @@ function glomeUpdateTicker()
       {
         var now = date.getTime();
         //log.debug('-- got to handle the results of glomeUpdateTicker: ' + now);
-
-        // Reset category count
-        glome_ad_categories_count = {}
 
         for (var row = results.getNextRow(); row; row = results.getNextRow())
         {
