@@ -61,7 +61,7 @@ var glomeAbpHideImageManager;
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 5;
+log.level = 3;
 
 function E(id)
 {
@@ -493,12 +493,16 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
-  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
-  log.debug(q);
+  // reuse the global array
+  glome_ad_stack = [];
 
-  let statement = db.createStatement(q);
+  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
+  //log.debug(q);
 
   var date = new Date();
+  var statement = db.createStatement(q);
+  var ads_table = glomeGetTable('ads');
+
   statement.params.datetime = ISODateString(date);
 
   statement.executeAsync
@@ -506,16 +510,13 @@ function glomeUpdateTicker()
     {
       handleResult: function(results)
       {
-        log.debug('-- got to handle the results of glomeUpdateTicker');
-        let ads_table = glomeGetTable('ads');
-        glome_ad_stack = new Array();
-        let date = new Date();
-        let now = date.getTime();
+        var now = date.getTime();
+        //log.debug('-- got to handle the results of glomeUpdateTicker: ' + now);
 
         // Reset category count
         glome_ad_categories_count = {}
 
-        for (let row = results.getNextRow(); row; row = results.getNextRow())
+        for (var row = results.getNextRow(); row; row = results.getNextRow())
         {
           var item = {};
 
@@ -537,7 +538,7 @@ function glomeUpdateTicker()
             }
           }
 
-          //dump('id: ' + item.id + ', expired: ' + item.expired + ', expires: ' + item.expires + '\n');
+          //dump('id: ' + item.id + ', expired: ' + item.expired + ', expires: ' + item.expires + ', status: ' + item.status + '\n');
 
           var found = false;
 
@@ -546,7 +547,7 @@ function glomeUpdateTicker()
           {
             var cat_id = item.adcategories[n];
 
-            if (!cat_id)
+            if (! cat_id)
             {
               continue;
             }
@@ -569,7 +570,7 @@ function glomeUpdateTicker()
           }
 
           // This ad wasn't in a category with a subscription
-          if (!found)
+          if (! found)
           {
             continue;
           }
@@ -583,7 +584,7 @@ function glomeUpdateTicker()
       },
       handleCompletion: function(reason)
       {
-        if (!glome_ad_stack.length)
+        if (! glome_ad_stack.length)
         {
           E('glome-controls-icon-counter-value').hidden = true;
         }
