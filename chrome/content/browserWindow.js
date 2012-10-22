@@ -88,9 +88,9 @@ function glomeInit()
     window.glome = this;
 
     // Make sure whitelisting gets displayed after at most 2 seconds
-    prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
-    prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
-    log.debug('Preferences loaded');
+    //prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
+    //prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
+    //log.debug('Preferences loaded');
 
      // Make sure we always configure keys but don't let them break anything
     try
@@ -493,6 +493,7 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
+  log.debug('glomeUpdateTicker initialized');
   // reuse the global array
   glome_ad_stack = [];
 
