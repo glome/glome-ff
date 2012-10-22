@@ -55,7 +55,7 @@
               </vbox>
             </vbox>
             <vbox id="glome-ad-display" class="active">
-              <vbox class="glome-ad-description">
+              <vbox class="glome-ad-description" onclick="glomeOverlay.DisplayAd();">
                 <label value="&label.s_great_offers_in_category_c;" class="category label" hidden="true" />
                 <description class="large" id="glome-ad-description-title"></description>
                 <description id="glome-ad-description-value"></description>

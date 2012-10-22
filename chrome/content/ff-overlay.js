@@ -206,12 +206,9 @@ var glomeOverlay =
       var dt = 0;
     }
 
-    glomeOverlay.log.debug('1');
-
     if (glomeOverlay.knockType == 'ad')
     {
       items = glome.glome_ad_stack;
-      glomeOverlay.log.debug('knocktype ad; ads in glome_ad_stack: ' + items.length);
     }
     else
     {
@@ -229,16 +226,12 @@ var glomeOverlay =
 
     if (! item_count)
     {
-      glomeOverlay.log.debug('get ads, item_count was ' + item_count);
       items = glome.glomeGetAds();
-      glomeOverlay.log.debug(items);
     }
 
     item_count = items.length;
 
     jQuery('#glome-ad-display').attr('mode', glomeOverlay.knockType);
-
-    glomeOverlay.log.debug('3: mode ' + glomeOverlay.knockType);
 
     if (! item_count)
     {
@@ -249,8 +242,6 @@ var glomeOverlay =
       jQuery('#glome-controls-wrapper').find('.active').removeAttr('hidden');
     }
 
-    glomeOverlay.log.debug('4');
-
     if (item_count == 1)
     {
       jQuery('#glome-ad-pager').parent().attr('hidden', 'true');
@@ -259,8 +250,6 @@ var glomeOverlay =
     {
       jQuery('#glome-ad-pager').parent().removeAttr('hidden');
     }
-
-    glomeOverlay.log.debug('5');
 
     if (!glomeOverlay.knockIndex)
     {
@@ -280,16 +269,11 @@ var glomeOverlay =
     }
 
     index = glomeOverlay.knockIndex;
-    glomeOverlay.log.debug('6, index: ' + index);
 
     // Display ad
     var selected = items[index];
     var current = index + 1;
     jQuery('#glome-ad-pager-page').attr('value', (index + 1) + '/' + item_count);
-
-    glomeOverlay.log.line();
-    glomeOverlay.log.debug(selected);
-    glomeOverlay.log.line();
 
     if (glomeOverlay.knockType == 'ad')
     {
@@ -575,7 +559,7 @@ var glomeOverlay =
       }
     );
   },
-
+  
   /**
    * Display ad
    *
