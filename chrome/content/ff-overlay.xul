@@ -191,6 +191,12 @@
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
+                <separator flex="1" />
+                <box pack="end" flex="0">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                  </button>
+                </box>
               </hbox>
             </vbox>
             <!-- end displaying an ad category -->
@@ -222,6 +228,12 @@
                     <label control="glome_power_switch"></label>
                   </checkbox>
                 </box>
+                <separator flex="1" />
+                <box pack="end" flex="0">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                  </button>
+                </box>
               </hbox>
             </vbox>
             <!-- end displaying all ads in a category -->
@@ -250,6 +262,12 @@
                   <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();" checked="true">
                     <label control="glome_power_switch"></label>
                   </checkbox>
+                </box>
+                <separator flex="1" />
+                <box pack="end" flex="0">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="arrow icon" width="20">
+                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                  </button>
                 </box>
               </hbox>
             </vbox>
