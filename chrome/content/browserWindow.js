@@ -184,6 +184,7 @@ function glomeInit()
 
   // Run startup stuff
   glomeGetUserId();
+  glomeCleanAds();
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
@@ -493,9 +494,11 @@ function glomeTimedUpdater()
  */
 function glomeUpdateTicker()
 {
+  self = this;
+
   log.debug('glomeUpdateTicker initialized');
   // reuse the global array
-  glome_ad_stack = [];
+  var glome_ad_stack = [];
 
   // Reset category count
   glome_ad_categories_count = []
@@ -595,6 +598,7 @@ function glomeUpdateTicker()
         }
 
         E('glome-controls-icon-counter-value').setAttribute('value', glome_ad_stack.length);
+        self.glome_ad_stack = glome_ad_stack;
       }
     }
   );
@@ -1245,13 +1249,22 @@ function glomeGetCategories()
           }
         }
       },
-      handleCompletion: function()
+      handleCompletion: function(reason)
       {
         // Get a fresh list of ads
         glomeUpdateTicker();
       }
     }
   );
+}
+
+function glomeCleanAds()
+{
+  q = 'DELETE FROM ads';
+  log.debug(q);
+  var statement = db.createStatement(q);
+  statement.execute();
+  statement.reset();
 }
 
 function glomeFetchAds()
@@ -1330,6 +1343,10 @@ function glomeFetchAds()
           (
             {
               rval: statement.params,
+              handleCompletion: function(reason)
+              {
+                glomeUpdateTicker();
+              },
               handleError: function(error)
               {
                 q = 'UPDATE ads SET ';
@@ -1358,11 +1375,18 @@ function glomeFetchAds()
                 q += ' WHERE id = ' + this.rval.id;
                 log.debug(q);
 
-
                 let statement = db.createStatement(q);
                 statement.params = this.rval;
 
-                statement.executeAsync();
+                statement.execute
+                (
+                  {
+                    handleCompletion: function(reason)
+                    {
+                      glomeUpdateTicker();
+                    }
+                  }
+                );
               }
             }
           );
