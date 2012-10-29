@@ -808,6 +808,12 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
   background-image: url('chrome://glome/skin/navigation/ball-arrow-right-blue-18x18.png');
 }
 
+#glome-panel .category-title:hover,
+#glome-ad-description-title:hover
+{
+  color: #008bff;
+}
+
 #ad-close
 {
   border: none;
