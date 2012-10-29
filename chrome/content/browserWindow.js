@@ -3,6 +3,8 @@ var last_updated = null;
 var request = null;
 var glome_is_online = true;
 var glome_ad_stack = [];
+var glome_ad_history = [];
+var glome_ad_last_state = {};
 var glome_ad_categories = {};
 var glome_ad_categories_count = {};
 var glome_id = null;
@@ -24,11 +26,11 @@ last_updated = date.getTime();
 //var Request = require('request').Request;
 
 // Set constants
-const GLOME_AD_STATUS_UNINTERESTED = -2;
-const GLOME_AD_STATUS_LATER = -1;
-const GLOME_AD_STATUS_PENDING = 0;
-const GLOME_AD_STATUS_VIEWED = 1;
-const GLOME_AD_STATUS_CLICKED = 2;
+const GLOME_AD_STATUS_UNINTERESTED = -2; // corresponds to action: 'notnow' on the server
+const GLOME_AD_STATUS_LATER = -1; // not in use yet
+const GLOME_AD_STATUS_PENDING = 0; // default
+const GLOME_AD_STATUS_VIEWED = 1; // corresponds to action: 'getit' on the server
+const GLOME_AD_STATUS_CLICKED = 2; // corresponds to action: 'click' on the server
 
 // Initialize SQLite
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -184,7 +186,7 @@ function glomeInit()
 
   // Run startup stuff
   glomeGetUserId();
-  glomeCleanAds();
+  //glomeCleanAds();
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
@@ -253,34 +255,15 @@ function glomeGetUserId()
     log.debug('Loading Glome ID');
     glomeid = glomePrefs.glomeid;
     log.info('GlomeID: ' + glomeid);
+
+    // try to get the full profile from the server
+    // this call will create the profile if it does not exist on the server
+    glomeGetProfile();
     return;
   }
 
   // Create Glome ID if not available yet
-  var date = new Date();
-  window.jQuery.ajax
-  (
-    {
-      url: glomePrefs.getUrl(glomePrefs.get('api.users')),
-      data:
-      {
-        user:
-        {
-          glomeid: date.getTime(),
-        },
-      },
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/x-www-form-urlencoded',
-      success: function(data)
-      {
-        glomePrefs.glomeid = data.glomeid;
-        glomePrefs.token = data.token;
-        glomePrefs.save();
-        log.debug('Glome ID is now ' + glomePrefs.glomeid);
-      },
-    }
-  );
+  glomeCreateProfile();
 }
 
 /**
@@ -503,7 +486,7 @@ function glomeUpdateTicker()
   // Reset category count
   glome_ad_categories_count = []
 
-  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
+  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime AND status = 0';
   //log.debug(q);
 
   var date = new Date();
@@ -1289,7 +1272,6 @@ function glomeFetchAds()
         for (let i = 0; i < data.length; i++)
         {
           var ad = data[i];
-
           // Get keys
           if (typeof keys == 'undefined')
           {
@@ -1311,8 +1293,15 @@ function glomeFetchAds()
           log.debug(q);
           var statement = db.createStatement(q);
 
-          // Set status to zero for new ads
-          statement.params.status = 0;
+          // Set status of ads using the history info that was obtained from the server
+          if (typeof glome_ad_last_state[ad.id] !== 'undefined')
+          {
+            statement.params.status = glome_ad_last_state[ad.id]
+          }
+          else
+          {
+            statement.params.status = GLOME_AD_STATUS_PENDING;
+          }
 
           for (key in ad)
           {
@@ -1376,13 +1365,21 @@ function glomeFetchAds()
                 log.debug(q);
 
                 let statement = db.createStatement(q);
-                statement.params = this.rval;
+                // assign params
+                window.jQuery.each(this.rval, function(index, value) {
+                  if (index == "id")
+                  {
+                    return true;
+                  }
+                  statement.params[index] = value;
+                });
 
                 statement.execute
                 (
                   {
                     handleCompletion: function(reason)
                     {
+                      // update the ticker in the knock
                       glomeUpdateTicker();
                     }
                   }
@@ -1435,7 +1432,7 @@ function glomeFocus()
   }
 
   // Our URL isn't open. Open it now.
-  if (!found)
+  if (! found)
   {
     var recentWindow = wm.getMostRecentWindow("navigator:browser");
     if (recentWindow)
@@ -1449,6 +1446,110 @@ function glomeFocus()
       window.open(url);
     }
   }
+}
+
+/**
+ * Gets the ad history of the user
+ */
+function glomeCreateProfile(glomeid)
+{
+  if (typeof glomeid === null)
+  {
+    glomeid = date.getTime();
+  }
+
+  log.debug('Create profile: ' + glomeid);
+
+  var date = new Date();
+  window.jQuery.ajax
+  (
+    {
+      url: glomePrefs.getUrl(glomePrefs.get('api.users.json')),
+      data:
+      {
+        user:
+        {
+          glomeid: glomeid,
+        },
+      },
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded',
+      success: function(data)
+      {
+        glomePrefs.glomeid = data.glomeid;
+        glomePrefs.save();
+        log.debug('Glome ID is now ' + glomePrefs.glomeid);
+      },
+    }
+  );
+}
+
+/**
+ * Gets the ad history of the user
+ */
+function glomeGetProfile()
+{
+  log.debug('Get profile of ' + glomePrefs.glomeid);
+
+  window.jQuery.getJSON(
+    glomePrefs.getUrl(glomePrefs.get('api.users')) + '/' + glomePrefs.glomeid + '.json',
+    function(data) {
+      if (data.error && data.error == 'No such profile.')
+      {
+        glomeCreateProfile(glomePrefs.glomeid);
+      }
+      else
+      {
+        // store the history for later use when fetching ads completed
+        glome_ad_history = data.adhistories;
+        // parse ad history and determine last state of each ad
+        glomeParseAdHistory(glome_ad_history);
+      }
+    }
+  );
+}
+
+/**
+ * Parses ad history and updates the local DB
+ * @param array with ad history objects:
+ *
+ */
+function glomeParseAdHistory(histories)
+{
+  var status = GLOME_AD_STATUS_PENDING;
+
+  window.jQuery.each(histories, function(index, history) {
+    log.debug('SQL update in ad: ' + history.ad_id + ', action: ' + history.action);
+
+    // map server side actions with extension side statuses
+    switch (history.action) {
+      case 'getit':
+        status = GLOME_AD_STATUS_VIEWED;
+        break;
+      case 'notnow':
+        status = GLOME_AD_STATUS_UNINTERESTED;
+        break;
+      case 'click':
+        status = GLOME_AD_STATUS_CLICKED;
+        break;
+      default:
+        status = GLOME_AD_STATUS_PENDING;
+    }
+    if (status != GLOME_AD_STATUS_PENDING)
+    {
+      log.debug('SQL update in ad: ' + history.ad_id + ', action: ' + history.action);
+      glomeSetAdStatus(ad_id, status);
+    }
+
+    // stora last status of the ad in the hash
+    glome_ad_last_state[history.ad_id] = status;
+  });
+
+  // testing the last state hash
+  window.jQuery.each(glome_ad_last_state, function(index, value) {
+    log.debug('############ Last status of ' + index + ' is ' + value);
+  });
 }
 
 glomeInit();
