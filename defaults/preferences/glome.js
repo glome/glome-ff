@@ -11,7 +11,8 @@ pref('extensions.glome.gui.updateticker', 5);
 
 // API server preferences
 pref('extensions.glome.api.server', 'http://api.glome.me');
-pref('extensions.glome.api.users', '/users.json');
+pref('extensions.glome.api.users', '/users');
+pref('extensions.glome.api.users.json', '/users.json');
 pref('extensions.glome.api.ads', '/ads.json');
 pref('extensions.glome.api.adcategories', '/adcategories.json');
 pref('extensions.glome.api.updateads', 60);
