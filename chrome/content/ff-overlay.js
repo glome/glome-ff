@@ -494,6 +494,8 @@ var glomeOverlay =
 
     var template = jQuery('#glome-overlay-categories-list').find('template').text();
     jQuery('#glome-overlay-categories-list').find('> *').not('template').remove();
+    
+    this.log.debug(glome.glome_ad_categories_count);
 
     for (i in glome.glome_ad_categories)
     {
@@ -602,14 +604,12 @@ var glomeOverlay =
     glomeOverlay.log.debug('DisplayAd: ' + ad_id);
     if (!ad_id)
     {
-      glomeOverlay.log.debug('-- use current ad: ' + glomeOverlay.currentAd);
       ad_id = glomeOverlay.currentAd;
     }
 
     if (!ad_id)
     {
       var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
-      glomeOverlay.log.debug('-- use pager ad: ' + glomeOverlay.currentAd);
     }
 
     if (!ad_id)
@@ -618,7 +618,6 @@ var glomeOverlay =
     }
 
     var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/getit.json');
-    glomeOverlay.log.debug('Display ad request sent to ' + url);
 
     jQuery.ajax
     (
@@ -734,8 +733,6 @@ var glomeOverlay =
 
         var cat_id = null;
         
-        glomeOverlay.log.error('current ad: ' + glomeOverlay.currentAd);
-
         // Call not now event
         glomeOverlay.AdNotNow(Number(glomeOverlay.currentAd));
         
@@ -802,11 +799,6 @@ var glomeOverlay =
     // Display ads if Glome is off or disabled for this domain
     var domain = glome.glomeGetCurrentDomain();
     var status = glome.glomePrefs.getDomainStatus(domain);
-    glomeOverlay.log.debug('glomeOverlay.AdStateChange');
-    glomeOverlay.log.debug('enabled: ' + glome.glomePrefs.enabled);
-    glomeOverlay.log.debug('-- typeof: ' + typeof glome.glomePrefs.enabled);
-    glomeOverlay.log.debug('domain: ' + domain);
-    glomeOverlay.log.debug('status: ' + status);
 
     if (   glome.glomePrefs.enabled === false
         || glome.glomePrefs.getDomainStatus(domain) === 'on')
@@ -826,7 +818,6 @@ var glomeOverlay =
   {
     return;
 
-    glomeOverlay.log.debug('glomeOverlay.RevealAds');
     jQuery(content.document).find('[data-glomeblock]')
       .removeAttr('hidden')
       .removeAttr('data-glomeblock');
@@ -839,7 +830,6 @@ var glomeOverlay =
   {
     return;
 
-    glomeOverlay.log.debug('glomeOverlay.HideAds');
     var date = new Date();
 
     // Prevent this from being run more often than every 10 seconds
@@ -874,14 +864,11 @@ var glomeOverlay =
       // Parent element has already been blocked
       if (element.attr('data-glomeblock') == 'true')
       {
-        glomeOverlay.log.debug('-- already blocked');
         continue;
       }
 
       var values = new Array();
       var removable = false;
-
-      glomeOverlay.log.debug('type: ' + element.get(0).tagName);
 
       switch (element.get(0).tagName.toLowerCase())
       {
