@@ -85,6 +85,11 @@
                   </checkbox>
                 </box>
                 <spacer flex="1" />
+                <box pack="end" flex="0">
+                  <button onclick="glomeOverlay.HideStack(); glome.glomeFocus();" class="icon" width="20">
+                    <image src="chrome://glome/skin/icons/icon-configuration.png" width="20" height="20" />
+                  </button>
+                </box>
               </box>
             </hbox>
           </vbox>
