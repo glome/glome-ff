@@ -541,37 +541,52 @@ var glomeOverlay =
    */
   AdNotNow: function(ad_id)
   {
+    glomeOverlay.log.debug('glomeOverlay.AdNotNow');
+    
     if (!ad_id)
     {
-      ad_id = this.currentAd;
+      ad_id = glomeOverlay.currentAd;
+    }
+    else
+    {
     }
 
     if (!ad_id)
     {
       var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
     }
-
-    glomeOverlay.OpenCategoryView();
-
+    
+    var ad = glome.glomeGetAd(ad_id);
+    
     var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/notnow.json');
-    glomeOverlay.log.debug('Do not display ad request sent to ' + url);
-
+    
+    var tmp =
+    {
+      user:
+      {
+        glomeid: glome.glomePrefs.glomeid
+      }
+    };
+    
     jQuery.ajax
     (
       {
         url: url,
         type: 'POST',
-        data:
+        data: tmp,
+/*
         {
           user:
           {
             glomeid: glome.glomePrefs.glomeid
           }
         },
+*/
         dataType: 'json',
         success: function(data)
         {
           // Probably nothing needs to be done
+          glomeOverlay.log.debug('AdNotNow request sent successfully');
         }
       }
     );
@@ -587,14 +602,14 @@ var glomeOverlay =
     glomeOverlay.log.debug('DisplayAd: ' + ad_id);
     if (!ad_id)
     {
-      glomeOverlay.log.debug('-- use current ad: ' + this.currentAd);
-      ad_id = this.currentAd;
+      glomeOverlay.log.debug('-- use current ad: ' + glomeOverlay.currentAd);
+      ad_id = glomeOverlay.currentAd;
     }
 
     if (!ad_id)
     {
       var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
-      glomeOverlay.log.debug('-- use pager ad: ' + this.currentAd);
+      glomeOverlay.log.debug('-- use pager ad: ' + glomeOverlay.currentAd);
     }
 
     if (!ad_id)
@@ -625,14 +640,14 @@ var glomeOverlay =
       }
     );
 
-    this.currentAd = ad_id;
+    glomeOverlay.currentAd = ad_id;
 
     // Get the ad to be displayed
     var ad = glome.glomeGetAd(ad_id);
     
     if (typeof ad.adcategories[0] != 'undefined')
     {
-      this.category = ad.adcategories[0];
+      glomeOverlay.category = ad.adcategories[0];
     }
 
     var container = jQuery(document).find('#glome-overlay-single');
@@ -682,7 +697,7 @@ var glomeOverlay =
 
       if (typeof glome.glome_ad_categories[cat_id] != 'undefined')
       {
-        this.category = cat_id;
+        glomeOverlay.category = cat_id;
         this.SetCategoryTitle(glome.glome_ad_categories[cat_id].name);
       }
       break;
@@ -718,9 +733,21 @@ var glomeOverlay =
         var ad = glome.glomeGetAd(glomeOverlay.currentAd);
 
         var cat_id = null;
+        
+        glomeOverlay.log.error('current ad: ' + glomeOverlay.currentAd);
 
-        // Bind not now event
-        glomeOverlay.AdNotNow(glomeOverlay.currentAd);
+        // Call not now event
+        glomeOverlay.AdNotNow(Number(glomeOverlay.currentAd));
+        
+        if (typeof ad.adcategories[0] != 'undefined')
+        {
+          glomeOverlay.OpenCategoryView(ad.adcategories[0]);
+        }
+        else
+        {
+          glomeOverlay.PanelHide();
+        }
+    
 
         // Update ticker to match the new view count
         glome.glomeUpdateTicker();
@@ -1022,7 +1049,7 @@ var glomeOverlay =
         }
 
         // Set ad status to uninterested
-        glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_UNINTERESTED);
+        glomeOverlay.AdNotNow(ad_id);
 
         item.remove();
       });

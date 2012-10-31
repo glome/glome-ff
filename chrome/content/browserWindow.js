@@ -1112,6 +1112,13 @@ function glomeGetAd(ad_id)
       {
         ad[i] = statement.row[i];
       }
+      
+      switch (i)
+      {
+        case 'adcategories':
+          ad[i] = JSON.parse(ad[i]);
+          break;
+      }
     }
   }
 
