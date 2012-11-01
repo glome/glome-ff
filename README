@@ -1,1 +1,9 @@
 # Firefox extension for Glome
+
+This version of the extension works on desktops.
+
+As of 2012-10-31 we will only do bug fixes and some experiments here.
+The focus is shifted towards Firefox Mobile.
+
+You can keep track of the development at https://github.com/glome/glome-ff-mobile.
+
