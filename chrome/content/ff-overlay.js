@@ -378,7 +378,7 @@ var glomeOverlay =
   SetCategoryTitle: function(title)
   {
     var title_set = jQuery('#glome-panel label.category-title');
-    
+
     title_set
       .unbind('click')
       .bind('click', function()
@@ -387,14 +387,14 @@ var glomeOverlay =
         {
           return;
         }
-        
+
         if (glomeOverlay.category)
         {
           glomeOverlay.ListCategoryAds(glomeOverlay.category);
         }
       })
       .attr('value', title);
-      
+
 
     if (jQuery('#glome-panel description.category-title').size())
     {
@@ -494,7 +494,7 @@ var glomeOverlay =
 
     var template = jQuery('#glome-overlay-categories-list').find('template').text();
     jQuery('#glome-overlay-categories-list').find('> *').not('template').remove();
-    
+
     this.log.debug(glome.glome_ad_categories_count);
 
     for (i in glome.glome_ad_categories)
@@ -544,7 +544,7 @@ var glomeOverlay =
   AdNotNow: function(ad_id)
   {
     glomeOverlay.log.debug('glomeOverlay.AdNotNow');
-    
+
     if (!ad_id)
     {
       ad_id = glomeOverlay.currentAd;
@@ -557,11 +557,11 @@ var glomeOverlay =
     {
       var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
     }
-    
+
     var ad = glome.glomeGetAd(ad_id);
-    
+
     var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/notnow.json');
-    
+
     var tmp =
     {
       user:
@@ -569,7 +569,7 @@ var glomeOverlay =
         glomeid: glome.glomePrefs.glomeid
       }
     };
-    
+
     jQuery.ajax
     (
       {
@@ -593,7 +593,7 @@ var glomeOverlay =
       }
     );
   },
-  
+
   /**
    * Display ad
    *
@@ -643,7 +643,7 @@ var glomeOverlay =
 
     // Get the ad to be displayed
     var ad = glome.glomeGetAd(ad_id);
-    
+
     if (typeof ad.adcategories[0] != 'undefined')
     {
       glomeOverlay.category = ad.adcategories[0];
@@ -662,7 +662,8 @@ var glomeOverlay =
         break;
 
       case 'image':
-        container.find('#glome-overlay-single-image')
+        container.find('#glome-overlay-single-image:first')
+          .unbind('click')
           .bind('click', function()
           {
             jQuery(this).parent().find('.action.yes').trigger('click');
@@ -732,10 +733,10 @@ var glomeOverlay =
         var ad = glome.glomeGetAd(glomeOverlay.currentAd);
 
         var cat_id = null;
-        
+
         // Call not now event
         glomeOverlay.AdNotNow(Number(glomeOverlay.currentAd));
-        
+
         if (typeof ad.adcategories[0] != 'undefined')
         {
           glomeOverlay.OpenCategoryView(ad.adcategories[0]);
@@ -744,7 +745,7 @@ var glomeOverlay =
         {
           glomeOverlay.PanelHide();
         }
-    
+
 
         // Update ticker to match the new view count
         glome.glomeUpdateTicker();
