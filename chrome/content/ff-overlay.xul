@@ -25,35 +25,6 @@
         </vbox>
         <hbox>
           <vbox id="glome-controls-wrapper">
-            <vbox id="glome-switch-domain" domain="null">
-              <vbox align="center">
-                <label value="&label.turn_glome_off;" class="label" />
-                <hbox pack="center" align="center" class="action" onclick="glomeOverlay.ChangeDomainState();">
-                  <label class="on" />
-                  <label class="off" />
-                  <label class="button" value="&label.just_for_this_site;" />
-                </hbox>
-              </vbox>
-            </vbox>
-            <vbox class="inactive">
-              <hbox>
-                <textbox placeholder="&placeholder.discover_brands;" class="glome-search" flex="1" />
-              </hbox>
-              <vbox class="glome-redeem">
-<!--
-                <hbox pack="center" class="single-line-labels large">
-                  <label value="&label.you_have;" />
-                  <label value="548 $" />
-                </hbox>
--->
-                <box pack="center">
-                  <button pack="center" class="no-frames">
-                    <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" />
-                    <label value="&redeem_cash;" />
-                  </button>
-                </box>
-              </vbox>
-            </vbox>
             <vbox id="glome-ad-display" class="active">
               <vbox class="glome-ad-description" onclick="glomeOverlay.DisplayAd();">
                 <label value="&label.s_great_offers_in_category_c;" class="category label" hidden="true" />
@@ -103,27 +74,6 @@
         </box>
       </stack>
     </stack>
-    <popupset id="glome-popupset">
-      <popup id="glome-status-popup">
-        <menuitem id="glome-status-opensidebar" label="&opensidebar.label;" accesskey="&opensidebar.accesskey;" key="glome-key-sidebar" command="glome-command-sidebar"/>
-        <menuitem id="glome-status-closesidebar" label="&closesidebar.label;" accesskey="&closesidebar.accesskey;" key="glome-key-sidebar" command="glome-command-sidebar"/>
-        <menuitem id="glome-status-settings" label="&settings.label;..." accesskey="&settings.accesskey;" key="glome-key-settings" command="glome-command-settings"/>
-        <menuseparator id="glome-status-whitelist-sep"/>
-        <menuitem id="glome-status-whitelistsite" labeltempl="&whitelist.site.label;" type="checkbox" command="glome-command-togglesitewhitelist"/>
-        <menuitem id="glome-status-whitelistpage" label="&whitelist.page.label;" type="checkbox" command="glome-command-togglepagewhitelist"/>
-        <menuseparator/>
-        <menu id="glome-status-options" label="&options.label;" accesskey="&options.accesskey;">
-          <menupopup id="glome-status-options-popup">
-            <menuitem id="glome-status-frameobjects" label="&objecttabs.label;" accesskey="&objecttabs.accesskey;" type="checkbox" command="glome-command-toggleobjtabs"/>
-            <menuitem id="glome-status-slowcollapse" label="&collapse.label;" accesskey="&collapse.accesskey;" type="checkbox" command="glome-command-togglecollapse"/>
-            <menuseparator/>
-            <menuitem id="glome-status-showintoolbar" label="&showintoolbar.label;" accesskey="&showintoolbar.accesskey;" type="checkbox" command="glome-command-toggleshowintoolbar"/>
-            <menuitem id="glome-status-showinstatusbar" label="&showinstatusbar.label;" accesskey="&showinstatusbar.accesskey;" type="checkbox" command="glome-command-toggleshowinstatusbar"/>
-          </menupopup>
-        </menu>
-        <menuitem id="glome-status-enabled" label="&enable.label;" accesskey="&enable.accesskey;" type="checkbox" key="glome-key-enable" command="glome-command-enable"/>
-      </popup>
-    </popupset>
 
     <panel id="glome-panel" level="parent" noautohide="true" view="category" align="center" pack="center">
       <stack id="glome-overlay-wrapper" align="center" pack="center">
@@ -282,31 +232,7 @@
       </stack>
     </panel>
     <keyset id="glome-keyset"/>
-    <!-- Dummy oncommand attributes are work-arounds for bug 371900 -->
-<!--
-    <commandset id="glome-commandset">
-      <command id="glome-command-settings" oncommand="//" />
-      <command id="glome-command-sidebar" oncommand="//" />
-      <command id="glome-command-togglesitewhitelist" />
-      <command id="glome-command-togglepagewhitelist" />
-      <command id="glome-command-toggleobjtabs" />
-      <command id="glome-command-togglecollapse" />
-      <command id="glome-command-toggleshowintoolbar" />
-      <command id="glome-command-toggleshowinstatusbar" />
-      <command id="glome-command-enable" oncommand="//" />
-    </commandset>
--->
   </window>
-
-  <!-- Firefox Tools menu -->
-<!--
-  <menupopup id="menu_ToolsPopup">
-    <menuitem id="glome-menuitem" insertafter="javascriptConsole"
-      label="&menuitem.label;..." accesskey="&menuitem.accesskey;"
-      key="glome-key-settings" command="glome-command-settings">
-    </menuitem>
-  </menupopup>
--->
 
   <!-- Firefox View menu -->
   <menupopup id="menu_viewPopup">

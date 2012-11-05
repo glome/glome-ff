@@ -12,10 +12,10 @@ window.addEventListener('load', function(e)
 {
   log = new window.glome.glome.log();
   log.level = 5;
-  
+
   glomeInitAboutView();
   document.title = 'Glome';
-  
+
 }, false)
 
 function glomeInitAboutView()
@@ -25,10 +25,10 @@ function glomeInitAboutView()
   log.debug(q);
   let statement = db.createStatement(q);
   log.debug('-- statement created');
-  
+
   // Empty the current category selections
   jQuery('#glome-dashboard-container').find('.box-container').find('.item').remove();
-  
+
   statement.executeAsync
   (
     {
@@ -36,16 +36,16 @@ function glomeInitAboutView()
       {
         for (let row = results.getNextRow(); row; row = results.getNextRow())
         {
-          var category = 
+          var category =
           {
             id: row.getResultByName('id'),
             name: row.getResultByName('name'),
             subscribed: row.getResultByName('subscribed')
           }
-          
+
           var tmp = jQuery('#glome-category-template').text().toString();
           var regs = tmp.match(/::([a-z0-9_]+)/i);
-          
+
           // Replace with category values
           do
           {
@@ -53,17 +53,17 @@ function glomeInitAboutView()
             var value = '';
             var key = regs[1];
             var regexp = new RegExp(regs[0], 'g');
-            
+
             if (typeof category[key] != 'undefined')
             {
               value = String(category[key]);
               value = value.replace(/&(amp;)?/g, '&amp;');
             }
-            
+
             tmp = tmp.replace(regexp, value);
           }
           while (tmp.match(/::([a-z0-9_]+)/i));
-          
+
           if (   typeof category.subscribed != 'undefined'
               && category.subscribed)
           {
@@ -81,7 +81,7 @@ function glomeInitAboutView()
           .bind('click', function()
           {
             var item = jQuery(this).parents('.item');
-            
+
             if (jQuery(this).parents('#glome-selector-disabled').size())
             {
               item.appendTo(jQuery('#glome-selector-enabled').find('.box-container'));
@@ -92,12 +92,12 @@ function glomeInitAboutView()
               item.appendTo(jQuery('#glome-selector-disabled').find('.box-container'));
               var subscribed = 0;
             }
-            
+
             var q = "UPDATE categories SET subscribed = :subscribed WHERE id = :id";
             let statement = db.createStatement(q);
             statement.params.subscribed = subscribed;
             statement.params.id = Number(item.attr('data-id'));
-            
+
             statement.executeAsync();
           });
       }
@@ -111,10 +111,10 @@ function glomeInitAboutView()
  */
 function glomeChangeState()
 {
-  var state = glome.glomeSwitch('enabled');
-  
+  glome.glomeTogglePref('enabled');
+
   // Set the checkbox status
-  if (!glome.glomePrefs.enabled)
+  if (! glome.glomePrefs.enabled)
   {
     jQuery('.glome-switch').removeAttr('checked');
     jQuery('#glome-dashboard-deck').attr('hidden', 'true');

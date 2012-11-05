@@ -3,14 +3,7 @@ skin      glome   classic/1.0   chrome/skin/
 locale    glome   en-US         chrome/locale/en-US/
 
 overlay   chrome://browser/content/browser.xul   chrome://glome/content/ff-overlay.xul
-#overlay   chrome://navigator/content/navigator.xul chrome://glome/content/overlay.xul
-#overlay   chrome://midbrowser/content/midbrowser.xul chrome://glome/content/overlay.xul
 style chrome://global/content/customizeToolbar.xul chrome://glome/skin/overlay.css
-
-overlay   chrome://mozapps/content/extensions/extensions.xul   chrome://glome/content/extensions.xul
-overlay   about:addons   chrome://glome/content/extensions.xul
-style chrome://mozapps/content/extensions/extensions.xul chrome://glome/skin/extensions.css
-style about:addons chrome://glome/skin/extensions.css
 
 # XPCOM
 component {7B55BE07-94CB-4B4C-8118-D65069F5E509} components/nsGlome.js

@@ -1,26 +1,20 @@
 const GLOME_VERSION = "0.0.1";//"{{VERSION}}";
-const GLOME_PACKAGE = "/extension.glome.me"; 
+const GLOME_PACKAGE = "/extension.glome.me";
 const GLOME_EXTENSION_ID = "glome@glome.me";
 const GLOME_CONTRACTID = "@glome.me/glome-ext;1";
 const GLOME_CID = Components.ID("{7B55BE07-94CB-4B4C-8118-D65069F5E509}");
 const GLOME_PROT_CONTRACTID = "@mozilla.org/network/protocol;1?name=glome";
 const GLOME_PROT_CID = Components.ID("{EB516FD2-7389-4D02-A03D-2227EFDA79D9}");
 
-// ABP Specific
-const ABP_PROT_CONTRACTID = "@mozilla.org/network/protocol;1?name=abp";
-const ABP_PROT_CID = Components.ID("{DB15FD20-63FD-492A-BD2F-6B3E43A690EF}");
-
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const loader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
   .getService(Ci.mozIJSSubScriptLoader);
-  
+
 function NSGetModule(compMgr, fileSpec)
   XPCOMUtils.generateModule([Aboutglome]);
 
-
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 
 // const locales = [
 //   "{{LOCALE}}",
@@ -35,7 +29,7 @@ const module = {
   registerSelf: function(compMgr, fileSpec, location, type)
   {
     compMgr = compMgr.QueryInterface(Ci.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(GLOME_CID, 
+    compMgr.registerFactoryLocation(GLOME_CID,
                     "Glome content policy",
                     GLOME_CONTRACTID,
                     fileSpec, location, type);
@@ -43,40 +37,24 @@ const module = {
                     "Glome protocol handler",
                     GLOME_PROT_CONTRACTID,
                     fileSpec, location, type);
-    compMgr.registerFactoryLocation(ABP_PROT_CID,
-                    "ABP protocol handler",
-                    ABP_PROT_CONTRACTID,
-                    fileSpec, location, type);
-
-    // Need to delete category before removing, nsIContentPolicies in Gecko 1.9 listens to
-    // category changes
-    // var catman = Cc["@mozilla.org/categorymanager;1"]
-    //                        .getService(Ci.nsICategoryManager);
-    // catman.deleteCategoryEntry("content-policy", GLOME_CONTRACTID, true);
-    // catman.addCategoryEntry("content-policy", GLOME_CONTRACTID,
-    //           GLOME_CONTRACTID, true, true);
   },
 
   unregisterSelf: function(compMgr, fileSpec, location)
   {
     compMgr = compMgr.QueryInterface(Ci.nsIComponentRegistrar);
-    
+
     compMgr.unregisterFactoryLocation(GLOME_CID, fileSpec);
     compMgr.unregisterFactoryLocation(GLOME_PROT_CID, fileSpec);
-    compMgr.unregisterFactoryLocation(ABP_PROT_CID, fileSpec);
-    // var catman = Cc["@mozilla.org/categorymanager;1"]
-    //                        .getService(Ci.nsICategoryManager);
-    //catman.deleteCategoryEntry("content-policy", GLOME_CONTRACTID, true);
   },
 
   getClassObject: function(compMgr, cid, iid)
   {
     if (!cid.equals(GLOME_CID) && !cid.equals(GLOME_PROT_CID))
       throw Components.results.NS_ERROR_NO_INTERFACE;
-    
+
     if (!iid.equals(Ci.nsIFactory))
       throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
+
     return factory;
   },
 
@@ -87,7 +65,7 @@ const module = {
 };
 
 function NSGetModule(comMgr, fileSpec)
-{  
+{
   return module;
 };
 
@@ -122,9 +100,9 @@ const factory = {
   }
 };
 
-function NSGetFactory(aCID)  
-{  
-  return factory;  
+function NSGetFactory(aCID)
+{
+  return factory;
 }
 
 /*
@@ -150,16 +128,16 @@ const glome = {
   //
   // Glome logger implementation
   //
-  
+
   LOG: function()
   {
     var message = 'GLOME: ' + Array.prototype.slice.call(arguments).join(' :: ');
     if(!message.match(/\n$/))
       message += '\n';
-    
+
     Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService)
     .logStringMessage(message);
-    
+
     dump(message);
   },
   log: function(level)
@@ -167,7 +145,7 @@ const glome = {
     if (level)
     {
       this.level = Math.round(Number(level));
-      
+
       if (this.level <= 0)
       {
         this.level = 0;
@@ -177,59 +155,59 @@ const glome = {
     {
       this.level = 5;
     }
-    
+
     this.debug = function(input)
     {
       this.output(input, 5);
     }
-    
+
     this.info = function(input)
     {
       this.output(input, 4);
     }
-    
+
     this.warning = function(input)
     {
       this.output(input, 3);
     }
-    
+
     // Shorthand for this.warning
     this.warn = function(input)
     {
       this.warning(input);
     }
-    
+
     this.error = function(input)
     {
       this.output(input, 2);
     }
-    
+
     this.line = function(char)
     {
       if (!char)
       {
         char = '=';
       }
-      
+
       for (var i = 0; i < 60; i++)
       {
         dump(char);
       }
       dump('\n');
     }
-    
+
     this.output = function(input, level)
     {
       if (!level)
       {
         level = 5;
       }
-      
+
       if (level > this.level)
       {
         return;
       }
-      
+
       var type = String(typeof input);
       if (type.match(/(object|array)/))
       {
@@ -240,7 +218,7 @@ const glome = {
         dump(input + '\n');
       }
     }
-    
+
     this.extract = function(object, levels, indent)
     {
       if (!indent)
@@ -248,16 +226,16 @@ const glome = {
         dump('--- DUMP starts: ---\n');
         indent = String('');
       }
-      
+
       if (!levels)
       {
         levels = 2;
       }
-      
+
       for (i in object)
       {
         dump(indent + i + ' (' + typeof object[i] + ')');
-        
+
         switch (typeof object[i])
         {
           case 'object':
@@ -266,26 +244,26 @@ const glome = {
             {
               break;
             }
-            
+
             dump('\n');
-            
+
             if (indent.length < (levels - 1) * 2)
             {
               this.extract(object[i], levels, indent + '  ');
             }
-            
+
             break;
-          
+
           case 'function':
             dump('\n');
             break;
             // Do nothing
-          
+
           default:
             dump(': ' + object[i] + '\n');
         }
       }
-      
+
       if (   !indent
           || indent == '')
       {
@@ -313,7 +291,7 @@ const glome = {
     }
     return trace;
   },
-  
+
   //
   // nsISupports interface implementation
   //
@@ -359,10 +337,10 @@ const glome = {
       if (filter instanceof Filter)
         dlg.selectFilter(filter);
     }
-    
+
     if (dlg) {
       func();
-    
+
       try {
         dlg.focus();
       } catch (e) {
@@ -406,7 +384,7 @@ const glome = {
       try {
         currentWindow.focus();
       } catch(e) {}
-      
+
       return true;
     }
 
@@ -436,8 +414,6 @@ const glome = {
     else
       return window.document.getElementById("frame_main_pane") || window.document.getElementById("browser_content");
   },
-  
-  abp: {} 
 };
 glome.wrappedJSObject = glome;
 
@@ -452,31 +428,14 @@ function init()
 
   glome.versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"]
     .createInstance(Ci.nsIVersionComparator);
-  
+
   // Common
-  loader.loadSubScript('chrome://glome/content/utils.js');  
-  
+  loader.loadSubScript('chrome://glome/content/utils.js');
+
   // Glome related
   loader.loadSubScript('chrome://glome/content/prefs.js');
-  loader.loadSubScript('chrome://glome/content/connection.js');
   loader.loadSubScript('chrome://glome/content/notifications.js');
-  loader.loadSubScript('chrome://glome/content/adModals.js');
-  
-  // Adblock related
-  loader.loadSubScript('chrome://glome/content/ab/interface.js');
-  loader.loadSubScript('chrome://glome/content/ab/filterClasses.js');
-  loader.loadSubScript('chrome://glome/content/ab/subscriptionClasses.js');
-  loader.loadSubScript('chrome://glome/content/ab/filterStorage.js');
-  loader.loadSubScript('chrome://glome/content/ab/matcher.js');
-  loader.loadSubScript('chrome://glome/content/ab/elemhide.js');
-  loader.loadSubScript('chrome://glome/content/ab/filterListener.js');
-  loader.loadSubScript('chrome://glome/content/ab/protocol.js');
-  loader.loadSubScript('chrome://glome/content/ab/policy.js');
-  loader.loadSubScript('chrome://glome/content/ab/data.js');
-  loader.loadSubScript('chrome://glome/content/ab/prefs.js');
-  loader.loadSubScript('chrome://glome/content/ab/synchronizer.js');
-  loader.loadSubScript('chrome://glome/content/ab/flasher.js');
-  
+
   glome.LOG("init() done");
 };
 

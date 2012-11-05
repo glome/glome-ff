@@ -21,10 +21,6 @@ var date = new Date();
 // Set the last updated to the current moment
 last_updated = date.getTime();
 
-// Initialize XMLHttpRequest class
-//const { XMLHttpRequest = Components.classes['@mozilla.org/appshell/appShellService;1'].getService(Components.interfaces.nsIAppShellService).hiddenDOMWindow;
-//var Request = require('request').Request;
-
 // Set constants
 const GLOME_AD_STATUS_UNINTERESTED = -2; // corresponds to action: 'notnow' on the server
 const GLOME_AD_STATUS_LATER = -1; // not in use yet
@@ -44,7 +40,7 @@ try
 {
   glome = Components.classes["@glome.me/glome-ext;1"].createInstance().wrappedJSObject;
 
-  if (!glome.prefs.initialized || !glome.abp.prefs.initialized)
+  if (! glome || ! glome.prefs.initialized)
   {
     glome = null;
   }
@@ -55,15 +51,13 @@ catch (e)
   dump(e);
 }
 
-var glomePrefs = glome ? glome.prefs : {enabled: false};
+var glomePrefs = glome ? glome.prefs : { enabled: false };
 var glomeOldShowInToolbar = glomePrefs.showintoolbar;
-var glomeHideImageManager;
-var glomeAbpHideImageManager;
 
 glome.initialized = false;
 
 log = new glome.log();
-log.level = 3;
+log.level = 5;
 
 function E(id)
 {
@@ -89,12 +83,7 @@ function glomeInit()
     // Create reference to this
     window.glome = this;
 
-    // Make sure whitelisting gets displayed after at most 2 seconds
-    //prefReloadTimer = glome.createTimer(glomeTimedUpdater, 2000);
-    //prefReloadTimer.type = prefReloadTimer.TYPE_REPEATING_SLACK;
-    //log.debug('Preferences loaded');
-
-     // Make sure we always configure keys but don't let them break anything
+    // Make sure we always configure keys but don't let them break anything
     try
     {
       // Configure keys
@@ -113,76 +102,13 @@ function glomeInit()
     }
   }
 
-  // Install context menu handler
-  var contextMenu = E("contentAreaContextMenu") || E("messagePaneContext") || E("popup_content");
-  if (contextMenu)
-  {
-    contextMenu.addEventListener("popupshowing", glomeCheckContext, false);
-
-    // Make sure our context menu items are at the bottom
-    contextMenu.appendChild(E("glome-frame-menuitem"));
-    contextMenu.appendChild(E("glome-object-menuitem"));
-    contextMenu.appendChild(E("glome-image-menuitem"));
-  }
-
   // First run actions
-  if (glome && !("doneFirstRunActions" in glomePrefs) && glome.versionComparator.compare(glomePrefs.lastVersion, "0.0") <= 0)
+  if (glome && ! ("doneFirstRunActions" in glomePrefs) && glome.versionComparator.compare(glomePrefs.lastVersion, "0.0") <= 0)
   {
     debug.info("RUN FIRST ACTIONS");
     // Don't repeat first run actions if new window is opened
     glomePrefs.doneFirstRunActions = true;
   }
-
-  // Move toolbar button to a correct location in Mozilla
-  var button = E("glome-toolbarbutton");
-
-  if (button && button.parentNode.id == "nav-bar-buttons")
-  {
-    var ptf = E("bookmarks-ptf");
-    ptf.parentNode.insertBefore(button, ptf);
-  }
-
-  // Copy the menu from status bar icon to the toolbar
-  var fixId = function(node)
-  {
-    if (node.nodeType != node.ELEMENT_NODE)
-    {
-      return node;
-    }
-
-    if ("id" in node && node.id)
-    {
-      node.id = node.id.replace(/glome-status/, "glome-toolbar");
-    }
-
-    for (var child = node.firstChild; child; child = child.nextSibling)
-    {
-      fixId(child);
-    }
-
-    return node;
-  };
-  var copyMenu = function(to)
-  {
-    if (!to || !to.firstChild)
-    {
-      return;
-    }
-
-    to = to.firstChild;
-    var from = E("glome-status-popup");
-    for (var node = from.firstChild; node; node = node.nextSibling)
-    {
-      to.appendChild(fixId(node.cloneNode(true)));
-    }
-  };
-  copyMenu(E("glome-toolbarbutton"));
-  copyMenu(glomeGetPaletteButton());
-
-  // glome.createTimer(glomeInitImageManagerHiding, 0);
-
-  glome.connection.open();
-  glome.connection.sendTest();
 
   // Run startup stuff
   glomeGetUserId();
@@ -292,7 +218,7 @@ function glomeInitDb()
     log.debug('-- dropped');
     */
 
-    if (!db.tableExists(tablename))
+    if (! db.tableExists(tablename))
     {
       try
       {
@@ -375,7 +301,6 @@ function glomeInitDb()
 function glomeInitPage(e)
 {
   glomeTimedUpdater();
-  glomeABPHideElements();
   return true;
 }
 
@@ -409,7 +334,7 @@ function glomeUnload()
 /**
  * Switch Glome on and off
  *
- * @return boolean    Current Glome status
+ * @return boolean  Current Glome status
  */
 function glomeSwitch()
 {
@@ -434,28 +359,6 @@ function glomeTimedUpdater()
     else
     {
       state = 'disabled';
-    }
-
-    var domain = glomeGetCurrentDomain();
-
-    if (!domain)
-    {
-      E('glome-switch-domain').setAttribute('domain', 'undefined');
-    }
-
-    // Glome is off for the currently viewed domain
-    if (glomePrefs.getDomainStatus(glomeGetCurrentDomain()) == 'on')
-    {
-      state = 'disabled';
-    }
-
-    label = glome.getString('status_' + state + '_label');
-
-    if (state == 'active')
-    {
-      let location = getCurrentLocation();
-      // if (location && glome.abp.policy.isWhitelisted(location.spec))
-      //   state = "whitelisted";
     }
   }
 
@@ -599,7 +502,7 @@ function getCurrentLocation() /**nsIURI*/
 // Finds the toolbar button in the toolbar palette
 function glomeGetPaletteButton() {
   var toolbox = E("navigator-toolbox");
-  if (!toolbox || !("palette" in toolbox) || !toolbox.palette)
+  if (! toolbox || ! ("palette" in toolbox) || ! toolbox.palette)
   {
     return null;
   }
@@ -617,7 +520,7 @@ function glomeGetPaletteButton() {
 
 // Check whether we installed the toolbar button already
 function glomeInstallInToolbar() {
-  if (!E("glome-toolbarbutton"))
+  if (! E("glome-toolbarbutton"))
   {
     var insertBeforeBtn = null;
     var toolbar = E("nav-bar");
@@ -707,19 +610,6 @@ function glomeCheckContext()
 
         imageNode = imageNode.parentNode;
       }
-    }
-
-    // Hide "Block Images from ..." if hideimagemanager pref is true and the image manager isn't already blocking something
-    var imgManagerContext = E("context-blockimage");
-    if (imgManagerContext)
-    {
-      if (typeof glomeAbpHideImageManager == "undefined")
-      {
-        glomeAbpInitImageManagerHiding();
-      }
-
-      // Don't use "hidden" attribute - it might be overridden by the default popupshowing handler
-      imgManagerContext.style.display = (glomeAbpHideImageManager ? "none" : "");
     }
   }
 
@@ -815,47 +705,6 @@ function glomeFillTooltip(event)
   }
 }
 
-// Handle clicks on the Adblock statusbar panel
-function glomeClickHandler(e)
-{
-  if (e.button == 0)
-  {
-    glomeExecuteAction(glomePrefs.defaultstatusbaraction);
-  }
-  else if (e.button == 1)
-  {
-    glomeTogglePref("enabled");
-  }
-}
-
-function glomeCommandHandler(e)
-{
-  if (glomePrefs.defaulttoolbaraction == 0)
-  {
-    e.target.open = true;
-  }
-  else
-  {
-    glomeExecuteAction(glomePrefs.defaulttoolbaraction);
-  }
-}
-
-// Executes default action for statusbar/toolbar by its number
-function glomeExecuteAction(action) {
-  if (action == 1)
-  {
-    //glomeToggleSidebar();
-  }
-  else if (action == 2)
-  {
-    glome.openSettingsDialog();
-  }
-  else if (action == 3)
-  {
-    glomeTogglePref("enabled");
-  }
-}
-
 /**
  * Toggles the value of a boolean pref
  *
@@ -863,25 +712,12 @@ function glomeExecuteAction(action) {
  */
 function glomeTogglePref(pref)
 {
-  glomePrefs[pref] = !glomePrefs[pref];
+  glomePrefs[pref] = ! glomePrefs[pref];
   glomePrefs.save();
+  glomeTimedUpdater();
 
   // Return the new status
   return glomePrefs[pref];
-}
-
-// Bring up the settings dialog for the node the context menu was referring to
-function glomeNode(data)
-{
-  if (glome && data)
-  {
-    window.openDialog("chrome://adblockplus/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", glome.getBrowserInWindow(window).contentWindow, data);
-  }
-}
-
-function glomeABPHideElements()
-{
-  return;
 }
 
 /**
@@ -931,40 +767,6 @@ function glomeInitABP()
     log.debug('ABP is not installed');
   }
   log.debug('ABP init done');
-}
-
-/**
- * Adblock Plus related
- *
- * @TODO: write what this does. Or find it out first...
- */
-function glomeAbpInitImageManagerHiding()
-{
-  if (!abp || typeof glomeAbpHideImageManager != "undefined")
-  {
-    return;
-  }
-
-  glomeAbpHideImageManager = false;
-
-  if (abpPrefs.hideimagemanager && "@mozilla.org/permissionmanager;1" in Components.classes)
-  {
-    try
-    {
-      glomeAbpHideImageManager = true;
-      var permissionManager = Components.classes["@mozilla.org/permissionmanager;1"]
-                                        .getService(Components.interfaces.nsIPermissionManager);
-      var enumerator = permissionManager.enumerator;
-      while (glomeAbpHideImageManager && enumerator.hasMoreElements())
-      {
-        var item = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
-        if (item.type == "image" && item.capability == Components.interfaces.nsIPermissionManager.DENY_ACTION)
-        {
-          glomeAbpHideImageManager = false;
-        }
-      }
-    } catch(e) {}
-  }
 }
 
 /**
@@ -1112,7 +914,7 @@ function glomeGetAd(ad_id)
       {
         ad[i] = statement.row[i];
       }
-      
+
       switch (i)
       {
         case 'adcategories':
@@ -1259,6 +1061,11 @@ function glomeCleanAds()
 
 function glomeFetchAds()
 {
+  if (! glomePrefs.enabled)
+  {
+    return null;
+  }
+
   // @TODO: Verify that it is possible to make a connection
   // Update category data
   if (xhr_ads)
@@ -1297,7 +1104,7 @@ function glomeFetchAds()
 
           // Store the ads locally
           q = 'INSERT INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
-          log.debug(q);
+          //log.debug(q);
           var statement = db.createStatement(q);
 
           // Set status of ads using the history info that was obtained from the server
@@ -1369,7 +1176,7 @@ function glomeFetchAds()
                 }
 
                 q += ' WHERE id = ' + this.rval.id;
-                log.debug(q);
+                //log.debug(q);
 
                 let statement = db.createStatement(q);
                 // assign params
@@ -1549,7 +1356,7 @@ function glomeParseAdHistory(histories)
       glomeSetAdStatus(ad_id, status);
     }
 
-    // stora last status of the ad in the hash
+    // stor last status of the ad in the hash
     glome_ad_last_state[history.ad_id] = status;
   });
 

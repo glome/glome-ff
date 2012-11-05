@@ -7,7 +7,6 @@
 var stringService = Components.classes["@mozilla.org/intl/stringbundle;1"]
                               .getService(Components.interfaces.nsIStringBundleService);
 var strings = stringService.createBundle("chrome://glome/locale/global.properties");
-var abp_strings = stringService.createBundle("chrome://glome/locale/abp-global.properties");
 
 glome.getString = function(name)
 {
@@ -18,14 +17,14 @@ glome.getString = function(name)
   }
   catch (e)
   {}
-  
+
   try
   {
     res = anp_strings.GetStringFromName(name);
   }
   catch (e)
   {}
-  
+
   return res;
 };
 
@@ -59,13 +58,13 @@ function unwrapURL(url)
     {
       case "view-source":
         return unwrapURL(url.path);
-      
+
       case "wyciwyg":
         return unwrapURL(url.path.replace(/^\/\/\d+\//, ""));
-      
+
       case "jar":
         return unwrapURL(url.QueryInterface(Components.interfaces.nsIJARURI).JARFile);
-      
+
       default:
         if (url instanceof Components.interfaces.nsIURL && url.ref)
         {
@@ -122,7 +121,7 @@ function postProcessNode(node)
           index++;
         }
       }
-  
+
       var property = (hasCols ? "cols" : "rows");
       var weights = parentNode[property].split(",");
       weights[index] = "0";
@@ -137,11 +136,11 @@ function postProcessNode(node)
 function generateClickHandler(wnd, data)
 {
   glome.LOG("generateClickHandler");
-  
+
   return function(event)
   {
     event.preventDefault();
-    //wnd.openDialog("chrome://glome/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", wnd, data); 
+    //wnd.openDialog("chrome://glome/content/composer.xul", "_blank", "chrome,centerscreen,resizable,dialog=no,dependent", wnd, data);
   }
 }
 
@@ -199,7 +198,7 @@ function addObjectTab(wnd, node, data, tab)
 
     createTimer(initHandler2, 0);
   }
-  
+
   var initHandler2 = function()
   {
     // Initialization
@@ -309,7 +308,7 @@ function normalizeFilter(text)
     var domain = RegExp.$1;
     var separator = RegExp.$2;
     var selector = RegExp.$3;
-    
+
     return domain.replace(/\s/g, "") + separator + selector.replace(/^\s+/, "").replace(/\s+$/, "");
   }
   else
@@ -329,7 +328,7 @@ function generateChecksum(lines)
 {
   glome.LOG("generateChecksum");
   let stream = null;
-  
+
   try
   {
     // Checksum is an MD5 checksum (base64-encoded without the trailing "=") of
