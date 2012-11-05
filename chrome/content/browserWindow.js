@@ -1356,14 +1356,17 @@ function glomeParseAdHistory(histories)
       glomeSetAdStatus(ad_id, status);
     }
 
-    // stor last status of the ad in the hash
+    // store last status of the ad in the hash
     glome_ad_last_state[history.ad_id] = status;
   });
 
-  // testing the last state hash
-  window.jQuery.each(glome_ad_last_state, function(index, value) {
-    log.debug('############ Last status of ' + index + ' is ' + value);
-  });
+  if (log.level == 5)
+  {
+    // testing the ads' last state hash
+    window.jQuery.each(glome_ad_last_state, function(index, value) {
+      log.debug('############ Last status of ' + index + ' is ' + value);
+    });
+  }
 }
 
 glomeInit();
