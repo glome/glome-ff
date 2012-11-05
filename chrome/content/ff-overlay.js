@@ -310,7 +310,7 @@ var glomeOverlay =
       .unbind('click')
       .bind('click', function()
       {
-        if (!glomeOverlay.category)
+        if (! glomeOverlay.category)
         {
           return;
         }
@@ -388,7 +388,7 @@ var glomeOverlay =
     jQuery('#glome-overlay-category').attr('data-count', count);
     jQuery('#glome-overlay-category').attr('data-id', cat_id);
 
-    if (!count)
+    if (! count)
     {
       jQuery('#glome-overlay-category').find('.show-all-s').attr('hidden', 'true');
     }
@@ -426,7 +426,7 @@ var glomeOverlay =
 
     for (i in glome.glome_ad_categories)
     {
-      if (!glome.glome_ad_categories[i].subscribed)
+      if (! glome.glome_ad_categories[i].subscribed)
       {
         continue;
       }
@@ -440,7 +440,7 @@ var glomeOverlay =
         var count = glome.glome_ad_categories_count[i];
       }
 
-      if (!count)
+      if (! count)
       {
         continue;
       }
