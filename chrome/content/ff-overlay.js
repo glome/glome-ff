@@ -135,7 +135,7 @@ var glomeOverlay =
 
     if (glomeOverlay.knockType == 'ad')
     {
-      items = glome.glome_ad_stack;
+      items = glome.glome_new_ad_stack;
     }
     else
     {
@@ -145,18 +145,12 @@ var glomeOverlay =
         {
           continue;
         }
+
         items.push(glome.glome_ad_categories[i]);
       }
     }
 
     var item_count = items.length;
-
-    if (! item_count)
-    {
-      items = glome.glomeGetAds();
-    }
-
-    item_count = items.length;
 
     jQuery('#glome-ad-display').attr('mode', glomeOverlay.knockType);
 
@@ -200,36 +194,32 @@ var glomeOverlay =
     // Display ad
     var selected = items[index];
     var current = index + 1;
-    jQuery('#glome-ad-pager-page').attr('value', (index + 1) + '/' + item_count);
+    jQuery('#glome-ad-pager-page').attr('value', current + '/' + item_count);
 
     if (glomeOverlay.knockType == 'ad')
     {
       this.currentAd = selected.id;
       jQuery('#glome-ad-pager').attr('data-ad', selected.id);
       jQuery('#glome-ad-pager').attr('data-category', JSON.stringify(selected.adcategories));
-      document.getElementById('glome-ad-description-title').textContent = selected.title;
-
-      //jQuery('#glome-ad-description-value').get(0).textContent = 'Up to ' + worth + ' e per order';
+      jQuery('#glome-ad-description-title').text(selected.title);
     }
     else
     {
       var text = jQuery('#glome-controls-wrapper').find('.active').find('.label.category').attr('value');
       var category = selected.id;
+
       glomeOverlay.category = category;
 
       text = text.replace(/\-s/, glome.glome_ad_categories_count[category]);
       text = text.replace(/\-c/, selected.name);
 
-      jQuery('#glome-ad-pager').attr('data-ad', null);
+      jQuery('#glome-ad-pager').attr('data-ad', '');
       jQuery('#glome-ad-pager').attr('data-category', selected.id);
-      document.getElementById('glome-ad-description-title').textContent = selected.name;
-      jQuery('#glome-ad-description-value').get(0).textContent = text;
+      jQuery('#glome-ad-description-title').text(selected.name);
+      jQuery('#glome-ad-description-value').text(text);
     }
 
     glomeOverlay.log.debug('-- finished');
-
-    // Randomize value in this point
-    //var worth = Math.round(Math.random() * 10000) / 100;
   },
 
   /**
@@ -238,7 +228,7 @@ var glomeOverlay =
   WidgetShow: function()
   {
     // Check from counter how many items there are and display content accordingly
-    if (glome.glome_ad_stack.length == 0)
+    if (glome.glome_new_ad_stack.length == 0)
     {
       glomeOverlay.knockType = 'category';
     }
@@ -254,10 +244,12 @@ var glomeOverlay =
     if (state == 'working')
     {
       jQuery('.glome-switch').attr('checked', 'true');
+      jQuery('#glome-off').hide();
     }
     else
     {
       jQuery('.glome-switch').removeAttr('checked');
+      jQuery('#glome-off').show();
     }
 
     glomeOverlay.ChangeKnockingItem();
@@ -421,7 +413,6 @@ var glomeOverlay =
     var template = jQuery('#glome-overlay-categories-list').find('template').text();
     jQuery('#glome-overlay-categories-list').find('> *').not('template').remove();
 
-    glomeOverlay.log.debug('glome_ad_categories_count: ' + glome.glome_ad_categories_count);
 
     for (i in glome.glome_ad_categories)
     {
@@ -438,6 +429,8 @@ var glomeOverlay =
       {
         var count = glome.glome_ad_categories_count[i];
       }
+
+      glomeOverlay.log.debug('glome_ad_categories_count: ' + count);
 
       if (! count)
       {
@@ -498,7 +491,24 @@ var glomeOverlay =
         dataType: 'json',
         success: function(data)
         {
-          // Mark the event in local db
+          // Set ad status to uninterested
+          glome.glomeSetAdStatus(glomeOverlay.currentAd, glome.GLOME_AD_STATUS_UNINTERESTED);
+
+          var ad = glome.glomeGetAd(glomeOverlay.currentAd);
+
+          var cat_id = null;
+
+          if (typeof ad.adcategories[0] != 'undefined')
+          {
+            glomeOverlay.OpenCategoryView(ad.adcategories[0]);
+          }
+          else
+          {
+            glomeOverlay.PanelHide();
+          }
+
+          // Update ticker to match the new view count
+          glome.glomeUpdateTicker();
 
           glomeOverlay.log.debug('AdNotNow request sent successfully');
         }
@@ -627,35 +637,12 @@ var glomeOverlay =
       .unbind('click')
       .bind('click', function(e)
       {
-        // Set ad status to uninterested
-        glome.glomeSetAdStatus(glomeOverlay.currentAd, glome.GLOME_AD_STATUS_UNINTERESTED);
-
-        var ad = glome.glomeGetAd(glomeOverlay.currentAd);
-
-        var cat_id = null;
-
         // Call not now event
         glomeOverlay.AdNotNow(Number(glomeOverlay.currentAd));
-
-        if (typeof ad.adcategories[0] != 'undefined')
-        {
-          glomeOverlay.OpenCategoryView(ad.adcategories[0]);
-        }
-        else
-        {
-          glomeOverlay.PanelHide();
-        }
-
-        // Update ticker to match the new view count
-        glome.glomeUpdateTicker();
-
         return false;
       });
 
     glomeOverlay.PanelShow();
-
-    // Set ad as displayed
-    //glome.glomeSetAdStatus(this.currentAd, glome.GLOME_AD_STATUS_VIEWED);
   },
 
   /**
@@ -677,8 +664,8 @@ var glomeOverlay =
     // Set ad status to clicked
     glome.glomeSetAdStatus(ad_id, glome.GLOME_AD_STATUS_CLICKED);
 
-    // Remove this ad from ads list
-    glome.glome_ad_stack.splice(i, 1);
+    // Remove this ad from new ads list
+    glome.glome_new_ad_stack.splice(i, 1);
     return;
   },
 
@@ -698,13 +685,12 @@ var glomeOverlay =
    */
   ListCategoryAds: function(id)
   {
-    glomeOverlay.log.debug(glomeOverlay);
     glomeOverlay.log.debug('selected category: ' + id);
 
-    if (!id)
+    if (! id)
     {
       id = glomeOverlay.category;
-      glomeOverlay.log.debug('-- now: ' + id);
+      glomeOverlay.log.debug('-- category id now: ' + id);
     }
 
     // Set the view mode to single item
@@ -752,7 +738,7 @@ var glomeOverlay =
       .bind('click', function()
       {
         // Closing the last one, hide panel
-        if (!jQuery(this).parents('.list-item').siblings('.list-item').size())
+        if (! jQuery(this).parents('.list-item').siblings('.list-item').size())
         {
           //glomeOverlay.HideStack();
         }
@@ -767,7 +753,7 @@ var glomeOverlay =
       .bind('click', function()
       {
         // Closing the last one, hide panel
-        if (!jQuery(this).parents('.list-item').siblings('.list-item').size())
+        if (! jQuery(this).parents('.list-item').siblings('.list-item').size())
         {
           glomeOverlay.HideStack();
         }
@@ -776,12 +762,12 @@ var glomeOverlay =
         var ad_id = Number(item.attr('data-id'));
 
         // Create a new browser tab
-        for (let i = 0; i < glome.glome_ad_stack.length; i++)
+        for (let i = 0; i < glome.glome_new_ad_stack.length; i++)
         {
           if (glome.glome_ad_stack[i].id == ad_id)
           {
             // Remove this ad from ads list
-            glome.glome_ad_stack.splice(i, 1);
+            glome.glome_new_ad_stack.splice(i, 1);
           }
         }
 

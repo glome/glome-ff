@@ -44,6 +44,9 @@
                 <label value="&button.all_brands_and_deals;" onclick="glomeOverlay.ShowAllCategories();" />
               </box>
             </vbox>
+            <hbox id="glome-off" pack="center" align="center">
+                <label value="&label.glome_is_off;"/>
+            </hbox>
             <hbox class="actions">
               <box flex="1">
                 <box>

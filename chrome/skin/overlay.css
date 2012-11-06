@@ -227,14 +227,14 @@
   background-color: transparent;
   border: none;
   outline: none;
-  padding: 8px 10px;
+  padding: 8px 12px;
   text-align: left;
 }
 
 #glome-tooltip .container image
 {
   float: left;
-  
+
 }
 
 #glome-controls-window .buttons
@@ -407,27 +407,27 @@ toolbar[iconsize="small"] #glome-toolbarbutton,
 
 #glome-panel[view=single] #glome-overlay-single
 {
-  display: block;  
+  display: block;
 }
 
 #glome-panel[view=category] #glome-overlay-category
 {
-  display: block;  
+  display: block;
 }
 
 #glome-panel[view=categories] #glome-overlay-categories
 {
-  display: block;  
+  display: block;
 }
 
 #glome-panel[view=list] #glome-overlay-category-ads
 {
-  display: block;  
+  display: block;
 }
 
 #glome-panel[view=list] #glome-overlay-category-ads
 {
-  display: block;  
+  display: block;
 }
 
 #glome-panel .h2
@@ -1014,7 +1014,7 @@ checkbox.glome-switch[checked] label:before
   line-height: 28px;
   color: white;
   border: none;
-  -moz-appearance: none; 
+  -moz-appearance: none;
   padding-left: 29px;
   padding-right: 10px;
 }
@@ -1078,4 +1078,13 @@ checkbox.glome-switch[checked] label:before
 .hoverable:hover
 {
   color: #008afd;
+}
+
+#glome-off
+{
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
 }

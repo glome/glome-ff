@@ -1,7 +1,10 @@
 var glome = null;
 var request = null;
 var glome_is_online = true;
+// all ads
 var glome_ad_stack = [];
+// only new ads
+var glome_new_ad_stack = [];
 var glome_ad_history = [];
 var glome_ad_last_state = {};
 var glome_ad_categories = {};
@@ -330,13 +333,13 @@ function glomeUpdateTicker()
   self = this;
 
   log.debug('glomeUpdateTicker initialized');
-  // reuse the global array
-  var glome_ad_stack = [];
 
-  // Reset category count
+  // local vars
+  var glome_ad_stack = [];
+  var glome_new_ad_stack = [];
   var glome_ad_categories_count = []
 
-  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime AND status = 0';
+  q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime';
   //log.debug(q);
 
   var statement = db.createStatement(q);
@@ -408,16 +411,19 @@ function glomeUpdateTicker()
             continue;
           }
 
+          // add ad to all ads
+          glome_ad_stack.push(item);
+
           // Status check
           if (item.status == 0)
           {
-            glome_ad_stack.push(item);
+            glome_new_ad_stack.push(item);
           }
         }
       },
       handleCompletion: function(reason)
       {
-        if (! glome_ad_stack.length)
+        if (! glome_new_ad_stack.length)
         {
           E('glome-controls-icon-counter-value').hidden = true;
         }
@@ -426,8 +432,10 @@ function glomeUpdateTicker()
           E('glome-controls-icon-counter-value').hidden = false;
         }
 
-        E('glome-controls-icon-counter-value').setAttribute('value', glome_ad_stack.length);
+        E('glome-controls-icon-counter-value').setAttribute('value', glome_new_ad_stack.length);
+
         self.glome_ad_stack = glome_ad_stack;
+        self.glome_new_ad_stack = glome_new_ad_stack;
         self.glome_ad_categories_count = glome_ad_categories_count;
       }
     }
@@ -571,7 +579,7 @@ function glomeSetAdStatus(ad_id, status)
   statement.params.id = ad_id;
   statement.params.status = Number(status);
 
-  if (!statement.params.status)
+  if (! statement.params.status)
   {
     statement.params.status = 0;
   }
@@ -890,7 +898,7 @@ function glomeFetchAds()
               rval: statement.params,
               handleCompletion: function(reason)
               {
-                glomeUpdateTicker();
+                //glomeUpdateTicker();
               },
               handleError: function(error)
               {
@@ -928,6 +936,12 @@ function glomeFetchAds()
                     return true;
                   }
                   statement.params[index] = value;
+/*
+                  if (index == "status")
+                  {
+                    log.debug('status of ad: ' + value);
+                  }
+*/
                 });
 
                 statement.execute

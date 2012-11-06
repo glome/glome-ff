@@ -55,6 +55,7 @@
 <!ENTITY label.all_pending_requests  "All pending ad requests">
 <!ENTITY label.glome_dashboard  "Glome Dashboard">
 <!ENTITY label.turn_glome_off   "Turn Glome OFF">
+<!ENTITY label.glome_is_off   "Glome is OFF">
 <!ENTITY label.just_for_this_site  "Just for this site">
 <!ENTITY label.interested_in    "Interested in">
 <!ENTITY glome_will_not_spam_you_with_ads_you_dont_want "Glome will not spam you with ads you don't want.">
@@ -62,3 +63,6 @@
 <!ENTITY remember_that_you_can_always_change_your_mind "(Remember that you can always change your mind.)">
 <!ENTITY label.s_great_offers_in_category_c "-s great offers in category -c">
 <!ENTITY button.all_brands_and_deals "All brands and deals">
+<!ENTITY label.tab.my_rules     "My Rules">
+<!ENTITY label.tab.my_web     "My Web">
+<!ENTITY label.tab.my_wallet     "My Wallet">

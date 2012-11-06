@@ -26,16 +26,16 @@
     ]]>
   </template>
   <vbox id="glome-dashboard">
-    <box id="glome-dashboard-switch" pack="center" align="center">
-      <checkbox class="glome-switch" oncommand="glomeChangeState();" checked="true">
-        <label control="glome_power_switch"></label>
+    <box class="glome-switch-wrapper">
+      <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();">
+        <label control="glome_power_switch"/>
       </checkbox>
     </box>
     <tabbox id="glome-dashboard-deck" selectedPanel="glome-dashboard-container" flex="1">
       <tabs>
-        <tab><label value="My Rules" /></tab>
-        <tab><label value="My Web" /></tab>
-        <tab><label value="My Wallet" /></tab>
+        <tab><label value="&label.tab.my_rules;" /></tab>
+        <tab><label value="&label.tab.my_web;" /></tab>
+        <tab><label value="&label.tab.my_wallet;" /></tab>
       </tabs>
       <tabpanels flex="1">
         <tabpanel id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
@@ -54,12 +54,11 @@
             </box>
           </vbox>
         </tabpanel>
+
         <tabpanel id="glome-dashboard-myweb">
           <iframe src="about:me" flex="1" />
         </tabpanel>
-<!--
-          <description>My web content comes here</description>
--->
+
         <tabpanel id="glome-dashboard-myrewards">
           <description>My rewards content comes here</description>
         </tabpanel>
