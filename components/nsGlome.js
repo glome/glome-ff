@@ -132,7 +132,7 @@ const glome = {
   LOG: function()
   {
     var message = 'GLOME: ' + Array.prototype.slice.call(arguments).join(' :: ');
-    if(!message.match(/\n$/))
+    if(! message.match(/\n$/))
       message += '\n';
 
     Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService)
@@ -434,7 +434,6 @@ function init()
 
   // Glome related
   loader.loadSubScript('chrome://glome/content/prefs.js');
-  loader.loadSubScript('chrome://glome/content/notifications.js');
 
   glome.LOG("init() done");
 };

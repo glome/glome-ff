@@ -11,9 +11,6 @@
 <overlay id="glome-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript;version=1.8" src="jQuery/jquery-xul.js" />
   <script type="application/x-javascript;version=1.8" src="jQuery/jquery.timers.src.js" />
-  <script type="application/x-javascript;version=1.8" src="tools.js" />
-  <script type="application/x-javascript;version=1.8" src="overlay.js" />
-  <script type="application/x-javascript;version=1.8" src="notification.js" />
   <script type="application/x-javascript;version=1.8" src="ff-overlay.js" />
 
   <!-- Window extensions -->

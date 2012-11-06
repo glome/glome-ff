@@ -1,5 +1,4 @@
 var glome = null;
-var last_updated = null;
 var request = null;
 var glome_is_online = true;
 var glome_ad_stack = [];
@@ -17,9 +16,6 @@ var pages = 0;
 var ad_id = 0;
 
 var date = new Date();
-
-// Set the last updated to the current moment
-last_updated = date.getTime();
 
 // Set constants
 const GLOME_AD_STATUS_UNINTERESTED = -2; // corresponds to action: 'notnow' on the server
@@ -64,15 +60,13 @@ function E(id)
   return document.getElementById(id);
 }
 
+/**
+ * Init
+ */
 function glomeInit()
 {
   log.info("glomeInit");
-  log.debug('-- start with the database');
   glomeInitDb();
-  log.debug('-- database initialized');
-
-  // Process preferences
-  window.glomeDetachedSidebar = null;
 
   if (glome)
   {
@@ -82,37 +76,10 @@ function glomeInit()
 
     // Create reference to this
     window.glome = this;
-
-    // Make sure we always configure keys but don't let them break anything
-    try
-    {
-      // Configure keys
-      for (var key in glomePrefs)
-      {
-        log.debug('Set Glome preferences for ' + key);
-        if (key.match(/(.*)_key$/))
-        {
-          glomeConfigureKey(RegExp.$1, glomePrefs[key]);
-        }
-      }
-    }
-    catch(e)
-    {
-
-    }
-  }
-
-  // First run actions
-  if (glome && ! ("doneFirstRunActions" in glomePrefs) && glome.versionComparator.compare(glomePrefs.lastVersion, "0.0") <= 0)
-  {
-    debug.info("RUN FIRST ACTIONS");
-    // Don't repeat first run actions if new window is opened
-    glomePrefs.doneFirstRunActions = true;
   }
 
   // Run startup stuff
-  glomeGetUserId();
-  //glomeCleanAds();
+  glomeGetProfile();
   glomeGetCategories();
   glomeFetchAds();
   glomeTimedUpdater();
@@ -129,8 +96,7 @@ function glomeInit()
 
       glomeTimedUpdater();
 
-      var date = new Date();
-      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
+      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
     },
     glomePrefs.get('gui.updateticker') * 1000
   );
@@ -147,8 +113,7 @@ function glomeInit()
 
       glomeFetchAds();
 
-      var date = new Date();
-      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
+      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
     },
     glomePrefs.get('api.updateads') * 1000
   );
@@ -164,33 +129,13 @@ function glomeInit()
 
       glomeGetCategories();
 
-      var date = new Date();
-      log.debug('-- done in ' + (date.getTime() - ts) + ' ms');
+      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
     },
     glomePrefs.get('api.updatecategories') * 1000
   );
 
-  debug.info("glomeInit done");
+  log.info("glomeInit done");
 };
-
-function glomeGetUserId()
-{
-  if (   glomePrefs
-      && glomePrefs.glomeid)
-  {
-    log.debug('Loading Glome ID');
-    glomeid = glomePrefs.glomeid;
-    log.info('GlomeID: ' + glomeid);
-
-    // try to get the full profile from the server
-    // this call will create the profile if it does not exist on the server
-    glomeGetProfile();
-    return;
-  }
-
-  // Create Glome ID if not available yet
-  glomeCreateProfile();
-}
 
 /**
  * Glome database initialization scripts
@@ -223,7 +168,7 @@ function glomeInitDb()
       try
       {
         var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY)';
-        log.debug(q);
+        //log.debug(q);
         db.executeSimpleSQL(q);
         log.debug('-- created');
       }
@@ -246,7 +191,7 @@ function glomeInitDb()
       try
       {
         var q = 'ALTER TABLE ' + tablename + ' ADD COLUMN ' + i + ' ' + table[i];
-        log.debug(q);
+        //log.debug(q);
         db.executeSimpleSQL(q);
       }
       catch (e)
@@ -274,7 +219,7 @@ function glomeInitDb()
         {
           // Update categories
           var q = 'UPDATE categories SET name = :name WHERE id = :id';
-          log.debug(q);
+          //log.debug(q);
           var statement = db.createStatement(q);
           statement.params.id = data[i].id;
           statement.params.name = data[i].name;
@@ -282,7 +227,7 @@ function glomeInitDb()
 
           // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
           var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-          log.debug(q);
+          //log.debug(q);
           var statement = db.createStatement(q);
           statement.params.id = data[i].id;
           statement.params.name = data[i].name;
@@ -323,12 +268,14 @@ function glomeGetCurrentDomain()
   return current_url.match(/^.+:\/\/(.+?)(\/.*$|$)/)[1];
 }
 
+/**
+ * Unloading
+ */
 function glomeUnload()
 {
   //debug.info("glomeUnload");
   glomePrefs.removeListener(glomeTimedUpdater);
   glome.getBrowserInWindow(window).removeEventListener("select", glomeTimedUpdater, false);
-  prefReloadTimer.cancel();
 }
 
 /**
@@ -387,25 +334,21 @@ function glomeUpdateTicker()
   var glome_ad_stack = [];
 
   // Reset category count
-  glome_ad_categories_count = []
+  var glome_ad_categories_count = []
 
   q = 'SELECT * FROM ads WHERE expired = 0 AND expires >= :datetime AND status = 0';
   //log.debug(q);
 
-  var date = new Date();
   var statement = db.createStatement(q);
   var ads_table = glomeGetTable('ads');
 
-  statement.params.datetime = ISODateString(date);
+  statement.params.datetime = glome.ISODateString();
 
   statement.executeAsync
   (
     {
       handleResult: function(results)
       {
-        var now = date.getTime();
-        //log.debug('-- got to handle the results of glomeUpdateTicker: ' + now);
-
         for (var row = results.getNextRow(); row; row = results.getNextRow())
         {
           var item = {};
@@ -485,6 +428,7 @@ function glomeUpdateTicker()
 
         E('glome-controls-icon-counter-value').setAttribute('value', glome_ad_stack.length);
         self.glome_ad_stack = glome_ad_stack;
+        self.glome_ad_categories_count = glome_ad_categories_count;
       }
     }
   );
@@ -498,212 +442,6 @@ function getCurrentLocation() /**nsIURI*/
   // Regular browser
   return glome.unwrapURL(glome.getBrowserInWindow(window).contentWindow.location.href);
 };
-
-// Finds the toolbar button in the toolbar palette
-function glomeGetPaletteButton() {
-  var toolbox = E("navigator-toolbox");
-  if (! toolbox || ! ("palette" in toolbox) || ! toolbox.palette)
-  {
-    return null;
-  }
-
-  for (var child = toolbox.palette.firstChild; child; child = child.nextSibling)
-  {
-    if (child.id == "glome-toolbarbutton")
-    {
-      return child;
-    }
-  }
-
-  return null;
-}
-
-// Check whether we installed the toolbar button already
-function glomeInstallInToolbar() {
-  if (! E("glome-toolbarbutton"))
-  {
-    var insertBeforeBtn = null;
-    var toolbar = E("nav-bar");
-
-    if (toolbar && "insertItem" in toolbar)
-    {
-      var insertBefore = (insertBeforeBtn ? E(insertBeforeBtn) : null);
-      if (insertBefore && insertBefore.parentNode != toolbar)
-        insertBefore = null;
-
-      toolbar.insertItem("glome-toolbarbutton", insertBefore, null, false);
-
-      toolbar.setAttribute("currentset", toolbar.currentSet);
-      document.persist(toolbar.id, "currentset");
-    }
-  }
-}
-
-// Hides the unnecessary context menu items on display
-function glomeCheckContext()
-{
-  var contextMenu = E("contentAreaContextMenu") || E("messagePaneContext") || E("popup_content");
-  var target = document.popupNode;
-
-  var nodeType = null;
-  backgroundData = null;
-  frameData = null;
-  if (glome && target)
-  {
-    // Lookup the node in our stored data
-    var data = glome.getDataForNode(target);
-    var targetNode = null;
-    if (data)
-    {
-      targetNode = data[0];
-      data = data[1];
-    }
-
-    nodeData = data;
-
-    if (data && !data.filter)
-    {
-      nodeType = data.typeDescr;
-    }
-
-
-    var wnd = (target ? target.ownerDocument.defaultView : null);
-    var wndData = (wnd ? glome.getDataForWindow(wnd) : null);
-
-    if (wnd.frameElement)
-    {
-      frameData = glome.getDataForNode(wnd.frameElement, true);
-    }
-
-    if (frameData)
-    {
-      frameData = frameData[1];
-    }
-
-    if (frameData && frameData.filter)
-    {
-      frameData = null;
-    }
-
-
-    if (nodeType != "IMAGE")
-    {
-      // Look for a background image
-      var imageNode = target;
-      while (imageNode && !backgroundData)
-      {
-        if (imageNode.nodeType == imageNode.ELEMENT_NODE)
-        {
-          var bgImage = null;
-          var style = wnd.getComputedStyle(imageNode, "");
-          bgImage = glomeImageStyle(style, "background-image") || glomeImageStyle(style, "list-style-image");
-          if (bgImage)
-          {
-            backgroundData = wndData.getLocation(glome.abp.policy.type.BACKGROUND, bgImage);
-
-            if (backgroundData && backgroundData.filter)
-            {
-              backgroundData = null;
-            }
-          }
-        }
-
-        imageNode = imageNode.parentNode;
-      }
-    }
-  }
-
-  E("glome-image-menuitem").hidden = (nodeType != "IMAGE" && backgroundData == null);
-  E("glome-object-menuitem").hidden = (nodeType != "OBJECT");
-  E("glome-frame-menuitem").hidden = (frameData == null);
-}
-
-/**
- * Fill tooltip
- *
- * @param Object event
- */
-function glomeFillTooltip(event)
-{
-  if (!document.tooltipNode || !document.tooltipNode.hasAttribute("tooltip"))
-  {
-    event.preventDefault();
-    return;
-  }
-
-  glomeTimedUpdater();
-
-  var type = (document.tooltipNode && document.tooltipNode.id == "glome-toolbarbutton" ? "toolbar" : "statusbar");
-  var action = parseInt(glomePrefs["default" + type + "action"]);
-  if (isNaN(action))
-  {
-    action = -1;
-  }
-
-  var actionDescr = E("glome-tooltip-action");
-  actionDescr.hidden = (action < 0 || action > 3);
-  if (!actionDescr.hidden)
-  {
-    actionDescr.setAttribute("value", glome.getString("action" + action + "_tooltip"));
-  }
-
-  var state = event.target.getAttribute("curstate");
-  var statusDescr = E("glome-tooltip-status");
-  statusDescr.setAttribute("value", glome.getString(state + "_tooltip"));
-
-  var activeFilters = [];
-  E("glome-tooltip-blocked-label").hidden = (state != "active");
-  E("glome-tooltip-blocked").hidden = (state != "active");
-
-  if (state == "active")
-  {
-    var data = glome.getDataForWindow(glome.getBrowserInWindow(window).contentWindow);
-    var locations = data.getAllLocations();
-
-    var blocked = 0;
-    var filterCount = {__proto__: null};
-    for (i = 0; i < locations.length; i++) {
-      if (locations[i].filter && !(locations[i].filter instanceof glome.WhitelistFilter))
-        blocked++;
-      if (locations[i].filter) {
-        if (locations[i].filter.text in filterCount)
-          filterCount[locations[i].filter.text]++;
-        else
-          filterCount[locations[i].filter.text] = 1;
-      }
-    }
-
-    var blockedStr = glome.getString("blocked_count_tooltip");
-    blockedStr = blockedStr.replace(/--/, blocked).replace(/--/, locations.length);
-    E("glome-tooltip-blocked").setAttribute("value", blockedStr);
-
-    var filterSort = function(a, b) {
-      return filterCount[b] - filterCount[a];
-    };
-    for (var filter in filterCount)
-      activeFilters.push(filter);
-    activeFilters = activeFilters.sort(filterSort);
-  }
-
-  E("glome-tooltip-filters-label").hidden = (activeFilters.length == 0);
-  E("glome-tooltip-filters").hidden = (activeFilters.length == 0);
-  if (activeFilters.length > 0) {
-    var filtersContainer = E("glome-tooltip-filters");
-    while (filtersContainer.firstChild)
-      filtersContainer.removeChild(filtersContainer.firstChild);
-
-    for (var i = 0; i < activeFilters.length && i < 3; i++) {
-      var descr = document.createElement("description");
-      descr.setAttribute("value", activeFilters[i] + " (" + filterCount[activeFilters[i]] + ")");
-      filtersContainer.appendChild(descr);
-    }
-    if (activeFilters.length > 3) {
-      var descr = document.createElement("description");
-      descr.setAttribute("value", "...");
-      filtersContainer.appendChild(descr);
-    }
-  }
-}
 
 /**
  * Toggles the value of a boolean pref
@@ -855,7 +593,7 @@ function glomeCategorySubscription(id, status)
 {
   log.debug('glomeCategorySubscription starts');
   var q = 'UPDATE categories SET subscribed = :status WHERE id = :id';
-  log.debug(q);
+  //log.debug(q);
 
   var statement = db.createStatement(q);
   statement.params.id = id;
@@ -880,7 +618,7 @@ function glomeCategorySubscription(id, status)
  * Get ad according to its id
  *
  * @param int ad_id
- * @return mixed      Object with populated values or false on failure
+ * @return mixed Object with populated values or false on failure
  */
 function glomeGetAd(ad_id)
 {
@@ -942,11 +680,9 @@ function glomeGetAdsForCategory(id)
   var id = Number(id);
 
   var q = "SELECT * FROM ads WHERE adcategories LIKE '%" + id + "%' AND expires >= :datetime AND expired = 0";
-  log.debug(q);
+  //log.debug(q);
   var statement = db.createStatement(q);
-
-  var date = new Date();
-  statement.params.datetime = ISODateString(date);
+  statement.params.datetime = glome.ISODateString();
 
   var ads = new Array();
   while (statement.executeStep())
@@ -1004,7 +740,7 @@ function glomeGetAdsForCategory(id)
 function glomeGetCategories()
 {
   let q = 'SELECT * FROM categories WHERE subscribed = :subscribed';
-  log.debug(q);
+  //log.debug(q);
 
   var statement = db.createStatement(q);
   statement.params.subscribed = 1;
@@ -1050,6 +786,9 @@ function glomeGetCategories()
   );
 }
 
+/**
+ * Clean up ads table
+ */
 function glomeCleanAds()
 {
   q = 'DELETE FROM ads';
@@ -1059,6 +798,9 @@ function glomeCleanAds()
   statement.reset();
 }
 
+/**
+ * Fetch ads from server
+ */
 function glomeFetchAds()
 {
   if (! glomePrefs.enabled)
@@ -1220,7 +962,7 @@ function glomeFocus()
 
   // Check each browser instance for our URL
   var found = false;
-  while (!found && browserEnumerator.hasMoreElements())
+  while (! found && browserEnumerator.hasMoreElements())
   {
     var browserWin = browserEnumerator.getNext();
     var tabbrowser = browserWin.gBrowser;
@@ -1232,7 +974,6 @@ function glomeFocus()
       var currentBrowser = tabbrowser.getBrowserAtIndex(index);
       if (url == currentBrowser.currentURI.spec)
       {
-
         // The URL is already opened. Select this tab.
         tabbrowser.selectedTab = tabbrowser.tabContainer.childNodes[index];
 
@@ -1263,7 +1004,7 @@ function glomeFocus()
 }
 
 /**
- * Gets the ad history of the user
+ * Creates a new glome id if not existing
  */
 function glomeCreateProfile(glomeid)
 {
@@ -1274,7 +1015,6 @@ function glomeCreateProfile(glomeid)
 
   log.debug('Create profile: ' + glomeid);
 
-  var date = new Date();
   window.jQuery.ajax
   (
     {
@@ -1300,28 +1040,38 @@ function glomeCreateProfile(glomeid)
 }
 
 /**
- * Gets the ad history of the user
+ * Gets user profile info (adhistory)
  */
 function glomeGetProfile()
 {
-  log.debug('Get profile of ' + glomePrefs.glomeid);
+  if (   glomePrefs
+      && glomePrefs.glomeid)
+  {
+    log.debug('Get profile of ' + glomePrefs.glomeid);
 
-  window.jQuery.getJSON(
-    glomePrefs.getUrl(glomePrefs.get('api.users')) + '/' + glomePrefs.glomeid + '.json',
-    function(data) {
-      if (data.error && data.error == 'No such profile.')
+    window.jQuery.getJSON(
+      glomePrefs.getUrl(glomePrefs.get('api.users')) + '/' + glomePrefs.glomeid + '.json',
+      function(data)
       {
-        glomeCreateProfile(glomePrefs.glomeid);
+        if (data.error && data.error == 'No such profile.')
+        {
+          glomeCreateProfile(glomePrefs.glomeid);
+        }
+        else
+        {
+          // store the history for later use when fetching ads completed
+          glome_ad_history = data.adhistories;
+          // parse ad history and determine last state of each ad
+          glomeParseAdHistory(glome_ad_history);
+        }
       }
-      else
-      {
-        // store the history for later use when fetching ads completed
-        glome_ad_history = data.adhistories;
-        // parse ad history and determine last state of each ad
-        glomeParseAdHistory(glome_ad_history);
-      }
-    }
-  );
+    )
+  }
+  else
+  {
+    // Create Glome ID if not available yet
+    glomeCreateProfile();
+  }
 }
 
 /**
@@ -1333,11 +1083,11 @@ function glomeParseAdHistory(histories)
 {
   var status = GLOME_AD_STATUS_PENDING;
 
-  window.jQuery.each(histories, function(index, history) {
-    log.debug('SQL update in ad: ' + history.ad_id + ', action: ' + history.action);
-
+  window.jQuery.each(histories, function(index, history)
+  {
     // map server side actions with extension side statuses
-    switch (history.action) {
+    switch (history.action)
+    {
       case 'getit':
         status = GLOME_AD_STATUS_VIEWED;
         break;
@@ -1352,7 +1102,6 @@ function glomeParseAdHistory(histories)
     }
     if (status != GLOME_AD_STATUS_PENDING)
     {
-      log.debug('SQL update in ad: ' + history.ad_id + ', action: ' + history.action);
       glomeSetAdStatus(ad_id, status);
     }
 
@@ -1371,13 +1120,3 @@ function glomeParseAdHistory(histories)
 
 glomeInit();
 glome.initialized = true;
-
-function ISODateString(d)
-{
- function pad(n)
- {
-   return n < 10 ? '0' + n : n;
- }
-
- return d.getUTCFullYear() + '-' + pad(d.getUTCMonth()+1)+'-' + pad(d.getUTCDate())+'T' + pad(d.getUTCHours())+':' + pad(d.getUTCMinutes())+':' + pad(d.getUTCSeconds())+'Z';
-}

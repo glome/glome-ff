@@ -95,7 +95,6 @@ var glomeOverlay =
 
     glome.glomeUpdateTicker();
     glomeOverlay.WidgetShow();
-    glomeOverlay.AdStateChange();
 
     glomeOverlay.log.debug('Change state finished');
   },
@@ -422,7 +421,7 @@ var glomeOverlay =
     var template = jQuery('#glome-overlay-categories-list').find('template').text();
     jQuery('#glome-overlay-categories-list').find('> *').not('template').remove();
 
-    this.log.debug(glome.glome_ad_categories_count);
+    glomeOverlay.log.debug('glome_ad_categories_count: ' + glome.glome_ad_categories_count);
 
     for (i in glome.glome_ad_categories)
     {
@@ -472,49 +471,35 @@ var glomeOverlay =
   {
     glomeOverlay.log.debug('glomeOverlay.AdNotNow');
 
-    if (!ad_id)
+    if (! ad_id)
     {
       ad_id = glomeOverlay.currentAd;
     }
-    else
-    {
-    }
 
-    if (!ad_id)
+    if (! ad_id)
     {
-      var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
+      ad_id = jQuery('#glome-ad-pager').attr('data-ad');
     }
-
-    var ad = glome.glomeGetAd(ad_id);
 
     var url = glome.glomePrefs.getUrl('ads/' + ad_id + '/notnow.json');
-
-    var tmp =
-    {
-      user:
-      {
-        glomeid: glome.glomePrefs.glomeid
-      }
-    };
 
     jQuery.ajax
     (
       {
         url: url,
         type: 'POST',
-        data: tmp,
-/*
+        data:
         {
           user:
           {
             glomeid: glome.glomePrefs.glomeid
           }
         },
-*/
         dataType: 'json',
         success: function(data)
         {
-          // Probably nothing needs to be done
+          // Mark the event in local db
+
           glomeOverlay.log.debug('AdNotNow request sent successfully');
         }
       }
@@ -529,17 +514,17 @@ var glomeOverlay =
   DisplayAd: function(ad_id)
   {
     glomeOverlay.log.debug('DisplayAd: ' + ad_id);
-    if (!ad_id)
+    if (! ad_id)
     {
       ad_id = glomeOverlay.currentAd;
     }
 
-    if (!ad_id)
+    if (! ad_id)
     {
-      var ad_id = jQuery('#glome-ad-pager').attr('data-ad');
+      ad_id = jQuery('#glome-ad-pager').attr('data-ad');
     }
 
-    if (!ad_id)
+    if (! ad_id)
     {
       return false;
     }
@@ -597,18 +582,6 @@ var glomeOverlay =
           })
           .css('background-image', 'url("' + ad.content + '")');
 
-  /*
-        var img = container.find('#glome-overlay-single-image').find('image');
-        img.attr
-        (
-          {
-            src: ad.content,
-            width: ad.width,
-            height: ad.height,
-          }
-        );
-  */
-
         container.find('.description .h1').get(0).textContent = ad.title;
         container.find('.description description.description').get(0).textContent = ad.description;
 
@@ -630,7 +603,7 @@ var glomeOverlay =
       break;
     }
 
-    if (!glome.glomePrefs.get('glomeid'))
+    if (! glome.glomePrefs.get('glomeid'))
     {
       container.find('.action').attr('hidden', 'true');
     }
@@ -672,7 +645,6 @@ var glomeOverlay =
         {
           glomeOverlay.PanelHide();
         }
-
 
         // Update ticker to match the new view count
         glome.glomeUpdateTicker();
@@ -717,154 +689,6 @@ var glomeOverlay =
   {
     window.gBrowser.selectedTab.removeAttribute('glomepanel');
     glomeOverlay.PanelHide();
-  },
-
-  /**
-   * Change advertisement state
-   */
-  AdStateChange: function()
-  {
-    // Display ads if Glome is off or disabled for this domain
-    var domain = glome.glomeGetCurrentDomain();
-
-    if (! glome.glomePrefs.enabled)
-    {
-      glomeOverlay.RevealAds();
-    }
-    else
-    {
-      glomeOverlay.HideAds();
-    }
-  },
-
-  /**
-   * Reveal content ads
-   */
-  RevealAds: function()
-  {
-    return;
-
-    jQuery(content.document).find('[data-glomeblock]')
-      .removeAttr('hidden')
-      .removeAttr('data-glomeblock');
-  },
-
-  /**
-   * Hide content ads
-   */
-  HideAds: function()
-  {
-    return;
-
-    var date = new Date();
-
-    // Prevent this from being run more often than every 10 seconds
-    if (   typeof content.document.glomeblock != 'undefined'
-        && content.document.glomeblock > date.getTime() - 10 * 1000)
-    {
-      //log.debug('-- too fast, too soon');
-      return;
-    }
-
-    content.document.glomeblock = date.getTime();
-    var elements = jQuery(content.document).find('div').not('[data-glomeblock]');
-
-    //var elements = jQuery(selected_tab.contentDocument).find('body, div, img, object, embed');
-    glomeOverlay.log.debug('Found ' + elements.size() + ' elements');
-
-    var filters = new Array();
-    filters.push('ad-container');
-    filters.push('Adtech');
-    filters.push('banner');
-    filters.push('advert');
-
-    for (i = 0; i < elements.size(); i++)
-    {
-      var element = elements.eq(i);
-
-      if (!element.attr('id'))
-      {
-        continue;
-      }
-
-      // Parent element has already been blocked
-      if (element.attr('data-glomeblock') == 'true')
-      {
-        continue;
-      }
-
-      var values = new Array();
-      var removable = false;
-
-      switch (element.get(0).tagName.toLowerCase())
-      {
-        case 'img':
-          values.push(element.attr('src'));
-          break;
-
-        case 'object':
-        case 'embed':
-          values.push(element.attr('src'));
-          values.push(element.find('param[name="movie"]').attr('value'));
-          //removable = true;
-          break;
-
-        case 'div':
-        case 'body':
-          values.push(element.attr('id'));
-          values.push(element.css('background-image'));
-          values.push(element.css('list-style-image'));
-          break;
-      }
-
-      // Remove empty values
-      for (n = 0; n < values.length; n++)
-      {
-        if (!values[n])
-        {
-          values.splice(n, 1);
-        }
-      }
-
-      if (!values.length)
-      {
-        continue;
-      }
-
-      for (n = 0; n < filters.length; n++)
-      {
-        glomeOverlay.log.debug('Create a filter for ' + filters[n]);
-        var filter = new RegExp(filters[n]);
-        var match = false;
-
-        for (k = 0; k < values.length; k++)
-        {
-          var value = values[k];
-
-          if (value.match(filter))
-          {
-            match = true;
-
-            if (removable)
-            {
-              element.remove();
-            }
-            else
-            {
-              element.attr('data-glomeblock', 'true');
-              element.attr('hidden', 'true');
-              element.css('display', 'none !important');
-            }
-          }
-        }
-
-        // Already filtered out, no need to continue
-        if (match)
-        {
-          continue;
-        }
-      }
-    }
   },
 
   /**
@@ -998,21 +822,6 @@ var glomeOverlay =
 
 /* !Event listeners */
 
-/* !Window DOMContentLoaded event */
-/**
- * Bind Glome to DOM content loader event. This is to catch each and every page load
- * by Glome in order to know when to reveal or hide content
- */
-window.addEventListener('DOMContentLoaded', function(e)
-{
-  glomeOverlay.AdStateChange();
-  glomeOverlay.domain = glome.glomeGetCurrentDomain();
-
-  // Initialize page
-  glome.glomeInitPage(e);
-
-}, false);
-
 /* !Window DOMTitleChanged event */
 window.addEventListener('DOMTitleChanged', function(e)
 {
@@ -1029,6 +838,20 @@ window.addEventListener('DOMTitleChanged', function(e)
 /* !Window load event */
 window.addEventListener('load', function(e)
 {
+  if (typeof window.glome == 'undefined')
+  {
+    let sandbox = new Components.utils.Sandbox(window);
+    sandbox.window = window;
+    sandbox.document = document;
+    Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+              .getService(Components.interfaces.mozIJSSubScriptLoader)
+              .loadSubScript("chrome://glome/content/browserWindow.js", sandbox);
+  }
+  else
+  {
+    glome = window.glome;
+  }
+
   jQuery('#glome-controls').insertAfter(jQuery('#browser'));
   //jQuery('#glome-panel').appendTo('#tab-view-deck');
 
@@ -1039,7 +862,7 @@ window.addEventListener('load', function(e)
     glomeOverlay.log.level = 5;
   }
 
-  glomeOverlay.AdStateChange();
+  //glomeOverlay.AdStateChange();
   glomeOverlay.domain = glome.glomeGetCurrentDomain();
 
   // Hide Glome icon in the addons view
@@ -1079,7 +902,7 @@ window.addEventListener('TabSelect', function(e)
   stack_panel = document.getElementById('glome-panel');
 
   // Check if the currently selected tab should have Glome ad stack open
-  if (!stack_panel)
+  if (! stack_panel)
   {
     // Stack panel not available, do nothing
   }
@@ -1092,13 +915,8 @@ window.addEventListener('TabSelect', function(e)
     stack_panel.hidePopup();
   }
 
-  // Initialize page
-  glome.glomeInitPage(e);
-  glome.updateTicker();
-
   // Hide the Glome popup
   glomeOverlay.WidgetHide();
-  glomeOverlay.AdStateChange();
 }, false);
 
 /* !Window resize event */

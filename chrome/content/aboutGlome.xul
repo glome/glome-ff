@@ -10,11 +10,8 @@
 <window id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery-xul.js" />
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
-  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/tools.js" />
-  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/overlay.js" />
-  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/notification.js" />
   <script type="application/x-javascript;version=1.8" src="chrome://glome/content/aboutGlome.js"/>
-  
+
   <!-- glome view -->
   <template id="glome-category-template" hidden="true">
     <![CDATA[

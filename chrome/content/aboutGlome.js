@@ -10,21 +10,17 @@ var log = null;
 
 window.addEventListener('load', function(e)
 {
-  log = new window.glome.glome.log();
-  log.level = 5;
-
   glomeInitAboutView();
-  document.title = 'Glome';
-
+  jQuery(document).title = 'Glome';
 }, false)
 
 function glomeInitAboutView()
 {
-  log.debug('glomeInitAboutView starts');
+  //log.debug('glomeInitAboutView starts');
   let q = 'SELECT * FROM categories';
-  log.debug(q);
+  //log.debug(q);
   let statement = db.createStatement(q);
-  log.debug('-- statement created');
+  //log.debug('-- statement created');
 
   // Empty the current category selections
   jQuery('#glome-dashboard-container').find('.box-container').find('.item').remove();
@@ -103,7 +99,7 @@ function glomeInitAboutView()
       }
     }
   );
-  log.debug('glomeInitAboutView ends');
+  //log.debug('glomeInitAboutView ends');
 }
 
 /**
