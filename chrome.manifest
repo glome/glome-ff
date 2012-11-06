@@ -2,7 +2,7 @@ content   glome   chrome/content/
 skin      glome   classic/1.0   chrome/skin/
 locale    glome   en-US         chrome/locale/en-US/
 
-overlay   chrome://browser/content/browser.xul   chrome://glome/content/ff-overlay.xul
+overlay   chrome://browser/content/browser.xul chrome://glome/content/ff-overlay.xul
 style chrome://global/content/customizeToolbar.xul chrome://glome/skin/overlay.css
 
 # XPCOM
