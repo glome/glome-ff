@@ -12,7 +12,7 @@
 
   <script type="application/javascript" src="chrome://glome/content/library/jquery-xul.js" />
   <script type="application/javascript" src="chrome://glome/content/library/jquery.timers.src.js" />
-  <script type="application/javascript" src="chrome://glome/content/library/jquery.cookie.js" />
+  <!--script type="application/javascript" src="chrome://glome/content/library/jquery.cookie.js" /-->
 
   <script type="application/javascript" src="chrome://glome/content/ff-overlay.js" />
 
