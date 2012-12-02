@@ -324,40 +324,6 @@ const glome = {
   },
 
   /**
-   * Opens preferences dialog or focused already open dialog.
-   * @param {String} location  (optional) filter suggestion
-   * @param {Filter} filter    (optional) filter to be selected
-   */
-  openSettingsDialog: function(location, filter)
-  {
-    var dlg = windowMediator.getMostRecentWindow("glome:settings");
-    var func = function() {
-      if (typeof location == "string")
-        dlg.setLocation(location);
-      if (filter instanceof Filter)
-        dlg.selectFilter(filter);
-    }
-
-    if (dlg) {
-      func();
-
-      try {
-        dlg.focus();
-      } catch (e) {
-        // There must be some modal dialog open
-        dlg = windowMediator.getMostRecentWindow("glome:subscription") || windowMediator.getMostRecentWindow("glome:about");
-        if (dlg)
-          dlg.focus();
-      }
-    }
-    else
-    {
-      dlg = windowWatcher.openWindow(null, "chrome://glome/content/settings.xul", "_blank", "chrome,centerscreen,resizable,dialog=no", null);
-      dlg.addEventListener("post-load", func, false);
-    }
-  },
-
-  /**
    * Opens a URL in the browser window. If browser window isn't passed as parameter,
    * this function attempts to find a browser window.
    */
@@ -423,19 +389,20 @@ glome.wrappedJSObject = glome;
 // Initialization and registration
 function init()
 {
-  initialized = true;
   glome.LOG("init() called");
 
   glome.versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"]
     .createInstance(Ci.nsIVersionComparator);
 
-  // Common
-  loader.loadSubScript('chrome://glome/content/utils.js');
+  // Load libs
+  loader.loadSubScript('chrome://glome/content/library/utils.js');
+  glome.LOG("  utils loaded");
 
-  // Glome related
-  loader.loadSubScript('chrome://glome/content/prefs.js');
+  loader.loadSubScript('chrome://glome/content/library/date.format.js');
+  glome.LOG("  date.format.js loaded");
 
   glome.LOG("init() done");
+  initialized = true;
 };
 
 function fixPackageLocale(package_name)

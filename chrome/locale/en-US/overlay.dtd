@@ -56,6 +56,7 @@
 <!ENTITY label.glome_dashboard  "Glome Dashboard">
 <!ENTITY label.turn_glome_off   "Turn Glome OFF">
 <!ENTITY label.glome_is_off   "Glome is OFF">
+<!ENTITY label.glome_has_no_ads   "Glome has no new ads">
 <!ENTITY label.just_for_this_site  "Just for this site">
 <!ENTITY label.interested_in    "Interested in">
 <!ENTITY glome_will_not_spam_you_with_ads_you_dont_want "Glome will not spam you with ads you don't want.">
@@ -66,3 +67,18 @@
 <!ENTITY label.tab.my_rules     "My Rules">
 <!ENTITY label.tab.my_web     "My Web">
 <!ENTITY label.tab.my_wallet     "My Wallet">
+<!ENTITY label.tab.my_admin     "My Admin">
+<!ENTITY title.admin_ui     "Admin UI">
+<!ENTITY intro_my_rewards     "My rewards content comes here">
+<!ENTITY intro_password_protection     "A safely kept password, known only by you can protect your Glome profile. Would you like to opt in?">
+<!ENTITY label.enable_password     "Enable Password Protection?">
+<!ENTITY label.password     "Password">
+<!ENTITY label.old_password     "Old Password">
+<!ENTITY label.new_password     "New Password">
+<!ENTITY label.repeat_new_password     "Repeat New Password *">
+<!ENTITY label.sub_repeat_new_password "(only if new or changed)">
+<!ENTITY label.save_button     "Save Password">
+<!ENTITY label.login_button     "Login">
+
+
+

@@ -252,3 +252,53 @@
   -moz-box-orient: horizontal;
 }
 
+#glome-no-ads {
+display: none;
+}
+
+#glome-off, #glome-no-ads
+{
+text-align: center;
+margin-top: 10px;
+margin-bottom: 10px;
+font-size: 14px;
+font-weight: bold;
+}
+
+label.glome_security_switch_question {
+padding: 10px 0 0 0;
+}
+
+label.sub_repeat_password {
+font-size: 8px;
+}
+
+vbox#password_box {
+margin: 20px 0;
+}
+
+vbox.password_labels label.password {
+margin: 8px 0;
+}
+
+box.password {
+display: block;
+clear: both;
+}
+
+button.save_password {
+width: 100px;
+}
+
+vbox#feedback label.message {
+margin-top: 20px;
+}
+
+vbox#feedback label.message.error {
+color: red;
+}
+
+vbox#feedback label.detail {
+margin: 5px 0 0 0;
+display: list-item;
+}

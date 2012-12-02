@@ -3,6 +3,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 function AboutMe() {}
+
 AboutMe.prototype = {
   newChannel : function(aURI)
   {
@@ -29,6 +30,6 @@ AboutMe.prototype = {
 * XPCOMUtils.generateNSGetModule is for Mozilla 1.9.2 (Firefox 3.6).
 */
 if (XPCOMUtils.generateNSGetFactory)
-    var NSGetFactory = XPCOMUtils.generateNSGetFactory([AboutMe]);
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([AboutMe]);
 else
-    var NSGetModule = XPCOMUtils.generateNSGetModule([AboutMe]);
+  var NSGetModule = XPCOMUtils.generateNSGetModule([AboutMe]);

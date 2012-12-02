@@ -39,29 +39,115 @@ try
 {
   glome = Components.classes["@glome.me/glome-ext;1"].createInstance().wrappedJSObject;
 
-  if (! glome || ! glome.prefs.initialized)
+  dump('\n' + glome + '\n');
+  if (! glome)
   {
     glome = null;
   }
 }
 catch (e)
 {
-  dump("GET GLOME EXCEPTION");
+  dump("\nGET GLOME EXCEPTION\n");
   dump(e);
 }
 
-var glomePrefs = glome ? glome.prefs : { enabled: false };
-var glomeOldShowInToolbar = glomePrefs.showintoolbar;
+// prefs observer
+// a preferences observer intance
+glome.prefs = new PreferencesManager(
+  "extensions.glome.",
+  function(branch, name)
+  {
+    log.debug('************ ' + name + ' preference changed');
+
+    if (glome.initialized)
+    {
+      switch (name)
+      {
+        case 'enabled':
+          log.debug('************ new value of ' + name + ':' + glome.prefs.enabled);
+          if (glome.prefs.enabled)
+          {
+            if (glome.prefs.password_protection)
+            {
+              window.jQuery('#auth_box').attr('hidden', false);
+              window.jQuery('#glome_power_switch').hide();//attr('hidden', true);
+            }
+            else
+            {
+              window.jQuery('#auth_box').attr('hidden', true);
+              window.jQuery('#glome_power_switch').show();//attr('hidden', false);
+              //window.jQuery(document).trigger('updateticker');
+            }
+          }
+          else
+          {
+            window.jQuery('#glome-controls-icon-counter-value').hide();
+          }
+          break;
+        case 'session_token':
+          log.debug('************ new value of ' + name + ':' + glome.prefs.enabled);
+          break;
+        case 'session_cookie':
+          log.debug('************ new value of ' + name + ':' + glome.prefs.enabled);
+          break;
+        case 'password_protection':
+          // init the login section in the knock
+          if (glome.prefs.password_protection)
+          {
+            window.jQuery('#glome_security_switch').attr('checked', true);
+            if (glome.prefs.loggedin)
+            {
+              window.jQuery('#auth_box').attr('hidden', true);
+              window.jQuery('#glome_power_switch').hide();//attr('hidden', false);
+            }
+            else
+            {
+              window.jQuery('#auth_box').show();//attr('hidden', false);
+              window.jQuery('#glome_power_switch').hide();//attr('hidden', true);
+            }
+          }
+          else
+          {
+            window.jQuery('#glome_security_switch').attr('checked', false);
+            glome.prefs.loggedin = false;
+            glome.prefs.save();
+          }
+          log.debug('************ new value of ' + name + ':' + glome.prefs.enabled);
+          break;
+        case 'loggedin':
+          if (glome.prefs.loggedin)
+          {
+            window.jQuery('#glome_power_switch').show();
+            window.jQuery(document).trigger('profileready');
+          }
+          else
+          {
+            window.jQuery('#auth_box').show();
+            window.jQuery('#glome_power_switch').hide();
+            if (glome.prefs.password_protection)
+            {
+              window.jQuery('#glome-controls-icon-counter-value').hide();
+              window.jQuery('#glome_power_switch').hide();
+            }
+          }
+          log.debug('************ new value of ' + name + ':' + glome.prefs.enabled);
+          break;
+      }
+    }
+    else
+    {
+      log.debug('************ but glome has not been initialized yet');
+    }
+  }
+);
 
 glome.initialized = false;
 
+// setup preference observers
+glome.prefs.register(true);
+
 log = new glome.log();
 log.level = 5;
-
-function E(id)
-{
-  return document.getElementById(id);
-}
 
 /**
  * Init
@@ -69,40 +155,61 @@ function E(id)
 function glomeInit()
 {
   log.info("glomeInit");
-  glomeInitDb();
 
   if (glome)
   {
     log.debug('Glome is defined, register unload event');
     // Register event listeners
     window.addEventListener("unload", glomeUnload, false);
-
     // Create reference to this
     window.glome = this;
   }
 
-  // Run startup stuff
-  glomeGetProfile();
-  glomeGetCategories();
-  glomeFetchAds();
-  glomeTimedUpdater();
-  glomeInitABP();
+  // event listener for dbready
+  window.jQuery(document).on('dbready', function(event)
+  {
+    log.debug('db ready triggered');
+    glomeGetServerCategories();
+    glomeGetCategories();
+    glomeInitABP();
+  });
 
-  // Set timed updater
-  window.setInterval
-  (
-    function()
-    {
-      var date = new Date();
-      var ts = date.getTime();
-      log.debug('glomeTimedUpdater called as interval');
+  // event listener for getting profile
+  window.jQuery(document).on('profileready', function(event)
+  {
+    dump('triggered');
+    // fetch history
+    glomeGetProfile();
+  });
 
-      glomeTimedUpdater();
+  // event listener for getting profile
+  window.jQuery(document).on('profilecreated', function(event)
+  {
+    // wipe off ads if something remained from a previous usage
+    glomeCleanAds();
+    // update categories, basically a reset
+    glomeGetServerCategories();
+    // fetch history, should all be defualt at this stage
+    glomeGetProfile();
+  });
 
-      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
-    },
-    glomePrefs.get('gui.updateticker') * 1000
-  );
+  // event listener for updating ticker
+  window.jQuery(document).on('updateticker', function(event)
+  {
+    glomeUpdateTicker();
+  });
+
+  glomeInitDb();
+
+  if (   glome.prefs
+      && glome.prefs.glomeid)
+  {
+    window.jQuery(document).trigger('profileready');
+  }
+  else
+  {
+    glomeCreateProfile();
+  }
 
   // Set a long delay for ad retrieval. When debugging this should be minutes and
   // for production probably an hour
@@ -110,15 +217,9 @@ function glomeInit()
   (
     function()
     {
-      var date = new Date();
-      var ts = date.getTime();
-      log.debug('glomeFetchAds called as interval');
-
       glomeFetchAds();
-
-      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
     },
-    glomePrefs.get('api.updateads') * 1000
+    glome.prefs.get('api.updateads') * 1000
   );
 
   // Refresh every now and then the list of categories
@@ -126,15 +227,9 @@ function glomeInit()
   (
     function()
     {
-      var date = new Date();
-      var ts = date.getTime();
-      log.debug('glomeGetCategories called as interval');
-
       glomeGetCategories();
-
-      log.debug('-- done in ' + (Date.now() - ts) + ' ms');
     },
-    glomePrefs.get('api.updatecategories') * 1000
+    glome.prefs.get('api.updatecategories') * 1000
   );
 
   log.info("glomeInit done");
@@ -206,50 +301,9 @@ function glomeInitDb()
 
   log.info('Database initialized, prepare to fetch data from server');
 
-  // @TODO: Verify that it is possible to make a connection
-  // Update category data
-  window.jQuery.ajax
-  (
-    {
-      url: glomePrefs.getUrl(glomePrefs.get('api.adcategories')),
-      type: 'GET',
-      dataType: 'json',
-      contentType: 'application/x-www-form-urlencoded',
-      success: function(data)
-      {
-        // Add all of the categories to database
-        for (let i = 0; i < data.length; i++)
-        {
-          // Update categories
-          var q = 'UPDATE categories SET name = :name WHERE id = :id';
-          //log.debug(q);
-          var statement = db.createStatement(q);
-          statement.params.id = data[i].id;
-          statement.params.name = data[i].name;
-          statement.executeAsync();
+  window.jQuery(document).trigger('dbready');
 
-          // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
-          var q = 'INSERT INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
-          //log.debug(q);
-          var statement = db.createStatement(q);
-          statement.params.id = data[i].id;
-          statement.params.name = data[i].name;
-          statement.executeAsync();
-
-          // @TODO: This needs a check to delete the removed categories as well
-        }
-
-        log.debug('-- updating ad categories finished');
-      },
-    }
-  );
   log.debug('glomeInitDb ends');
-}
-
-function glomeInitPage(e)
-{
-  glomeTimedUpdater();
-  return true;
 }
 
 /**
@@ -277,7 +331,8 @@ function glomeGetCurrentDomain()
 function glomeUnload()
 {
   //debug.info("glomeUnload");
-  glomePrefs.removeListener(glomeTimedUpdater);
+  glome.prefs.removeListener(glomeTimedUpdater);
+  glome.prefListener.unregister();
   glome.getBrowserInWindow(window).removeEventListener("select", glomeTimedUpdater, false);
 }
 
@@ -289,20 +344,24 @@ function glomeUnload()
 function glomeSwitch()
 {
   glomeTogglePref('enabled');
-  return glomePrefs.enabled;
+  return glome.prefs.enabled;
 }
 
 /**
- * Timed updating of Glome
+ * Update Glome ticker
  */
-function glomeTimedUpdater()
+function glomeUpdateTicker()
 {
+  self = this;
+
+  log.debug('glomeUpdateTicker called');
+
   var label;
   var state = null;
 
   if (glome)
   {
-    if (glomePrefs.enabled)
+    if (glome.prefs.enabled)
     {
       state = 'active';
     }
@@ -312,27 +371,14 @@ function glomeTimedUpdater()
     }
   }
 
-  // Set state to main window
-  overlay = E('main-window');
-  overlay.setAttribute('state', state);
+  window.jQuery('#main-window').attr('state', state);
+  log.debug('state of main window: ' + window.jQuery('#main-window').attr('state'));
 
   // Stop execution here if Glome is off
   if (state == 'disabled')
   {
     return;
   }
-
-  glomeUpdateTicker();
-};
-
-/**
- * Update Glome ticker
- */
-function glomeUpdateTicker()
-{
-  self = this;
-
-  log.debug('glomeUpdateTicker initialized');
 
   // local vars
   var glome_ad_stack = [];
@@ -373,8 +419,6 @@ function glomeUpdateTicker()
                 item[i] = row.getResultByName(i);
             }
           }
-
-          //dump('id: ' + item.id + ', expired: ' + item.expired + ', expires: ' + item.expires + ', status: ' + item.status + '\n');
 
           var found = false;
 
@@ -421,35 +465,29 @@ function glomeUpdateTicker()
           }
         }
       },
+      handleError: function(error)
+      {
+        log.error("Error while fetching ads from local db: " + error.message);
+      },
       handleCompletion: function(reason)
       {
-        if (! glome_new_ad_stack.length)
+        if (reason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
         {
-          E('glome-controls-icon-counter-value').hidden = true;
+          log.debug('fetching ads from local db query cancelled');
         }
-        else
-        {
-          E('glome-controls-icon-counter-value').hidden = false;
-        }
-
-        E('glome-controls-icon-counter-value').setAttribute('value', glome_new_ad_stack.length);
 
         self.glome_ad_stack = glome_ad_stack;
         self.glome_new_ad_stack = glome_new_ad_stack;
         self.glome_ad_categories_count = glome_ad_categories_count;
+
+        // check event listener in ff-overlay.js
+        log.debug('before triggering tickerupdated');
+        window.jQuery(document).trigger('tickerupdated');
+        log.debug('trigger tickerupdated from browserWindow::UpdateTicker');
       }
     }
   );
 }
-
-/**
- * Retrieves the current location of the browser (might return null on failure).
- */
-function getCurrentLocation() /**nsIURI*/
-{
-  // Regular browser
-  return glome.unwrapURL(glome.getBrowserInWindow(window).contentWindow.location.href);
-};
 
 /**
  * Toggles the value of a boolean pref
@@ -458,12 +496,8 @@ function getCurrentLocation() /**nsIURI*/
  */
 function glomeTogglePref(pref)
 {
-  glomePrefs[pref] = ! glomePrefs[pref];
-  glomePrefs.save();
-  glomeTimedUpdater();
-
-  // Return the new status
-  return glomePrefs[pref];
+  glome.prefs[pref] = ! glome.prefs[pref];
+  glome.prefs.save();
 }
 
 /**
@@ -479,12 +513,12 @@ function glomeInitABP()
     var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
 
     // check if the ABP integration is requested in the preferences
-    if (glomePrefs.get('abp.enabled'))
+    if (glome.prefs.get('abp.enabled'))
     {
       var filters = [];
       log.debug('ABP integration is turned on in the preferences');
-      window.jQuery.get(glomePrefs.get('abp.subscription'), function(data) {
-        log.info('ABP filters loaded from ' + glomePrefs.get('abp.subscription'));
+      window.jQuery.get(glome.prefs.get('abp.subscription'), function(data) {
+        log.info('ABP filters loaded from ' + glome.prefs.get('abp.subscription'));
         window.jQuery.each(data.split('\n'), function(index, value) {
           value = window.jQuery.trim(value);
           var c = value.charAt(0);
@@ -565,6 +599,48 @@ function glomeGetTable(tablename)
 }
 
 /**
+ * get and updatre categories
+ */
+function glomeGetServerCategories()
+{
+  var url = glome.prefs.getUrl(glome.prefs.get('api.adcategories'));
+
+  window.jQuery.ajax({
+    url: url,
+    type: 'GET',
+    dataType: 'json',
+    success: function(data, textStatus, jqXHR)
+    {
+      log.debug('-- ad categories received');
+
+      // Add all of the categories to database
+      for (let i = 0; i < data.length; i++)
+      {
+        // Update categories
+/*
+        var q = 'UPDATE categories SET name = :name WHERE id = :id';
+        var statement = db.createStatement(q);
+        statement.params.id = data[i].id;
+        statement.params.name = data[i].name;
+        statement.executeAsync();
+*/
+        // Insert into categories. Let SQLite to fix the issue of primary keyed rows, no need to check against them
+        var q = 'REPLACE INTO categories (id, name, subscribed) VALUES (:id, :name, 1)';
+        //log.debug(q);
+        var statement = db.createStatement(q);
+        statement.params.id = data[i].id;
+        statement.params.name = data[i].name;
+        statement.executeAsync();
+
+        // @TODO: This needs a check to delete the removed categories as well
+      }
+
+      log.debug('-- updating ad categories finished');
+    },
+  });
+}
+
+/**
  * Set ad status to
  *
  * @param int ad_id    ID of the advertisement
@@ -572,7 +648,7 @@ function glomeGetTable(tablename)
  */
 function glomeSetAdStatus(ad_id, status)
 {
-  log.debug('glomeSetAdStatus starts');
+  //log.debug('glomeSetAdStatus starts');
 
   var q = 'UPDATE ads SET status = :status WHERE id = :id';
   var statement = db.createStatement(q);
@@ -587,8 +663,8 @@ function glomeSetAdStatus(ad_id, status)
   statement.executeAsync();
 
   // Update ticker
-  glomeUpdateTicker();
-  log.debug('glomeSetAdStatus ends');
+  //glomeUpdateTicker();
+  //log.debug('glomeSetAdStatus ends');
 }
 
 /**
@@ -615,7 +691,7 @@ function glomeCategorySubscription(id, status)
       {
         log.debug('-- got to complete the query of glomeCategorySubscriptionlog.debug');
         glomeGetCategories();
-        glomeUpdateTicker();
+        window.jQuery(document).trigger('updateticker');
       }
     }
   );
@@ -747,6 +823,8 @@ function glomeGetAdsForCategory(id)
  */
 function glomeGetCategories()
 {
+  log.debug('glomeGetCategories called');
+
   let q = 'SELECT * FROM categories WHERE subscribed = :subscribed';
   //log.debug(q);
 
@@ -761,8 +839,6 @@ function glomeGetCategories()
     {
       handleResult: function(results)
       {
-        log.debug('-- got to the results of query in glomeGetCategories');
-
         var cat = glomeGetTable('categories');
 
         // Old stack
@@ -787,8 +863,8 @@ function glomeGetCategories()
       },
       handleCompletion: function(reason)
       {
-        // Get a fresh list of ads
-        glomeUpdateTicker();
+        //log.debug('all categories processed; call updateticker');
+        window.jQuery(document).trigger('updateticker');
       }
     }
   );
@@ -811,9 +887,18 @@ function glomeCleanAds()
  */
 function glomeFetchAds()
 {
-  if (! glomePrefs.enabled)
+  self = this;
+
+  log.debug('Fetch ads called');
+
+  if (! glome.prefs.enabled)
   {
-    return null;
+    if (glome_ad_stack.length > 0)
+    {
+      log.debug('Knock turned off, we have ads in the local db; no fetching now');
+      //window.jQuery(document).trigger('statechanged');
+      return null;
+    }
   }
 
   // @TODO: Verify that it is possible to make a connection
@@ -824,143 +909,125 @@ function glomeFetchAds()
     xhr_ads = null;
   }
 
-  var xhr_ads = window.jQuery.ajax
-  (
+  var completed = false;
+
+  var xhr_ads = window.jQuery.ajax({
+    url: glome.prefs.getUrl(glome.prefs.get('api.ads')),
+    type: 'GET',
+    dataType: 'json',
+    success: function(data, textStatus, jqXHR)
     {
-      url: glomePrefs.getUrl(glomePrefs.get('api.ads')),
-      type: 'GET',
-      dataType: 'json',
-      contentType: 'application/x-www-form-urlencoded',
-      success: function(data)
+      log.debug(data.length + ' ads received');
+
+      for (let i = 0; i < data.length; i++)
       {
-        for (let i = 0; i < data.length; i++)
+        var ad = data[i];
+
+        // check if the ad has changed
+        if (typeof self.glome_ad_stack != 'undefined' &&
+            typeof self.glome_ad_stack[i] != 'undefined' &&
+            self.glome_ad_stack[i].updated_at == ad.updated_at)
         {
-          var ad = data[i];
-          // Get keys
-          if (typeof keys == 'undefined')
-          {
-            var keys = new Array();
-            var keys_with_colon = new Array();
+          continue;
+        }
 
-            for (key in ad)
-            {
-              keys.push(key);
-              keys_with_colon.push(':' + key);
-            }
+        if ((i + 1) == data.length)
+        {
+          completed = true;
+        }
 
-            keys.push('status');
-            keys_with_colon.push(':status');
-          }
-
-          // Store the ads locally
-          q = 'INSERT INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
-          //log.debug(q);
-          var statement = db.createStatement(q);
-
-          // Set status of ads using the history info that was obtained from the server
-          if (typeof glome_ad_last_state[ad.id] !== 'undefined')
-          {
-            statement.params.status = glome_ad_last_state[ad.id]
-          }
-          else
-          {
-            statement.params.status = GLOME_AD_STATUS_PENDING;
-          }
+        // Get keys
+        if (typeof keys == 'undefined')
+        {
+          var keys = new Array();
+          var keys_with_colon = new Array();
 
           for (key in ad)
           {
-            var value = ad[key];
-
-            // Per type rules
-            switch (key)
-            {
-              case 'adcategories':
-                var selection = new Array();
-
-                for (k in value)
-                {
-                  selection.push(value[k].id);
-                }
-
-                // Store as JSON string
-                value = JSON.stringify(selection);
-                break;
-
-              default:
-            }
-            statement.params[key] = value;
+            keys.push(key);
+            keys_with_colon.push(':' + key);
           }
 
-          // Check if updateable on error, since probably the primary keyed ID already exists
-          statement.executeAsync
-          (
+          keys.push('status');
+          keys_with_colon.push(':status');
+        }
+
+        // Store the ads locally
+        q = 'INSERT OR REPLACE INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
+        var statement = db.createStatement(q);
+
+        // Set status of ads using the history info that was obtained from the server
+        if (typeof glome_ad_last_state[ad.id] !== 'undefined')
+        {
+          statement.params.status = glome_ad_last_state[ad.id]
+        }
+        else
+        {
+          statement.params.status = GLOME_AD_STATUS_PENDING;
+        }
+
+        for (key in ad)
+        {
+          var value = ad[key];
+
+          // Per type rules
+          switch (key)
+          {
+            case 'adcategories':
+              var selection = new Array();
+
+              for (k in value)
+              {
+                selection.push(value[k].id);
+              }
+
+              // Store as JSON string
+              value = JSON.stringify(selection);
+              break;
+
+            default:
+          }
+          statement.params[key] = value;
+        }
+
+        // Check if updateable on error, since probably the primary keyed ID already exists
+        statement.executeAsync
+        (
+          {
+            rval: statement.params,
+
+            handleCompletion: function(reason)
             {
-              rval: statement.params,
-              handleCompletion: function(reason)
+              if (reason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
               {
-                //glomeUpdateTicker();
-              },
-              handleError: function(error)
+                log.debug('CANCELLED query for inserting ads in local db');
+              }
+              else
               {
-                q = 'UPDATE ads SET ';
-
-                var first = true;
-
-                for (key in this.rval)
+                if (completed)
                 {
-                  if (key == 'id')
-                  {
-                    continue;
-                  }
-
-                  if (first)
-                  {
-                    first = false;
-                  }
-                  else
-                  {
-                    q += ', ';
-                  }
-
-                  q += key + ' = :' + key;
+                  // update the ticker in the knock
+                  log.debug('update ticker after inserting the last ad to local db');
+                  window.jQuery(document).trigger('updateticker');
+                  completed = false;
                 }
-
-                q += ' WHERE id = ' + this.rval.id;
-                //log.debug(q);
-
-                let statement = db.createStatement(q);
-                // assign params
-                window.jQuery.each(this.rval, function(index, value) {
-                  if (index == "id")
-                  {
-                    return true;
-                  }
-                  statement.params[index] = value;
-/*
-                  if (index == "status")
-                  {
-                    log.debug('status of ad: ' + value);
-                  }
-*/
-                });
-
-                statement.execute
-                (
-                  {
-                    handleCompletion: function(reason)
-                    {
-                      // update the ticker in the knock
-                      glomeUpdateTicker();
-                    }
-                  }
-                );
               }
             }
-          );
-        }
-      },
-    }
-  );
+          }
+        );
+      } // end of for loop
+    }, // end fo success
+    error: function(jqXHR, textStatus, errorThrown) {
+      log.debug('Error getting ads via json: ' + jqXHR.status + ', ' + jqXHR.statusText);
+
+      // maybe the session ended? start a new one
+      if (jqXHR.status === 403)
+      {
+        log.debug('try to login again');
+        glomeGetProfile();
+      }
+    }, // end of error
+  });
 }
 
 /**
@@ -1022,9 +1089,20 @@ function glomeFocus()
  */
 function glomeCreateProfile(glomeid)
 {
-  if (typeof glomeid === null)
+  log.debug('glomeid in: ' + glomeid);
+
+  if (typeof glomeid === 'undefined')
   {
     glomeid = date.getTime();
+  }
+
+  var url = glome.prefs.getUrl(glome.prefs.get('api.users.json'));
+  var data =
+  {
+    user:
+    {
+      glomeid: glomeid
+    }
   }
 
   log.debug('Create profile: ' + glomeid);
@@ -1032,22 +1110,19 @@ function glomeCreateProfile(glomeid)
   window.jQuery.ajax
   (
     {
-      url: glomePrefs.getUrl(glomePrefs.get('api.users.json')),
-      data:
-      {
-        user:
-        {
-          glomeid: glomeid,
-        },
-      },
+      url: url,
+      data: data,
       type: 'POST',
       dataType: 'json',
-      contentType: 'application/x-www-form-urlencoded',
-      success: function(data)
+      success: function(data, textStatus, jqXHR)
       {
-        glomePrefs.glomeid = data.glomeid;
-        glomePrefs.save();
-        log.debug('Glome ID is now ' + glomePrefs.glomeid);
+        // set an internal
+        glome.prefs.glomeid = data.glomeid;
+        glome.prefs.save();
+
+        log.debug('Glome ID is now ' + glome.prefs.glomeid);
+
+        window.jQuery(document).trigger('profilecreated');
       },
     }
   );
@@ -1056,36 +1131,92 @@ function glomeCreateProfile(glomeid)
 /**
  * Gets user profile info (adhistory)
  */
-function glomeGetProfile()
+function glomeGetProfile(password)
 {
-  if (   glomePrefs
-      && glomePrefs.glomeid)
-  {
-    log.debug('Get profile of ' + glomePrefs.glomeid);
+  log.debug('Get profile of ' + glome.prefs.glomeid);
 
-    window.jQuery.getJSON(
-      glomePrefs.getUrl(glomePrefs.get('api.users')) + '/' + glomePrefs.glomeid + '.json',
-      function(data)
+  var url = glome.prefs.getUrl(glome.prefs.get('api.users')) + '/login.json';
+  var method = 'POST';
+  var data =
+  {
+    user:
+    {
+      glomeid: glome.prefs.glomeid
+    }
+  };
+
+  if (glome.prefs.password_protection)
+  {
+      if (glome.prefs.loggedin)
       {
-        if (data.error && data.error == 'No such profile.')
+          url = glome.prefs.getUrl(glome.prefs.get('api.users')) + '/' + glome.prefs.glomeid + '.json';
+          method = 'GET';
+          data = '';
+      }
+  }
+
+  log.debug('  sending profile request to:' + url);
+
+  window.jQuery.ajax({
+    url: url,
+    type: method,
+    data: data,
+    dataType: 'json',
+    success: function(data, textStatus, jqXHR)
+    {
+      if (typeof glome.prefs.session_token === 'undefined' ||
+          glome.prefs.session_token != jqXHR.getResponseHeader('X-CSRF-Token'))
+      {
+        log.debug('******** we have to update headers');
+        log.debug('');
+        log.debug('token:' + jqXHR.getResponseHeader('X-CSRF-Token') + ' => ' + glome.prefs.session_token + ' vs ' + glome.prefs.session_token);
+        log.debug('cookie:' + jqXHR.getResponseHeader('Set-Cookie') + ' => ' + glome.prefs.session_cookies + ' vs ' + glome.prefs.session_cookies);
+        log.debug('');
+        log.debug('*********************************************');
+
+        glome.prefs.session_token = jqXHR.getResponseHeader('X-CSRF-Token');
+        glome.prefs.session_cookies = jqXHR.getResponseHeader('Set-Cookie');
+
+        if (data.encrypted_password == '')
         {
-          glomeCreateProfile(glomePrefs.glomeid);
+          glome.prefs.password_protection = false;
         }
         else
         {
-          // store the history for later use when fetching ads completed
-          glome_ad_history = data.adhistories;
-          // parse ad history and determine last state of each ad
-          glomeParseAdHistory(glome_ad_history);
+          glome.prefs.password_protection = true;
         }
+        glome.prefs.save();
       }
-    )
-  }
-  else
-  {
-    // Create Glome ID if not available yet
-    glomeCreateProfile();
-  }
+
+      if (data.error && data.error == 'No such profile.')
+      {
+        log.debug('Error, call create profile');
+        glomeCreateProfile(glome.prefs.glomeid);
+      }
+      else
+      {
+        window.jQuery('#glome_power_switch').attr('hidden', false);
+        window.jQuery('#auth_box').attr('hidden', true);
+
+        // store the history for later use when fetching ads completed
+        glome_ad_history = data.adhistories;
+        // parse ad history and determine last state of each ad
+        glomeParseAdHistory(glome_ad_history);
+        // update
+        window.jQuery(document).trigger('updateticker');
+        // safe to get ads now
+        glomeFetchAds();
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      log.debug('Error getting glome profile via json: ' + jqXHR.status + ': ' + jqXHR.statusText);
+      glome.prefs.loggedin = false;
+      glome.prefs.save();
+    },
+    complete: function() {
+      log.debug('Get profile completed');
+    }
+  });
 }
 
 /**
@@ -1114,11 +1245,13 @@ function glomeParseAdHistory(histories)
       default:
         status = GLOME_AD_STATUS_PENDING;
     }
+/*
     if (status != GLOME_AD_STATUS_PENDING)
     {
-      glomeSetAdStatus(ad_id, status);
+      log.debug('set history: ' + history.ad_id + ' -> ' + status);
+      glomeSetAdStatus(history.ad_id, status);
     }
-
+*/
     // store last status of the ad in the hash
     glome_ad_last_state[history.ad_id] = status;
   });

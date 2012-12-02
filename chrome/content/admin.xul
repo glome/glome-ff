@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://glome/skin/extensions.css" type="text/css"?>
-<?xml-stylesheet href="chrome://glome/skin/overlay.css" type="text/css"?>
 <!DOCTYPE overlay [
   <!ENTITY % overlayDTD SYSTEM "chrome://glome/locale/overlay.dtd">
   %overlayDTD;
@@ -9,11 +8,9 @@
 ]>
 
 <window id="glome-ext-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-  <script type="application/javascript" src="chrome://glome/content/library/jquery-xul.js" />
-  <script type="application/javascript" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
-
-  <script type="application/javascript" src="chrome://glome/content/aboutGlome.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery-xul.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/jQuery/jquery.timers.src.js" />
+  <script type="application/x-javascript;version=1.8" src="chrome://glome/content/aboutGlome.js"/>
 
   <!-- glome view -->
   <template id="glome-category-template" hidden="true">
@@ -29,12 +26,16 @@
     ]]>
   </template>
   <vbox id="glome-dashboard">
+    <box class="glome-switch-wrapper">
+      <checkbox class="glome-switch" oncommand="glomeOverlay.ChangeState();">
+        <label control="glome_power_switch"/>
+      </checkbox>
+    </box>
     <tabbox id="glome-dashboard-deck" selectedPanel="glome-dashboard-container" flex="1">
       <tabs>
         <tab><label value="&label.tab.my_rules;" /></tab>
         <tab><label value="&label.tab.my_web;" /></tab>
         <tab><label value="&label.tab.my_wallet;" /></tab>
-        <tab><label value="&label.tab.my_admin;" /></tab>
       </tabs>
       <tabpanels flex="1">
         <tabpanel id="glome-dashboard-container" width="100%" class="glome-selector-container" flex="1">
@@ -59,41 +60,8 @@
         </tabpanel>
 
         <tabpanel id="glome-dashboard-myrewards">
-          <description value="&intro_my_rewards;"/>
+          <description>My rewards content comes here</description>
         </tabpanel>
-
-        <tabpanel id="glome-dashboard-admin">
-          <vbox flex="1" pack="center" align="center">
-            <label value="&title.admin_ui;"/>
-            <description value="&intro_password_protection;"/>
-            <box>
-              <label class="glome_security_switch_question" value="&label.enable_password;"/>
-              <checkbox class="glome-switch small" id="glome_security_switch">
-                <label control="glome_security_switch"/>
-              </checkbox>
-            </box>
-
-            <vbox id="password_box" hidden="true">
-              <hbox>
-                <vbox class="password_labels">
-                  <label class="password" value="&label.password;"/>
-                  <label class="repeat_password" value="&label.repeat_new_password;"/>
-                  <label class="sub_repeat_password" value="&label.sub_repeat_new_password;"/>
-                </vbox>
-                <vbox class="password_fields">
-                  <textbox id="password_once" type="password" maxlength="32"/>
-                  <textbox id="password_confirmation" type="password" maxlength="32"/>
-                </vbox>
-              </hbox>
-              <button id="save_password" label="&label.save_button;"/>
-
-              <vbox class="feedback" hidden="true">
-                <label class="message" value=""/>
-              </vbox>
-            </vbox>
-          </vbox>
-        </tabpanel>
-
       </tabpanels>
     </tabbox>
   </vbox>

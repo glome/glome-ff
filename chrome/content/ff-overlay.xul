@@ -9,9 +9,12 @@
 ]>
 
 <overlay id="glome-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript;version=1.8" src="jQuery/jquery-xul.js" />
-  <script type="application/x-javascript;version=1.8" src="jQuery/jquery.timers.src.js" />
-  <script type="application/x-javascript;version=1.8" src="ff-overlay.js" />
+
+  <script type="application/javascript" src="chrome://glome/content/library/jquery-xul.js" />
+  <script type="application/javascript" src="chrome://glome/content/library/jquery.timers.src.js" />
+  <script type="application/javascript" src="chrome://glome/content/library/jquery.cookie.js" />
+
+  <script type="application/javascript" src="chrome://glome/content/ff-overlay.js" />
 
   <!-- Window extensions -->
   <window id="main-window" xmlns:html="http://www.w3.org/1999/xhtml" class="glome">
@@ -40,13 +43,36 @@
                   <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeOverlay.ChangeKnockingItem(1);" />
                 </box>
               </hbox>
-              <box pack="center" align="center" class="show-all">
+              <box pack="center" align="center" class="show-all" hidden="true">
                 <label value="&button.all_brands_and_deals;" onclick="glomeOverlay.ShowAllCategories();" />
               </box>
             </vbox>
+
             <hbox id="glome-off" pack="center" align="center">
                 <label value="&label.glome_is_off;"/>
             </hbox>
+
+            <hbox id="glome-no-ads" pack="center" align="center">
+                <label value="&label.glome_has_no_ads;"/>
+            </hbox>
+
+            <vbox id="auth_box" hidden="true">
+              <hbox>
+                <vbox class="password_labels">
+                  <label class="password" value="&label.password;"/>
+                </vbox>
+                <vbox class="password_fields">
+                  <textbox id="password_once" type="password" maxlength="32"/>
+                </vbox>
+              </hbox>
+
+              <button id="login" label="&label.login_button;"/>
+
+              <vbox class="feedback" hidden="true">
+                <label class="message" value=""/>
+              </vbox>
+            </vbox>
+
             <hbox class="actions">
               <box flex="1">
                 <box>
@@ -70,7 +96,7 @@
         <box align="right" id="glome-controls-icon">
         </box>
         <box id="glome-controls-icon-counter">
-          <label align="right" value="0" flex="0" id="glome-controls-icon-counter-value" hidden="true" />
+          <label align="right" value="0" flex="0" id="glome-controls-icon-counter-value" />
         </box>
       </stack>
     </stack>
@@ -101,7 +127,6 @@
                 </vbox>
                 <vbox flex="1" />
                 <vbox class="actions" pack="center" align="end">
-                  <label value="+12 €" class="glome-profit" hidden="true" />
                   <label value="&label.yes_please;" class="action yes" />
                   <label value="&label.no_thanks;" class="action no" />
                 </vbox>
