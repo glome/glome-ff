@@ -43,7 +43,7 @@
                   <image src="chrome://glome/skin/navigation/ball-arrow-right-18x18.png" alt="›" onclick="glomeOverlay.ChangeKnockingItem(1);" />
                 </box>
               </hbox>
-              <box pack="center" align="center" class="show-all" hidden="true">
+              <box pack="center" align="center" class="show-all">
                 <label value="&button.all_brands_and_deals;" onclick="glomeOverlay.ShowAllCategories();" />
               </box>
             </vbox>
