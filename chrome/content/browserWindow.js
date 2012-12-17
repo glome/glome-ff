@@ -570,9 +570,11 @@ function glomeGetTable(tablename)
       id: 'INTEGER',
       program_id: 'INTEGER',
       element_id: 'INTEGER',
-      language: 'TEXT',
       title: 'TEXT',
       adtype: 'TEXT',
+      bonus_text: 'TEXT',
+      bonus_money: 'TEXT',
+      bonus_percent: 'TEXT',
       content: 'TEXT',
       action: 'TEXT',
       adcategories: 'TEXT',
@@ -584,9 +586,12 @@ function glomeGetTable(tablename)
       expired: 'INTEGER',
       created_at: 'TEXT',
       updated_at: 'TEXT',
-      status: 'INTEGER', // View status.
-      bonus: 'TEXT',
+      program: 'TEXT',
+      language: 'TEXT',
+      country: 'TEXT',
+      currency: 'TEXT',
       logo: 'TEXT',
+      status: 'INTEGER'
     }
   }
 
@@ -950,12 +955,17 @@ function glomeFetchAds()
 
           keys.push('status');
           keys_with_colon.push(':status');
+          keys.push('language');
+          keys_with_colon.push(':language');
+          keys.push('country');
+          keys_with_colon.push(':country');
+          keys.push('currency');
+          keys_with_colon.push(':currency');
         }
 
         // Store the ads locally
         q = 'INSERT OR REPLACE INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
         var statement = db.createStatement(q);
-
         // Set status of ads using the history info that was obtained from the server
         if (typeof glome_ad_last_state[ad.id] !== 'undefined')
         {
@@ -983,11 +993,16 @@ function glomeFetchAds()
 
               // Store as JSON string
               value = JSON.stringify(selection);
+              statement.params[key] = value;
               break;
-
+            case 'program':
+              statement.params['language'] = value.language;
+              statement.params['country'] = value.country;
+              statement.params['currency'] = value.currency;
+              break;
             default:
+              statement.params[key] = value;
           }
-          statement.params[key] = value;
         }
 
         // Check if updateable on error, since probably the primary keyed ID already exists
