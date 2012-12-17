@@ -607,7 +607,21 @@ var glomeOverlay =
         break;
     }
 
-    container.find('#glome-overlay-cashback description.bonus').get(0).textContent = ad.bonus_text + ' | ' + ad.bonus_money + ' ' + ad.currency + ' | ' + ad.bonus_percent + '%';
+    // Set the bonus text
+    var bonus = '';
+    if (ad.bonus_text != '')
+    {
+      bonus = ad.bonus_text;
+    }
+    if (ad.bonus_money > 0)
+    {
+      bonus += ' | ' + ad.bonus_money + ' ' + ad.currency;
+    }
+    if (ad.bonus_percent > 0)
+    {
+      bonus += ' | ' + ad.bonus_percent + ' %';
+    }
+    container.find('#glome-overlay-cashback description.bonus').get(0).textContent = bonus;
 
     // Set the category title
     for (i in ad.adcategories)
