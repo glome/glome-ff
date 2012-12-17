@@ -3,6 +3,7 @@ pref('extensions.glome.glomeid', '');
 
 pref('extensions.glome.password_protection', false);
 pref('extensions.glome.loggedin', false);
+pref('extensions.glome.schema_updated', false);
 
 pref('extensions.glome.gui.updateticker', 60);
 

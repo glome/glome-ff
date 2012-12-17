@@ -241,6 +241,7 @@ function glomeInit()
 function glomeInitDb()
 {
   log.info('glomeInitDb starts');
+
   // Initialize database
   var tables =
   {
@@ -254,12 +255,19 @@ function glomeInitDb()
     // Table fields
     var table = tables[tablename];
 
-    /*
-    var q = 'DROP TABLE ' + tablename;
-    log.debug(q);
-    db.executeSimpleSQL(q);
-    log.debug('-- dropped');
-    */
+    // in this version only
+    if (typeof glome.prefs.schema_updated === 'undefined'
+        || glome.prefs.schema_updated === false)
+    {
+      var q = 'DROP TABLE ' + tablename;
+      db.executeSimpleSQL(q);
+      log.debug('-- dropped ' + tablename);
+      if (tablename == 'ads')
+      {
+        glome.prefs.schema_updated = true;
+        glome.prefs.save();
+      }
+    }
 
     if (! db.tableExists(tablename))
     {
@@ -268,7 +276,7 @@ function glomeInitDb()
         var q = 'CREATE TABLE ' + tablename + ' (id INTEGER PRIMARY KEY)';
         //log.debug(q);
         db.executeSimpleSQL(q);
-        log.debug('-- created');
+        log.debug('-- created ' + tablename);
       }
       catch (e)
       {
