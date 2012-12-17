@@ -607,7 +607,7 @@ var glomeOverlay =
         break;
     }
 
-    container.find('#glome-overlay-cashback description.bonus').get(0).textContent = ad.bonus;
+    container.find('#glome-overlay-cashback description.bonus').get(0).textContent = ad.bonus_text + ' | ' + ad.bonus_money + ' ' + ad.currency + ' | ' + ad.bonus_percent + '%';
 
     // Set the category title
     for (i in ad.adcategories)
