@@ -615,11 +615,19 @@ var glomeOverlay =
     }
     if (ad.bonus_money > 0)
     {
-      bonus += ' | ' + ad.bonus_money + ' ' + ad.currency;
+      if (bonus != '')
+      {
+        bonus += ' | '
+      }
+      bonus += ad.bonus_money + ' ' + ad.currency;
     }
     if (ad.bonus_percent > 0)
     {
-      bonus += ' | ' + ad.bonus_percent + ' %';
+      if (bonus != '')
+      {
+        bonus += ' | '
+      }
+      bonus += ad.bonus_percent + ' %';
     }
     container.find('#glome-overlay-cashback description.bonus').get(0).textContent = bonus;
 
