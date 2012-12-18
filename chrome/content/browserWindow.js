@@ -941,6 +941,7 @@ function glomeFetchAds()
             typeof self.glome_ad_stack[i] != 'undefined' &&
             self.glome_ad_stack[i].updated_at == ad.updated_at)
         {
+          //log.debug('  compare update dates: ' + self.glome_ad_stack[i].updated_at + ' vs ' + ad.updated_at);
           continue;
         }
 
@@ -971,6 +972,7 @@ function glomeFetchAds()
           keys_with_colon.push(':currency');
         }
 
+        log.debug('  insert or update ad #' + ad.id);
         // Store the ads locally
         q = 'INSERT OR REPLACE INTO ads (' + keys.toString() + ') VALUES (' + keys_with_colon.toString() + ')';
         var statement = db.createStatement(q);
