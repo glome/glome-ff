@@ -256,11 +256,13 @@ function glomeInitDb()
     var table = tables[tablename];
 
     // in this version only
-    if (typeof glome.prefs.schema_updated === 'undefined'
-        || glome.prefs.schema_updated === false)
+    if (db.tableExists(tablename)
+        && (typeof glome.prefs.schema_updated === 'undefined'
+        || glome.prefs.schema_updated === false))
     {
       var q = 'DROP TABLE ' + tablename;
       db.executeSimpleSQL(q);
+
       log.debug('-- dropped ' + tablename);
       if (tablename == 'ads')
       {
